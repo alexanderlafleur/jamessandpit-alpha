@@ -1,1 +1,0 @@
-/usr/local/java/maven-2.0.4/bin/mvn $1
