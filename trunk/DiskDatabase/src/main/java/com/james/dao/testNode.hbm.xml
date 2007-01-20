@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-lazy="false" default-cascade="all">
+    
+	<class name="com.james.fileItems.TestNode">
+        <id name="id">
+            <generator class="increment"/>
+        </id>
+        
+       	<property name="name" unique="true"/>
+
+<!--
+        <many-to-one 
+				name="parent" 
+		        class="com.james.fileItems.TestNode" 
+		        cascade="none" 
+		        column="parent_id"/>
+-->
+<!--
+	    <set name="children" lazy="false" cascade="all" inverse="false">
+	        <key column="child_id"/>
+	        <one-to-many class="com.james.fileItems.TestNode" />
+	    </set>
+-->
+
+	    <many-to-one 
+			name="root" 
+			class="com.james.fileItems.TestNode" 
+			column="ROOT_ID" 
+			unique="true" 
+			cascade="none"
+			lazy="false"/>
+			
+	</class>
+</hibernate-mapping>

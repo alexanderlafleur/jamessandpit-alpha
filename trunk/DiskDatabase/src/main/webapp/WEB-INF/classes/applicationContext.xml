@@ -1,0 +1,389 @@
+<?xml version="1.0"?>
+<!DOCTYPE beans PUBLIC
+    "-//SPRING//DTD BEAN//EN"
+    "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<!-- Property configurers -->
+	<bean id="config" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+
+	<bean id="baseNodeHelper" class="org.springframework.aop.framework.ProxyFactoryBean">
+
+		<property name="target">
+			<bean class="com.james.ui.swing.node.BaseNodeHelper">
+				<property name="walletHelper">
+					<ref bean="walletHelper"/>
+				</property>
+
+				<property name="diskHelper">
+					<ref bean="diskHelper"/>
+				</property>
+		
+				<property name="dirHelper">
+					<ref bean="dirHelper"/>
+				</property>
+
+				<property name="saveHelper">
+					<ref bean="saveHelper"/>
+				</property>
+			</bean>
+		</property>
+
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="walletHelper" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.james.helper.WalletHelper">
+
+				<property name="dao">
+					<ref bean="walletDao"/>
+				</property>
+
+				<property name="diskHelper">
+					<ref bean="diskHelperTarget"/>
+				</property>
+			</bean>
+		</property>
+		<!--
+		<property name="proxyInterfaces">
+			<value>com.acompany.BusinessObject</value>
+		</property>
+		-->
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="diskHelper" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<ref bean="diskHelperTarget"/>
+		</property>
+		<!--
+		<property name="proxyInterfaces">
+			<value>com.acompany.BusinessObject</value>
+		</property>
+		-->
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="diskHelperTarget" class="com.james.helper.DiskHelper">
+
+		<property name="dao">
+			<ref bean="diskDao"/>
+		</property>
+
+		<property name="dirHelper">
+			<ref bean="dirHelperTarget"/>
+		</property>
+
+		<property name="fileHelper">
+			<ref bean="diskFileHelperTarget"/>
+		</property>
+
+		<property name="mp3Helper">
+			<ref bean="mp3HelperTarget"/>
+		</property>
+	</bean>
+
+	<bean id="mp3Helper" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<ref bean="mp3HelperTarget"/>
+		</property>
+
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="mp3HelperTarget" class="com.james.helper.MP3Helper">
+		<property name="dao">
+			<ref bean="mp3Dao"/>
+		</property>
+
+		<property name="dirHelper">
+			<ref bean="dirHelperTarget"/>
+		</property>
+	</bean>
+
+	<bean id="dirHelper" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<ref bean="dirHelperTarget"/>
+		</property>
+		<!--
+		<property name="proxyInterfaces">
+			<value>com.acompany.BusinessObject</value>
+		</property>
+		-->
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="dirHelperTarget" class="com.james.helper.DirHelper">
+		<property name="dao">
+			<ref bean="dirDao"/>
+		</property>
+
+		<property name="mp3Helper">
+			<ref bean="mp3HelperTarget"/>
+		</property>
+
+		<property name="fileHelper">
+			<bean class="com.james.helper.DiskFileHelper">
+				<property name="dao">
+					<ref bean="diskFileDao"/>
+				</property>
+
+				<property name="dirHelper">
+					<ref bean="dirHelperTarget"/>
+				</property>
+			</bean>
+			<!--
+			<ref bean="diskFileHelperTxDependent"/>
+			-->
+		</property>
+
+
+	</bean>
+
+	<bean id="diskFileHelper" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<ref bean="diskFileHelperTarget"/>
+		</property>
+
+		<property name="interceptorNames">
+			<list>
+				<value>hibernateInterceptor</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="diskFileHelperTarget" class="com.james.helper.DiskFileHelper">
+		<property name="dao">
+			<ref bean="diskFileDao"/>
+		</property>
+
+		<property name="dirHelper">
+			<ref bean="dirHelperTarget"/>
+		</property>
+	</bean>
+
+	<bean id="saveHelper" class="com.james.ui.swing.node.SaveHelper">
+		<property name="walletHelper">
+			<ref bean="walletHelper"/>
+		</property>
+
+		<property name="diskHelper">
+			<ref bean="diskHelper"/>
+		</property>
+		
+		<property name="dirHelper">
+			<ref bean="dirHelper"/>
+		</property>
+
+		<property name="fileHelper">
+			<ref bean="diskFileHelper"/>
+		</property>
+
+		<property name="mp3Helper">
+			<ref bean="mp3Helper"/>
+		</property>
+	</bean>
+	
+	<bean id="nodeHelper" class="com.james.helper.TestNodeHelper">
+
+		<property name="dao">
+			<ref bean="nodeDao"/>
+		</property>
+	</bean>
+
+	<bean id="walletDao" class="com.james.dao.hibernate.HibernateWalletDao">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+
+		<property name="diskHelper">
+			<ref bean="diskHelperTarget"/>
+		</property>
+	</bean>
+
+	<bean id="dirDao" class="com.james.dao.hibernate.HibernateDirDao">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+
+	<bean id="diskDao" class="com.james.dao.hibernate.HibernateDiskDao">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+
+	<bean id="diskFileDao" class="com.james.dao.hibernate.HibernateDiskFileDao">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+
+	<bean id="mp3Dao" class="com.james.dao.hibernate.HibernateMP3Dao">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+
+	<bean id="nodeDao" class="com.james.dao.hibernate.HibernateTestNodeDao">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory"/>
+		</property>
+	</bean>
+
+	<!-- Non-JTA Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
+	<bean id="nonJTATransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref local="sessionFactory"/>
+		</property>
+	</bean>
+
+	<!-- TX PROXY TEMPLATE -->
+	<bean id="txProxyTemplate" abstract="true"
+      class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="nonJTATransactionManager"/>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<!--	        <prop key="*">PROPAGATION_REQUIRES_NEW</prop>-->
+				<prop key="insert*">PROPAGATION_REQUIRED</prop>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource"/>
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>com/james/dao/wallet.hbm.xml</value>
+				<value>com/james/dao/disk.hbm.xml</value>
+				<value>com/james/dao/dir.hbm.xml</value>
+				<value>com/james/dao/mp3.hbm.xml</value>
+				<value>com/james/dao/file.hbm.xml</value>
+				<value>com/james/dao/testNode.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<!--
+#hibernate.dialect org.hibernate.dialect.MySQLDialect
+#hibernate.dialect org.hibernate.dialect.MySQLInnoDBDialect
+#hibernate.dialect org.hibernate.dialect.MySQLMyISAMDialect
+#hibernate.connection.driver_class com.mysql.jdbc.Driver
+#hibernate.connection.url jdbc:mysql:///test
+#hibernate.connection.username gavin
+#hibernate.connection.password 
+-->
+
+				<!--
+                <prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+-->
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<!--                <prop key="hibernate.hbm2ddl.auto">create</prop>-->
+				<prop key="hibernate.jdbc.batch_size">1</prop>
+
+				<prop key="hibernate.connection.pool_size">20</prop>
+
+
+				<prop key="hibernate.connection.autocommit">true</prop>
+				<prop key="hibernate.transaction.flush_before_completion">true</prop>
+
+			</props>
+		</property>
+	</bean>
+
+<!--	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" abstract="false" singleton="true" lazy-init="default" autowire="default" dependency-check="default">-->
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="false" singleton="true" lazy-init="default" autowire="default" dependency-check="default">
+
+
+		<property name="driverClassName">
+<!--
+            <value>org.hsqldb.jdbcDriver</value>
+-->
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="url">
+<!--
+            <value>jdbc:hsqldb:hsql://localhost:9001/diskdatabase</value>
+-->
+			<value>jdbc:mysql:///diskdatabase</value>
+		</property>
+		<property name="username" value="james"/>
+		<property name="password" value="password"/>
+	</bean>
+
+	<!--
+	<bean id="walletHelper" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<bean class="com.james.helper.WalletHelper">
+
+				<property name="dao">
+					<ref bean="walletDao"/>
+				</property>
+
+				<property name="diskHelper">
+					<ref bean="diskHelper"/>
+				</property>
+			</bean>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>openSessionInViewInterceptor</value>
+			</list>
+		</property>
+	</bean>
+	-->
+
+	<bean id="testNode1" class="com.james.fileItems.TestNode">
+		<property name="root">
+			<ref bean="testNode2"/>
+		</property>
+	</bean>
+
+	<bean id="testNode2" class="com.james.fileItems.TestNode">
+		<property name="root">
+			<ref bean="testNode1"/>
+		</property>
+	</bean>
+</beans>
+
