@@ -1,0 +1,160 @@
+package NetTour3D;
+
+// TourServerHandler.java
+// Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
+
+/* A threaded TourServerHandler deals with a client.
+
+ Details about a client are maintained in a TourGroup 
+ object, which is referenced by all the threads.
+
+ The TourGroup object handles message broadcasting
+ via its broadcast() method.
+
+ Possible client messages:
+ * create name xPosn zPosn   -- a new client wishes to join the world
+
+ * detailsFor toAddr toPort xPosn zPosn rotRadians
+ -- pass on info about this client's sprite to 
+ the client at (toAddr,toPort)
+
+ * bye           -- client is disconnecting
+
+ * <text>        -- broadcast text with the client's name at its front
+
+ Very similar to ChatServerHandler in the multithreaded Chat server.
+ */
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.StringTokenizer;
+
+public class TourServerHandler extends Thread {
+    private Socket clientSock;
+
+    private String cliAddr;
+
+    private String userName;
+
+    private int port;
+
+    private TourGroup tg; // shared by all threads
+
+    public TourServerHandler(Socket s, TourGroup tg) {
+        this.tg = tg;
+        this.clientSock = s;
+        this.userName = "?";
+        this.cliAddr = this.clientSock.getInetAddress().getHostAddress();
+        this.port = this.clientSock.getPort();
+        System.out.println("Client connection from (" + this.cliAddr + ", " + this.port + ")");
+    } // end of TourServerHandler()
+
+    @Override
+    public void run()
+    // process messages from the client
+    {
+        try {
+            // Get I/O streams from the socket
+            BufferedReader in = new BufferedReader(new InputStreamReader(this.clientSock.getInputStream()));
+            PrintWriter out = new PrintWriter(this.clientSock.getOutputStream(), true); // autoflush
+
+            this.tg.addPerson(this.cliAddr, this.port, out); // add client details to
+            // TourGroup
+
+            processClient(in, out); // interact with client
+
+            // the client has finished when execution reaches here
+            this.tg.delPerson(this.cliAddr, this.port, this.userName + " bye"); // remove client
+            // details
+            this.clientSock.close();
+            System.out.println("Client " + this.userName + " (" + this.cliAddr + ", " + this.port + ") connection closed");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    } // end of run()
+
+    private void processClient(BufferedReader in, PrintWriter out)
+    /*
+     * Stop when the input stream closes (is null) or "bye" is sent Otherwise pass the input to doRequest().
+     */
+    {
+        String line;
+        boolean done = false;
+        try {
+            while (!done) {
+                if ((line = in.readLine()) == null) {
+                    done = true;
+                } else {
+                    // System.out.println(userName + " received msg: " + line);
+                    if (line.trim().equals("bye")) {
+                        done = true;
+                    } else {
+                        doRequest(line.trim(), out);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    } // end of processClient()
+
+    private void doRequest(String line, PrintWriter out)
+    /*
+     * The input line can be : create ... -- there is a new client detailsFor ... or text -- which is broadcast, with the client's name at its front
+     */
+    {
+        if (line.startsWith("create")) {
+            sendCreate(line);
+        } else if (line.startsWith("detailsFor")) {
+            sendDetails(line);
+        } else {
+            // use TourGroup object to broadcast the message
+            this.tg.broadcast(this.cliAddr, this.port, this.userName + " " + line);
+        }
+    } // end of doRequest()
+
+    private void sendCreate(String line)
+    /*
+     * A new client wishes to join the world.
+     * 
+     * This requires the client to find out about the existing clients, and to add itself to the other clients' worlds.
+     * 
+     * Message format: create name xPosn zPosn
+     * 
+     * Store the user's name, extracted from the "create" message
+     */
+    {
+        StringTokenizer st = new StringTokenizer(line);
+        st.nextToken(); // skip 'create' word
+        this.userName = st.nextToken();
+        String xPosn = st.nextToken(); // don't parse
+        String zPosn = st.nextToken(); // don't parse
+
+        // request details from other clients
+        this.tg.broadcast(this.cliAddr, this.port, "wantDetails " + this.cliAddr + " " + this.port);
+
+        // tell other clients about the new one
+        this.tg.broadcast(this.cliAddr, this.port, "create " + this.userName + " " + xPosn + " " + zPosn);
+    } // end of sendCreate()
+
+    private void sendDetails(String line)
+    /*
+     * Send the details on this line to the named client. Input msg format: detailsFor toAddr toPort xPosn zPosn rotRadians Output to TourGroup: detailsFor userName xPosn zPosn
+     * rotRadians
+     */
+    {
+        StringTokenizer st = new StringTokenizer(line);
+        st.nextToken(); // skip 'detailsFor' word
+        String toAddr = st.nextToken();
+        int toPort = Integer.parseInt(st.nextToken());
+        String xPosn = st.nextToken(); // don't parse
+        String zPosn = st.nextToken(); // don't parse
+        String rotRadians = st.nextToken(); // don't parse
+
+        this.tg.sendTo(toAddr, toPort, "detailsFor " + this.userName + " " + xPosn + " " + zPosn + " " + rotRadians);
+    } // end of sendDetails()
+
+} // end of TourServerHandler class

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Checkers3D Deployment -->
+
+<jnlp spec="1.0+"
+  codebase="http://fivedots.coe.psu.ac.th/~ad/jws/Checkers3D/"
+  <!-- codebase="file:///D:/Teaching/Java Games/Code/JWS/Checkers3D/" -->
+  href="Checkers3D.jnlp" 
+  >
+
+  <information>
+    <title>Checkers3D</title>
+    <vendor>Andrew Davison</vendor>
+    <homepage href="http://fivedots.coe.pcu.ac.th/~ad/jg"/>
+    <description>Checkers3D</description>
+    <description kind="short">Checkers3D: a simple java 3D example showing a blue sphere above a checkboard.</description>
+    <icon href="chess32.gif"/>
+    <icon kind="splash" href="startBanner.gif"/>
+    <offline-allowed/>
+  </information>
+
+  <security>
+    <!-- <j2ee-application-client-permissions/> -->
+    <all-permissions/>
+  </security>
+
+  <resources os="Windows"> 
+    <j2se version="1.4+"/>
+    <jar href="Checkers3D.jar" main="true"/>
+
+    <jar href="j3daudio_signed.jar"/>    
+    <jar href="j3dcore_signed.jar"/>    
+    <jar href="j3dutils_signed.jar"/>    
+    <jar href="vecmath_signed.jar"/>  
+  
+    <nativelib href="J3DDLL.jar"/>  
+    <nativelib href="j3daudioDLL.jar"/>  
+    <nativelib href="J3DUtilsDLL.jar"/> 
+  </resources> 
+
+  <application-desc main-class="Checkers3D"/> 
+</jnlp>
