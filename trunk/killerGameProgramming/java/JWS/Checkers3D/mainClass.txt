@@ -1,0 +1,2 @@
+Main-Class: Checkers3D
+Class-Path: vecmath_signed.jar j3daudio_signed.jar j3dcore_signed.jar j3dutils_signed.jar

@@ -1,0 +1,3 @@
+Main-Class: BugRunner
+Class-Path: j3dutils_signed.jar
+

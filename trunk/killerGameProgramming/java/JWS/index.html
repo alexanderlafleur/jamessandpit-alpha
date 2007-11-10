@@ -1,0 +1,180 @@
+<HTML>
+<HEAD>
+<TITLE>Java Web Start Portal</TITLE>
+<script language="JavaScript" type="text/javascript">
+<!--
+ /* Andrew Davison, ad@fivedots.coe.psu.ac.th, April 2005
+    The original version of this file
+    is at http://fivedots.coe.psu.ac.th/~ad/jws
+ */
+ /* The main aim is to try to set javawsInstalled to be 1, which
+    occurs when JWS is detected on the client side. 
+    A variety of tests are atempted.
+ */
+  var javawsInstalled = 0;
+  var isWin = 0;
+  var ieWin = 0;     // set true if using internet explorer on windows
+
+  // check if the browser knows about the JNLP or applet MIME type
+  if (navigator.mimeTypes && navigator.mimeTypes.length) {
+    if (navigator.mimeTypes['application/x-java-jnlp-file'])
+      javawsInstalled = 1;
+    if (navigator.mimeTypes['application/x-java-applet'])
+      javawsInstalled = 1;
+  } 
+
+  ua = navigator.userAgent.toLowerCase();
+  isWin = ((ua.indexOf("win")!=-1) || (ua.indexOf("32bit")!=-1));
+
+  // check if Java is enabled on non-windows OSes
+  if (!isWin && navigator.javaEnabled())
+    javawsInstalled = 1;
+
+  // check for LiveConnect (Opera, Gecko)
+  // there's a very good chance JWS will be available as well
+  if (window.java != null) {  // if true, LiveConnect should work
+    javawsinstalled = 1;
+    detectedVer = java.lang.System.getProperty("java.version");
+    // document.write("<p>Java Version: " + detectedVer + "</p>");
+  } 
+
+  // check if the browser is using the Java plug-in
+  var numPlugs=navigator.plugins.length;
+  if (numPlugs) {
+    for (var i=0; i < numPlugs; i++) {
+      var plugNm = navigator.plugins[i].name.toLowerCase();
+      if (plugNm.indexOf('java plug-in') != -1) {
+        javawsinstalled = 1;
+        // document.write("<p>Java Plug-in found</p>");
+        break;
+      }
+    }
+  }
+
+  // decide if this browser is IE on Windows
+  if (ua.indexOf("msie") && isWin)
+    ieWin = 1;
+
+
+
+function insertLink(url, name) 
+// add a link to the page if JWS is present on the client
+{
+  if (javawsInstalled)
+    document.write("<a href=" + url + ">" + name + "</a>");
+  else
+    document.write("<u>" + name + "</u> unavailable.<br>");
+}
+
+
+function installInfo() 
+/* Report whether JWS was found. If not, then supply a link
+   to a JRE download page.
+*/
+{
+  if (javawsInstalled == 0) {
+    document.write("<P>Java Web Start <b>Not Found</b>.</P>");
+    document.write("<P><a href='http://www.java.com:80/en/download/manual.jsp'");
+    document.write(" target='_blank'> ");
+    document.write("<img src='GetJavaNow.gif' alt='Get Java Now' border=0>");
+    document.write("</a> (12-15 MB depending on the version).</P>");
+  } 
+  else {
+    document.write("<P>Java Web Start is probably present. ");
+    document.write("Click on the links to start installation.</P>");
+  }
+}
+
+function nativeReport()
+/* On non-Windows OSes, warn the user that BugRunner and Checkers3D
+   use DLLs. */
+{
+  if (!isWin) {
+    document.write('<P>The BugRunner and Checkers3D examples use ');
+    document.write('native Windows libraries internally. ');
+    document.write("That means they'll only work on Windows machines. ");
+    document.write("Sorry about the limitation.</P>");
+  }
+}
+
+// -->
+</script>
+
+<script language="VBScript">
+<!--
+// check for various JWS objects in the Windows registry
+  on error resume next
+  If ieWin = 1 Then
+    If (IsObject(CreateObject("JavaWebStart.isInstalled"))) Then
+      javawsInstalled = 1
+    ElseIf (IsObject(CreateObject("JavaWebStart.isInstalled.1.2.0"))) Then
+      javawsInstalled = 1
+    ElseIf (IsObject(CreateObject("JavaWebStart.isInstalled.2"))) Then
+      javawsInstalled = 1
+    ElseIf (IsObject(CreateObject("JavaWebStart.isInstalled.3"))) Then
+      javawsInstalled = 1
+    ElseIf (IsObject(CreateObject("JavaWebStart.isInstalled.1.4.2.0"))) Then
+      javawsInstalled = 1
+    ElseIf (IsObject(CreateObject("JavaWebStart.isInstalled.1.5.0.0"))) Then
+      javawsInstalled = 1
+    End If
+
+    // check for MIME types
+    If (IsObject(CreateObject("application/x-java-jnlp-file"))) Then
+      javawsInstalled = 1
+    End If
+
+    If (IsObject(CreateObject("application/x-java-applet"))) Then
+      javawsInstalled = 1
+    End If
+
+  End If
+// -->
+</script>  
+</HEAD>
+
+<BODY>
+<H1>Java Web Start Portal</H1> 
+
+<script language="JavaScript" type="text/javascript">
+<!--
+  installInfo();
+  nativeReport();
+// -->
+</script>
+
+
+<h2>Installation Links</h2>
+<P><ul>
+<li><script language="JavaScript" type="text/javascript">
+<!--
+  insertLink("time.jnlp", "Official US Time");
+// -->
+</script>
+<br>This example is by <i>John Zukowski</i> from his 
+<a href="http://java.sun.com/developer/technicalArticles/Programming/jnlp/">article</a>
+on deploying JNLP. Also see the 
+<a href="http://java.sun.com/features/2002/10/webstart.html">follow-up</a>.
+
+<li><script language="JavaScript" type="text/javascript">
+<!--
+  insertLink("BugRunner/BugRunner.jnlp", "BugRunner");
+// -->
+</script>  
+
+<li><script language="JavaScript" type="text/javascript">
+<!--
+  insertLink("Checkers3D/Checkers3D.jnlp", "Checkers3D");
+// -->
+</script>
+
+</ul></P>
+
+<hr>
+Dr. Andrew Davison<br>
+E-mail: <a href="mailto:dandrew@ratree.psu.ac.th">dandrew@ratree.psu.ac.th</a><br>
+Back to <a href="../jg/app2/index.html">Appendix B<a><br>
+Back to <a href="../index.html">my home page</a></P>
+
+</BODY>
+</HTML>

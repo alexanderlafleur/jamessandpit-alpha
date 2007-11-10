@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BugRunner Deployment -->
+
+<jnlp spec="1.0+"
+  codebase="http://fivedots.coe.psu.ac.th/~ad/jws/BugRunner/"
+  <!-- codebase="file:///D:/Teaching/Java Games/Code/JWS/BugRunner/" -->
+  href="BugRunner.jnlp" 
+  >
+
+  <information>
+    <title>BugRunner</title>
+    <vendor>Andrew Davison</vendor>
+    <homepage href="http://fivedots.coe.pcu.ac.th/~ad/jg"/>
+    <description>BugRunner</description>
+    <description kind="short">BugRunner: a 2D arcade-style game, using
+                 the J3DTimer class</description>
+    <icon href="bug32.gif"/>
+    <icon kind="splash" href="BRBanner.gif"/>
+    <offline-allowed/>
+  </information>
+
+  <security>
+    <!-- <j2ee-application-client-permissions/> -->
+    <all-permissions/>
+  </security>
+
+  <resources os="Windows"> 
+    <j2se version="1.4+"/>
+    <jar href="BugRunner.jar" main="true"/>
+
+    <jar href="j3dutils_signed.jar"/>    
+    <nativelib href="J3DUtilsDLL.jar"/>  
+  </resources> 
+
+  <application-desc main-class="BugRunner"/> 
+
+</jnlp>
