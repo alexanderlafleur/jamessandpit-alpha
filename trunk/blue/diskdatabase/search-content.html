@@ -1,0 +1,28 @@
+<div id="centercontent">
+
+  <h1>search</h1>
+
+  <p>
+  Enter search text to find files that are archived
+  </p>
+
+  <form action='<?php echo $_SERVER["PHP_SELF"]?>' method="POST">
+    <input type="text" name="query"/><br>
+    <input type="submit" name="search" value="search"/>
+  </form>
+
+<?php
+//print_r($_POST);
+
+$searchText = $_POST["query"];
+
+if (array_key_exists("query", $_POST)) {
+   include("database_functions.php");
+
+   searchForWallets($searchText);
+}
+
+?>
+</div>
+
+
