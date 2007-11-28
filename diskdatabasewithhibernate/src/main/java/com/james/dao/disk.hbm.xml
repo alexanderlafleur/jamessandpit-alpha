@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-lazy="true" default-cascade="all">
+
+	<class name="com.james.fileItems.Disk">
+        <id name="id">
+            <generator class="increment"/>
+        </id>
+        
+		<property name="label" unique="true"/>
+		
+		<property name="mediaNumber" unique="true"/>
+
+		<many-to-one 
+			name="root" 
+			class="com.james.fileItems.Dir" 
+			column="ROOT_ID" 
+			cascade="all"
+			lazy="true"
+			unique="false"/>
+
+<!--			unique="true" -->
+
+    </class>
+</hibernate-mapping>

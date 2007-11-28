@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-lazy="false" default-cascade="all">
+
+	<class name="com.james.fileItems.Wallet">
+		<id name="id">
+			<generator class="increment"/>
+		</id>
+
+		<property name="description" unique="true"/>
+
+		<set name="disks">
+			<key column="WALLET_ID"/>
+			<one-to-many class="com.james.fileItems.Disk" />
+		</set>
+
+	</class>
+
+</hibernate-mapping>

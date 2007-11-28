@@ -1,0 +1,15 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory name="foo">
+		<property name="show_sql">true</property>
+    	<mapping resource="com/james/dao/wallet.hbm.xml"/>
+		<mapping resource="com/james/dao/disk.hbm.xml"/>
+		<mapping resource="com/james/dao/dir.hbm.xml"/>
+		<mapping resource="com/james/dao/file.hbm.xml"/>
+		<mapping resource="com/james/dao/mp3.hbm.xml"/>
+<!--		<mapping resource="com/james/dao/testNode.hbm.xml"/>-->
+	</session-factory>
+</hibernate-configuration>
