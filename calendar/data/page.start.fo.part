@@ -1,0 +1,13 @@
+<!-- start page.start.fo.part -->
+<!--
+										<fo:block font-size="10pt" 
+										    font-family="sans-serif" 
+										    line-height="normal"
+										    text-align="left"
+											color="black">
+-->
+										<!--
+											keep-with-next.within-column="always"
+											keep-together.within-column="always"
+										-->
+<!-- end page.start.fo.part -->
