@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-lazy="true" default-cascade="all">
+
+	<class name="com.james.fileItems.MP3">
+		<id name="id">
+			<generator class="increment"/>
+		</id>
+
+		<many-to-one name="parent" column="parent_id" not-null="false"/>
+
+		<property name="album"/>
+		<property name="bitrate"/>
+		<property name="genre"/>
+		<property name="length"/>
+		<property name="title"/>
+		<property name="track"/>
+		<property name="year"/>
+		<property name="name"/>
+		<property name="size"/>
+		<property name="artist"/>
+		<property name="band"/>
+		<property name="comment"/>
+		<property name="date"/>
+
+	</class>
+</hibernate-mapping>
