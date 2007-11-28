@@ -1,0 +1,44 @@
+<!-- start header.fo.part -->
+								<!-- defines page layout -->
+								<fo:layout-master-set>
+								    <fo:simple-page-master 
+								            master-name="A4-portrait" 
+								            page-height="29.7cm" 
+								            page-width="21cm"
+								            margin-top="0.5cm" 
+								            margin-bottom="0.5cm" 
+								            margin-left="0.5cm" 
+								            margin-right="0.5cm">
+								
+								        <fo:region-body 
+								                column-count="1" 
+								                margin-top="0.5cm" 
+								                margin-bottom="0.5cm"/>
+								        
+								        <fo:region-before extent="1cm"/>
+								        
+								        <fo:region-after extent="1cm"/>
+								        
+								    </fo:simple-page-master>
+								
+								    <fo:simple-page-master 
+								            master-name="A4-landscape" 
+								            page-height="21cm" 
+								            page-width="29.7cm"
+								            margin-top="0.5cm" 
+								            margin-bottom="0.5cm" 
+								            margin-left="0.5cm" 
+								            margin-right="0.5cm">
+								            
+								        <fo:region-body 
+								                column-count="1" 
+								                margin-top="0.5cm" 
+								                margin-bottom="0.5cm"/>
+								                
+								        <fo:region-before extent="1cm"/>
+								        
+								        <fo:region-after extent="1cm"/>
+								        
+								    </fo:simple-page-master>
+								</fo:layout-master-set>
+<!-- end header.fo.part -->

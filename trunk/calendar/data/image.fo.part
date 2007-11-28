@@ -1,0 +1,12 @@
+<!-- start image.fo.part -->
+								<fo:block>					
+									<fo:block text-align="center">
+										<fo:external-graphic content-width="23cm" src="url(__CALENDAR_IMAGE__)"/>
+									</fo:block>
+								
+									<fo:block font-size="12pt" font-weight="bold" space-before.minimum="1em" space-before.optimum="1.5em" space-before.maximum="2em">
+										__CALENDAR_IMAGE_CAPTION__
+									</fo:block>
+													
+								</fo:block>
+<!-- end image.end.fo.part -->

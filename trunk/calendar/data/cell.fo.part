@@ -1,0 +1,3 @@
+<!-- start cell.start.fo.part -->
+    									<fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>__CALENDAR_CELL__</fo:block></fo:table-cell>
+<!-- end cell.start.fo.part -->

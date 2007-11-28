@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+
+	<!-- defines page layout -->
+	<fo:layout-master-set>
+	
+		<fo:simple-page-master 
+				master-name="A4-portrait" 
+				page-height="29.7cm" 
+				page-width="21cm"
+				margin-top="0.5cm" 
+				margin-bottom="0.5cm" 
+				margin-left="0.5cm" 
+				margin-right="0.5cm">
+
+			<fo:region-body 
+					column-count="1" 
+					margin-top="0.5cm" 
+					margin-bottom="0.5cm"/>
+			
+			<fo:region-before extent="1cm"/>
+			
+			<fo:region-after extent="1cm"/>
+			
+		</fo:simple-page-master>
+
+		<fo:simple-page-master 
+				master-name="A4-landscape" 
+				page-height="21cm" 
+				page-width="29.7cm"
+				margin-top="0.5cm" 
+				margin-bottom="0.5cm" 
+				margin-left="0.5cm" 
+				margin-right="0.5cm">
+				
+			<fo:region-body 
+					column-count="1" 
+					margin-top="0.5cm" 
+					margin-bottom="0.5cm"/>
+					
+			<fo:region-before extent="1cm"/>
+			
+			<fo:region-after extent="1cm"/>
+			
+		</fo:simple-page-master>
+
+	</fo:layout-master-set>
+
+	<!-- actual layout -->
+	<fo:page-sequence master-reference="A4-landscape">
+
+<!--    	
+    	<fo:static-content flow-name="xsl-region-before">
+      		<fo:block font-size="16pt" 
+                font-family="sans-serif" 
+                line-height="normal"
+                text-align="start"
+				color="black">
+					Title Text
+			</fo:block>
+		</fo:static-content>
+-->
+
+	    <fo:flow flow-name="xsl-region-body">
+			
+			<fo:block font-size="10pt" 
+                font-family="sans-serif" 
+                line-height="normal"
+                text-align="left"
+				color="black">
+<!--
+				keep-with-next.within-column="always"
+				keep-together.within-column="always"
+-->
+				
+				<fo:block>					
+					<fo:block>
+						<fo:external-graphic content-width="100%" src="url(data/cat_eyes.jpg)"/>
+					</fo:block>
+<!--
+					<fo:block font-size="12pt" font-weight="bold" space-before.minimum="1em" space-before.optimum="1.5em" space-before.maximum="2em">
+						Caption of the Image
+					</fo:block>
+-->					
+				</fo:block>
+				
+
+				<fo:block font-size="32pt" 
+	                font-family="sans-serif" 
+	                line-height="normal"
+	                text-align="center"
+					color="black"
+					padding-before="5mm">
+						January
+				</fo:block>
+
+				
+				<fo:table 
+						table-layout="fixed" 
+						height="100%"
+						width="100%" 
+						border-color="black" 
+						border-style="solid" 
+						border-width=".1mm"
+						keep-together.within-column="always">
+						
+					<fo:table-column/>
+					<fo:table-column/>
+					<fo:table-column/>
+					<fo:table-column/>
+					<fo:table-column/>
+					<fo:table-column/>
+					<fo:table-column/>
+				      
+				    <fo:table-header font-size="18pt" font-weight="bold">
+				    	<fo:table-row>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>Sunday	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>Monday	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>Tuesday	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>Wednesday	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>Thursday	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>Friday	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>Saturday	</fo:block></fo:table-cell>
+				        </fo:table-row>
+				    </fo:table-header>
+
+					<fo:table-body font-size="18pt" keep-together="always">
+						<fo:table-row keep-together="always">
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>  </fo:block></fo:table-cell>
+				        </fo:table-row>
+
+						<fo:table-row keep-together="always">
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block height="20px">2	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>3	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>4	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>5	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>6	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>7	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>8	</fo:block></fo:table-cell>
+				        </fo:table-row>
+
+						<fo:table-row keep-together="always">
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>9	</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>10</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>11</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>12</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>13</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>14</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>15</fo:block></fo:table-cell>
+				        </fo:table-row>
+
+						<fo:table-row keep-together="always">
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>16</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>17</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>18</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>19</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>20</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>21</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>22</fo:block></fo:table-cell>
+				        </fo:table-row>
+
+						<fo:table-row keep-together="always">
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>23</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>24</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>25</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>26</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>27</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>28</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>29</fo:block></fo:table-cell>
+				        </fo:table-row>
+
+						<fo:table-row keep-together="always">
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>30</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>31</fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>  </fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>  </fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>  </fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>  </fo:block></fo:table-cell>
+				          <fo:table-cell border-width="1pt" border-color="black" border-style="solid" padding="1mm"><fo:block>  </fo:block></fo:table-cell>
+				        </fo:table-row>
+					</fo:table-body>
+
+				</fo:table>
+			</fo:block>
+		</fo:flow>
+	</fo:page-sequence>
+</fo:root>
