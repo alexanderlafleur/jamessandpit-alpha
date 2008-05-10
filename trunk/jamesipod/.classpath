@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/id3libvdheide.jar"/>
 	<classpathentry kind="lib" path="lib/kunststoff.jar"/>
 	<classpathentry kind="lib" path="lib/nextlf.jar"/>
 	<classpathentry kind="lib" path="lib/skinlf.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/mypod"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
