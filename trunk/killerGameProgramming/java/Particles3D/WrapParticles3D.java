@@ -2,7 +2,6 @@ package Particles3D;
 
 // WrapParticles3D.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Three different implementations of Particle systems:
  * points in a PointArray
  * lines in a LineArray
@@ -18,7 +17,6 @@ package Particles3D;
  emmitted from the origin in a parabolic arc. Particles are 
  reused when they drop below the XZ plane.
  */
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
@@ -45,61 +43,91 @@ import com.sun.j3d.utils.universe.ViewingPlatform;
 public class WrapParticles3D extends JPanel
 // Holds the 3D canvas where the loaded image is displayed
 {
+    private static final int BOUNDSIZE = 100; // larger than world
+    private static final int PHEIGHT = 512;
+    private static final int PWIDTH = 512; // size of panel
     /**
      * 
      */
     private static final long serialVersionUID = -6958814758465695932L;
-
-    private static final int PWIDTH = 512; // size of panel
-
-    private static final int PHEIGHT = 512;
-
-    private static final int BOUNDSIZE = 100; // larger than world
-
     private static final Point3d USERPOSN = new Point3d(0, 5, 20);
-
     // initial user position
-
-    private SimpleUniverse su;
-
-    private BranchGroup sceneBG;
-
     private BoundingSphere bounds; // for environment nodes
+    private BranchGroup sceneBG;
+    private SimpleUniverse su;
 
     public WrapParticles3D(int numParticles, int fountainChoice)
     // construct the 3D canvas
     {
         setLayout(new BorderLayout());
         setOpaque(false);
-
         setPreferredSize(new Dimension(PWIDTH, PHEIGHT));
-
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         Canvas3D canvas3D = new Canvas3D(config);
         add("Center", canvas3D);
         canvas3D.setFocusable(true);
         canvas3D.requestFocus(); // the canvas now has focus, so receives key
         // events
-
-        this.su = new SimpleUniverse(canvas3D);
-
+        su = new SimpleUniverse(canvas3D);
         createSceneGraph(numParticles, fountainChoice);
         initUserPosition(); // set user's viewpoint
         orbitControls(canvas3D); // controls for moving the viewpoint
-
-        this.su.addBranchGraph(this.sceneBG);
+        su.addBranchGraph(sceneBG);
     } // end of WrapParticles3D()
+
+    private void addBackground()
+    // A blue sky
+    {
+        Background back = new Background();
+        back.setApplicationBounds(bounds);
+        back.setColor(0.17f, 0.65f, 0.92f); // sky colour
+        sceneBG.addChild(back);
+    } // end of addBackground()
+
+    private void addLinesFountain(int numParts) {
+        LineParticles linesFountain = new LineParticles(numParts, 20); // time
+        // delay
+        sceneBG.addChild(linesFountain); // will start at origin
+        // timed behaviour to animate the fountain
+        Behavior partBeh = linesFountain.getParticleBeh();
+        partBeh.setSchedulingBounds(bounds);
+        sceneBG.addChild(partBeh);
+    } // end of addLinesRefFountain()
+
+    private void addPointsFountain(int numParts) {
+        PointParticles ptsFountain = new PointParticles(numParts, 20); // time
+        // delay
+        // move particles start position to (2,0,1)
+        TransformGroup posnTG = new TransformGroup();
+        Transform3D trans = new Transform3D();
+        trans.setTranslation(new Vector3d(2.0f, 0.0f, 1.0f));
+        posnTG.setTransform(trans);
+        posnTG.addChild(ptsFountain);
+        sceneBG.addChild(posnTG);
+        // timed behaviour to animate the fountain
+        Behavior partBeh = ptsFountain.getParticleBeh();
+        partBeh.setSchedulingBounds(bounds);
+        sceneBG.addChild(partBeh);
+    } // end of addPointsFountain()
+
+    private void addQuadFountain(int numParts) {
+        QuadParticles quadsFountain = new QuadParticles(numParts, 20); // time
+        // delay
+        sceneBG.addChild(quadsFountain); // will start at origin
+        // timed behaviour to animate the fountain
+        Behavior partBeh = quadsFountain.getParticleBeh();
+        partBeh.setSchedulingBounds(bounds);
+        sceneBG.addChild(partBeh);
+    } // end of addQuadFountain()
 
     private void createSceneGraph(int numParts, int fountainChoice)
     // initilise the scene
     {
-        this.sceneBG = new BranchGroup();
-        this.bounds = new BoundingSphere(new Point3d(0, 0, 0), BOUNDSIZE);
-
+        sceneBG = new BranchGroup();
+        bounds = new BoundingSphere(new Point3d(0, 0, 0), BOUNDSIZE);
         lightScene(); // add the lights
         addBackground(); // add the sky
-        this.sceneBG.addChild(new CheckerFloor().getBG()); // add the floor
-
+        sceneBG.addChild(new CheckerFloor().getBG()); // add the floor
         switch (fountainChoice) {
         case 1:
             addPointsFountain(numParts);
@@ -113,43 +141,43 @@ public class WrapParticles3D extends JPanel
         default:
             break; // say nothing
         }
-
-        this.sceneBG.compile(); // fix the scene
+        sceneBG.compile(); // fix the scene
     } // end of createSceneGraph()
+
+    // -------------------------- fountains -------------
+    private void initUserPosition()
+    // Set the user's initial viewpoint using lookAt()
+    {
+        ViewingPlatform vp = su.getViewingPlatform();
+        TransformGroup steerTG = vp.getViewPlatformTransform();
+        Transform3D t3d = new Transform3D();
+        steerTG.getTransform(t3d);
+        // args are: viewer posn, where looking, up direction
+        t3d.lookAt(USERPOSN, new Point3d(0, 0, 0), new Vector3d(0, 1, 0));
+        t3d.invert();
+        steerTG.setTransform(t3d);
+    } // end of initUserPosition()
 
     private void lightScene()
     /* One ambient light, 2 directional lights */
     {
         Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
-
         // Set up the ambient light
         AmbientLight ambientLightNode = new AmbientLight(white);
-        ambientLightNode.setInfluencingBounds(this.bounds);
-        this.sceneBG.addChild(ambientLightNode);
-
+        ambientLightNode.setInfluencingBounds(bounds);
+        sceneBG.addChild(ambientLightNode);
         // Set up the directional lights
         Vector3f light1Direction = new Vector3f(-1.0f, -1.0f, -1.0f);
         // left, down, backwards
         Vector3f light2Direction = new Vector3f(1.0f, -1.0f, 1.0f);
         // right, down, forwards
-
         DirectionalLight light1 = new DirectionalLight(white, light1Direction);
-        light1.setInfluencingBounds(this.bounds);
-        this.sceneBG.addChild(light1);
-
+        light1.setInfluencingBounds(bounds);
+        sceneBG.addChild(light1);
         DirectionalLight light2 = new DirectionalLight(white, light2Direction);
-        light2.setInfluencingBounds(this.bounds);
-        this.sceneBG.addChild(light2);
+        light2.setInfluencingBounds(bounds);
+        sceneBG.addChild(light2);
     } // end of lightScene()
-
-    private void addBackground()
-    // A blue sky
-    {
-        Background back = new Background();
-        back.setApplicationBounds(this.bounds);
-        back.setColor(0.17f, 0.65f, 0.92f); // sky colour
-        this.sceneBG.addChild(back);
-    } // end of addBackground()
 
     private void orbitControls(Canvas3D c)
     /*
@@ -157,68 +185,8 @@ public class WrapParticles3D extends JPanel
      */
     {
         OrbitBehavior orbit = new OrbitBehavior(c, OrbitBehavior.REVERSE_ALL);
-        orbit.setSchedulingBounds(this.bounds);
-
-        ViewingPlatform vp = this.su.getViewingPlatform();
+        orbit.setSchedulingBounds(bounds);
+        ViewingPlatform vp = su.getViewingPlatform();
         vp.setViewPlatformBehavior(orbit);
     } // end of orbitControls()
-
-    private void initUserPosition()
-    // Set the user's initial viewpoint using lookAt()
-    {
-        ViewingPlatform vp = this.su.getViewingPlatform();
-        TransformGroup steerTG = vp.getViewPlatformTransform();
-
-        Transform3D t3d = new Transform3D();
-        steerTG.getTransform(t3d);
-
-        // args are: viewer posn, where looking, up direction
-        t3d.lookAt(USERPOSN, new Point3d(0, 0, 0), new Vector3d(0, 1, 0));
-        t3d.invert();
-
-        steerTG.setTransform(t3d);
-    } // end of initUserPosition()
-
-    // -------------------------- fountains -------------
-
-    private void addPointsFountain(int numParts) {
-        PointParticles ptsFountain = new PointParticles(numParts, 20); // time
-        // delay
-
-        // move particles start position to (2,0,1)
-        TransformGroup posnTG = new TransformGroup();
-        Transform3D trans = new Transform3D();
-        trans.setTranslation(new Vector3d(2.0f, 0.0f, 1.0f));
-        posnTG.setTransform(trans);
-        posnTG.addChild(ptsFountain);
-        this.sceneBG.addChild(posnTG);
-
-        // timed behaviour to animate the fountain
-        Behavior partBeh = ptsFountain.getParticleBeh();
-        partBeh.setSchedulingBounds(this.bounds);
-        this.sceneBG.addChild(partBeh);
-    } // end of addPointsFountain()
-
-    private void addQuadFountain(int numParts) {
-        QuadParticles quadsFountain = new QuadParticles(numParts, 20); // time
-        // delay
-        this.sceneBG.addChild(quadsFountain); // will start at origin
-
-        // timed behaviour to animate the fountain
-        Behavior partBeh = quadsFountain.getParticleBeh();
-        partBeh.setSchedulingBounds(this.bounds);
-        this.sceneBG.addChild(partBeh);
-    } // end of addQuadFountain()
-
-    private void addLinesFountain(int numParts) {
-        LineParticles linesFountain = new LineParticles(numParts, 20); // time
-        // delay
-        this.sceneBG.addChild(linesFountain); // will start at origin
-
-        // timed behaviour to animate the fountain
-        Behavior partBeh = linesFountain.getParticleBeh();
-        partBeh.setSchedulingBounds(this.bounds);
-        this.sceneBG.addChild(partBeh);
-    } // end of addLinesRefFountain()
-
 } // end of WrapParticles3D class

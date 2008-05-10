@@ -2,7 +2,6 @@ package AlienTiles;
 
 // AlienQuadSprite.java 
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* A subclass of AlienSprite.
  It overrides:
  void playerHasMoved()   -- called when the player has moved
@@ -20,7 +19,6 @@ package AlienTiles;
  alien moves to guard the pickup that the player is heading
  towards.
  */
-
 import java.awt.Point;
 
 public class AlienQuadSprite extends AlienSprite {
@@ -29,33 +27,19 @@ public class AlienQuadSprite extends AlienSprite {
 
     public AlienQuadSprite(int x, int y, int w, int h, ImagesLoader imsLd, WorldDisplay wd) {
         super(x, y, w, h, imsLd, wd);
-        this.currentQuad = getRandDirection(); // random starting quad direction
+        currentQuad = getRandDirection(); // random starting quad direction
     }
-
-    @Override
-    public void playerHasMoved(Point playerLoc)
-    /*
-     * Update quadrant direction by heading towards the pickup that is closest to the player.
-     */
-    {
-        if (this.world.hasPickupsLeft()) {
-            Point nearPickup = this.world.nearestPickup(playerLoc); // nearest
-            // pickup to the
-            // player
-            this.currentQuad = calcQuadrant(nearPickup);
-        }
-    } // end of playerHasMoved()
 
     private int calcQuadrant(Point pickupPt)
     /*
      * Roughly calculate a quadrant by comparing the pickup's point with the alien's position.
      */
     {
-        if ((pickupPt.x > this.xTile) && (pickupPt.y > this.yTile)) {
+        if (pickupPt.x > xTile && pickupPt.y > yTile) {
             return SE;
-        } else if ((pickupPt.x > this.xTile) && (pickupPt.y < this.yTile)) {
+        } else if (pickupPt.x > xTile && pickupPt.y < yTile) {
             return NE;
-        } else if ((pickupPt.x < this.xTile) && (pickupPt.y > this.yTile)) {
+        } else if (pickupPt.x < xTile && pickupPt.y > yTile) {
             return SW;
         } else {
             return NW;
@@ -65,10 +49,11 @@ public class AlienQuadSprite extends AlienSprite {
     @Override
     protected void move()
     /*
-     * Try to move in the currentQuad direction. If that way is blocked then randomly try another direction. This approach may lead to the sprite getting stuck, but its unlikely.
+     * Try to move in the currentQuad direction. If that way is blocked then randomly try another direction. This approach may lead to the sprite
+     * getting stuck, but its unlikely.
      */
     {
-        int quad = this.currentQuad;
+        int quad = currentQuad;
         Point newPt;
         while ((newPt = tryMove(quad)) == null) {
             quad = getRandDirection();
@@ -78,4 +63,17 @@ public class AlienQuadSprite extends AlienSprite {
         setMove(newPt, quad);
     } // end of move()
 
+    @Override
+    public void playerHasMoved(Point playerLoc)
+    /*
+     * Update quadrant direction by heading towards the pickup that is closest to the player.
+     */
+    {
+        if (world.hasPickupsLeft()) {
+            Point nearPickup = world.nearestPickup(playerLoc); // nearest
+            // pickup to the
+            // player
+            currentQuad = calcQuadrant(nearPickup);
+        }
+    } // end of playerHasMoved()
 } // end of AlienQuadSprite class

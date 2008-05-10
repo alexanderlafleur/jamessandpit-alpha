@@ -2,7 +2,6 @@ package SoundExamps.SoundPlayer;
 
 // PlayClipBF.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Load an audio file as a clip, and play it once.
  During its playing, PlayClipBF will sleep.
 
@@ -31,7 +30,6 @@ package SoundExamps.SoundPlayer;
  // clip.start();   // start looping not playing (in play())
  clip.loop(loopCount);
  */
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -48,18 +46,23 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class PlayClipBF implements LineListener {
     private final static String SOUND_DIR = "Sounds/";
 
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java PlayClipBF <clip file>");
+            System.exit(0);
+        }
+        new PlayClipBF(args[0]);
+        System.exit(0); // required in J2SE 1.4.2. or earlier
+    } // end of main()
+
     private Clip clip = null;
-
     private DecimalFormat df;
-
     private int loopCount = 1; // NEW
 
     public PlayClipBF(String fnm) {
-        this.df = new DecimalFormat("0.#"); // 1 dp
-
+        df = new DecimalFormat("0.#"); // 1 dp
         loadClip(SOUND_DIR + fnm);
         play();
-
         // wait for the sound to finish playing; guess at 10 mins!
         System.out.println("Waiting");
         try {
@@ -73,51 +76,41 @@ public class PlayClipBF implements LineListener {
         try {
             // link an audio stream to the sound clip's file
             AudioInputStream stream = AudioSystem.getAudioInputStream(getClass().getResource(fnm));
-
             AudioFormat format = stream.getFormat();
-
             // convert ULAW/ALAW formats to PCM format
-            if ((format.getEncoding() == AudioFormat.Encoding.ULAW) || (format.getEncoding() == AudioFormat.Encoding.ALAW)) {
-                AudioFormat newFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format.getChannels(), format
-                        .getFrameSize() * 2, format.getFrameRate(), true); // big
+            if (format.getEncoding() == AudioFormat.Encoding.ULAW || format.getEncoding() == AudioFormat.Encoding.ALAW) {
+                AudioFormat newFormat =
+                        new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format
+                                .getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true); // big
                 // endian
                 // update stream and format details
                 stream = AudioSystem.getAudioInputStream(newFormat, stream);
                 System.out.println("Converted Audio format: " + newFormat);
                 format = newFormat;
             }
-
             DataLine.Info info = new DataLine.Info(Clip.class, format);
-
             // make sure sound system supports data line
             if (!AudioSystem.isLineSupported(info)) {
                 System.out.println("Unsupported Clip File: " + fnm);
                 System.exit(0);
             }
-
             // get clip line resource
-            this.clip = (Clip) AudioSystem.getLine(info);
-
+            clip = (Clip) AudioSystem.getLine(info);
             // listen to clip for events
-            this.clip.addLineListener(this);
-
-            this.clip.open(stream); // open the sound file as a clip
+            clip.addLineListener(this);
+            clip.open(stream); // open the sound file as a clip
             stream.close(); // we're done with the input stream // new
-
-            this.clip.setFramePosition(0);
+            clip.setFramePosition(0);
             // clip.setMicrosecondPosition(0);
-
             // duration (in secs) of the clip
             /*
              * double duration = clip.getBufferSize() / (format.getFrameSize() * format.getFrameRate());
              */
-            double duration = this.clip.getMicrosecondLength() / 1000000.0; // new
-            System.out.println("Duration: " + this.df.format(duration) + " secs");
-
-            this.loopCount = (int) (1.0 / duration); // NEW
-            System.out.println("loopCount: " + this.loopCount);
+            double duration = clip.getMicrosecondLength() / 1000000.0; // new
+            System.out.println("Duration: " + df.format(duration) + " secs");
+            loopCount = (int) (1.0 / duration); // NEW
+            System.out.println("loopCount: " + loopCount);
         } // end of try block
-
         catch (UnsupportedAudioFileException audioException) {
             System.out.println("Unsupported audio file: " + fnm);
             System.exit(0);
@@ -134,36 +127,24 @@ public class PlayClipBF implements LineListener {
     } // end of loadClip()
 
     private void play() {
-        if (this.clip != null) {
+        if (clip != null) {
             System.out.println("Playing...");
             // clip.start(); // start playing
-            this.clip.loop(this.loopCount); // NEW
+            clip.loop(loopCount); // NEW
         }
     }
 
+    // --------------------------------------------------
     public void update(LineEvent lineEvent)
     // called when the clip's line detects open, close, start, stop events
     {
         // has the clip has reached its end?
         if (lineEvent.getType() == LineEvent.Type.STOP) {
             System.out.println("Exiting...");
-            this.clip.stop();
-            this.clip.setFramePosition(0);
-
+            clip.stop();
+            clip.setFramePosition(0);
             lineEvent.getLine().close();
             System.exit(0);
         }
     } // end of update()
-
-    // --------------------------------------------------
-
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java PlayClipBF <clip file>");
-            System.exit(0);
-        }
-        new PlayClipBF(args[0]);
-        System.exit(0); // required in J2SE 1.4.2. or earlier
-    } // end of main()
-
 } // end of PlayClipBF.java

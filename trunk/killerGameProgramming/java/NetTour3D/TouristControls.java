@@ -2,7 +2,6 @@ package NetTour3D;
 
 // TouristControls.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Arrow keys to move and rotate a 3D sprite.
 
  We have restricted the functionality to XZ plane movement
@@ -16,7 +15,6 @@ package NetTour3D;
 
  Unchanged from the version in Tour3D.
  */
-
 import java.awt.AWTEvent;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
@@ -32,69 +30,62 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 public class TouristControls extends Behavior {
-    private WakeupCondition keyPress;
-
-    private final static int forwardKey = KeyEvent.VK_DOWN;
-
     private final static int backKey = KeyEvent.VK_UP;
-
-    private final static int leftKey = KeyEvent.VK_LEFT;
-
-    private final static int rightKey = KeyEvent.VK_RIGHT;
-
-    private final static int inKey = KeyEvent.VK_I; // for moving viewer
-
-    private final static int outKey = KeyEvent.VK_O;
-
+    private final static int forwardKey = KeyEvent.VK_DOWN;
     private final static double HEIGHT = 2.0; // height of viewer
-
+    private final static int inKey = KeyEvent.VK_I; // for moving viewer
+    private final static int leftKey = KeyEvent.VK_LEFT;
+    private final static int outKey = KeyEvent.VK_O;
+    private final static int rightKey = KeyEvent.VK_RIGHT;
     private final static double ZOFFSET = 8.0; // distance from sprite
-
     private final static double ZSTEP = 1.0; // viewer's zoom step
-
     private TourSprite bob; // the 3D sprite being controlled from here
-
+    private Point3d bobPosn;
+    private DecimalFormat df; // for simpler output during debugging
+    private WakeupCondition keyPress;
+    private Transform3D t3d, toMove; // used to affect viewerTG;
     private TransformGroup viewerTG; // the viewpoint TG
 
-    private Transform3D t3d, toMove; // used to affect viewerTG;
-
-    private Point3d bobPosn;
-
-    private DecimalFormat df; // for simpler output during debugging
-
     public TouristControls(TourSprite b, TransformGroup vTG) {
-        this.df = new DecimalFormat("0.###"); // 3 dp
-        this.bob = b;
-        this.viewerTG = vTG;
-        this.t3d = new Transform3D();
-        this.toMove = new Transform3D();
+        df = new DecimalFormat("0.###"); // 3 dp
+        bob = b;
+        viewerTG = vTG;
+        t3d = new Transform3D();
+        toMove = new Transform3D();
         setViewer();
-        this.keyPress = new WakeupOnAWTEvent(KeyEvent.KEY_PRESSED);
+        keyPress = new WakeupOnAWTEvent(KeyEvent.KEY_PRESSED);
     } // end of TouristControls()
 
-    private void setViewer()
-    /*
-     * Position the viewpoint so it is offset by ZOFFSET from the sprite along the z-axis, and is at height HEIGHT.
-     */
+    private void altMove(int keycode)
+    // moves sprite left or right
     {
-        this.bobPosn = this.bob.getCurrLoc(); // start location for bob
-        this.viewerTG.getTransform(this.t3d);
-        // args are: viewer posn, where looking, up direction
-        this.t3d.lookAt(new Point3d(this.bobPosn.x, HEIGHT, this.bobPosn.z + ZOFFSET), new Point3d(this.bobPosn.x, HEIGHT, this.bobPosn.z), new Vector3d(0, 1, 0));
-        this.t3d.invert();
-        this.viewerTG.setTransform(this.t3d);
-    } // end of setViewer()
+        if (keycode == leftKey) {
+            bob.moveLeft();
+        } else if (keycode == rightKey) {
+            bob.moveRight();
+        }
+    } // end of altMove()
 
     @Override
     public void initialize() {
-        wakeupOn(this.keyPress);
+        wakeupOn(keyPress);
     }
+
+    private void processKeyEvent(KeyEvent eventKey) {
+        int keyCode = eventKey.getKeyCode();
+        // System.out.println(keyCode);
+        if (eventKey.isAltDown()) {
+            altMove(keyCode);
+        } else {
+            standardMove(keyCode);
+        }
+        viewerMove();
+    } // end of processKeyEvent()
 
     @Override
     public void processStimulus(Enumeration criteria) {
         WakeupCriterion wakeup;
         AWTEvent[] event;
-
         while (criteria.hasMoreElements()) {
             wakeup = (WakeupCriterion) criteria.nextElement();
             if (wakeup instanceof WakeupOnAWTEvent) {
@@ -106,34 +97,44 @@ public class TouristControls extends Behavior {
                 }
             }
         }
-        wakeupOn(this.keyPress);
+        wakeupOn(keyPress);
     } // end of processStimulus()
 
-    private void processKeyEvent(KeyEvent eventKey) {
-        int keyCode = eventKey.getKeyCode();
-        // System.out.println(keyCode);
+    private void setViewer()
+    /*
+     * Position the viewpoint so it is offset by ZOFFSET from the sprite along the z-axis, and is at height HEIGHT.
+     */
+    {
+        bobPosn = bob.getCurrLoc(); // start location for bob
+        viewerTG.getTransform(t3d);
+        // args are: viewer posn, where looking, up direction
+        t3d.lookAt(new Point3d(bobPosn.x, HEIGHT, bobPosn.z + ZOFFSET), new Point3d(bobPosn.x, HEIGHT, bobPosn.z), new Vector3d(0, 1, 0));
+        t3d.invert();
+        viewerTG.setTransform(t3d);
+    } // end of setViewer()
 
-        if (eventKey.isAltDown()) {
-            altMove(keyCode);
-        } else {
-            standardMove(keyCode);
-        }
-
-        viewerMove();
-    } // end of processKeyEvent()
+    private void shiftViewer(double zDist)
+    // move the viewer inwards or outwards
+    {
+        Vector3d trans = new Vector3d(0, 0, zDist);
+        viewerTG.getTransform(t3d);
+        toMove.setTranslation(trans); // overwrites previous translation
+        t3d.mul(toMove);
+        viewerTG.setTransform(t3d);
+    } // end of viewerMove()
 
     private void standardMove(int keycode)
     // make sprite moves forward or backward; rotate left or right
     // the in and out keys affect the viewer's z-axis position
     {
         if (keycode == forwardKey) {
-            this.bob.moveForward();
+            bob.moveForward();
         } else if (keycode == backKey) {
-            this.bob.moveBackward();
+            bob.moveBackward();
         } else if (keycode == leftKey) {
-            this.bob.rotClock();
+            bob.rotClock();
         } else if (keycode == rightKey) {
-            this.bob.rotCounterClock();
+            bob.rotCounterClock();
         } else if (keycode == inKey) {
             shiftViewer(-ZSTEP); // move viewer negatively on z-axis
         } else if (keycode == outKey) {
@@ -141,38 +142,16 @@ public class TouristControls extends Behavior {
         }
     } // end of standardMove()
 
-    private void altMove(int keycode)
-    // moves sprite left or right
-    {
-        if (keycode == leftKey) {
-            this.bob.moveLeft();
-        } else if (keycode == rightKey) {
-            this.bob.moveRight();
-        }
-    } // end of altMove()
-
-    private void shiftViewer(double zDist)
-    // move the viewer inwards or outwards
-    {
-        Vector3d trans = new Vector3d(0, 0, zDist);
-        this.viewerTG.getTransform(this.t3d);
-        this.toMove.setTranslation(trans); // overwrites previous translation
-        this.t3d.mul(this.toMove);
-        this.viewerTG.setTransform(this.t3d);
-    } // end of viewerMove()
-
     private void viewerMove()
     // Updates the view point by the translation change of the sprite
     {
-        Point3d newLoc = this.bob.getCurrLoc();
+        Point3d newLoc = bob.getCurrLoc();
         // printTuple(newLoc, "newLoc");
-        Vector3d trans = new Vector3d(newLoc.x - this.bobPosn.x, 0, newLoc.z - this.bobPosn.z);
-        this.viewerTG.getTransform(this.t3d);
-        this.toMove.setTranslation(trans); // overwrites previous translation
-        this.t3d.mul(this.toMove);
-        this.viewerTG.setTransform(this.t3d);
-
-        this.bobPosn = newLoc; // save for next time
+        Vector3d trans = new Vector3d(newLoc.x - bobPosn.x, 0, newLoc.z - bobPosn.z);
+        viewerTG.getTransform(t3d);
+        toMove.setTranslation(trans); // overwrites previous translation
+        t3d.mul(toMove);
+        viewerTG.setTransform(t3d);
+        bobPosn = newLoc; // save for next time
     } // end of viewerMove()
-
 } // end of TouristControls class

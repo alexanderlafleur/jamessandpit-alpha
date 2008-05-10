@@ -24,23 +24,34 @@ import java.util.Vector;
 import java.util.logging.Logger;
 
 /**
- * An iTunes Database object is related to an database file on an Apple iPod. The database contains references to all music files on an iPod, as well as meta information about the
- * songs. Further all information about playlists on the iPod. All information are stored in a binary file, and is contained in tags. The set of tags contains
+ * An iTunes Database object is related to an database file on an Apple iPod. The database contains references to all music files on an iPod, as well as meta
+ * information about the songs. Further all information about playlists on the iPod. All information are stored in a binary file, and is contained in tags. The
+ * set of tags contains
  * 
  * <PRE>
  * 
- * mhbd - root tag of a database<BR>
- * mhsd - list holder, contains song lists or playlists<BR>
- * mhlt - song list header contains song items<BR>
- * mhit - song item, stores song meta information and is followed by one or more<BR>
- * mhod - song item content - stores one strings like artist, filetype, path etc.<BR>
- * mhlp - playlist header, contains one or more playlist items<BR>
- * mhyp - playlist item holds the playlist in paires of<BR>
- * mhip - playlist index and mhod<BR>
- * an ITunesDB object stores the informations from the 'mhbd' tag and has references to the content of all other tags.<BR>
+ * mhbd - root tag of a database
+ * <BR>
+ * mhsd - list holder, contains song lists or playlists
+ * <BR>
+ * mhlt - song list header contains song items
+ * <BR>
+ * mhit - song item, stores song meta information and is followed by one or more
+ * <BR>
+ * mhod - song item content - stores one strings like artist, filetype, path etc.
+ * <BR>
+ * mhlp - playlist header, contains one or more playlist items
+ * <BR>
+ * mhyp - playlist item holds the playlist in paires of
+ * <BR>
+ * mhip - playlist index and mhod
+ * <BR>
+ * an ITunesDB object stores the informations from the 'mhbd' tag and has references to the content of all other tags.
+ * <BR>
  * 
- * @see techdoc for more details
- * @author axelwe
+ * &#064;see techdoc for more details
+ * &#064;author axelwe
+ * 
  */
 public class ITunesDB {
     /** jdk1.4 logger */
@@ -97,15 +108,12 @@ public class ITunesDB {
      * Initializes the songlist holder record of the database.
      */
     public void initSonglistHolder() {
-        logger.entering("de.axelwernicke.mypod.ipod.ITunesDB", "initSonglistHolder");
-
         songlistHolder = new ITunesDBListHolder();
         songlistHolder.setListType(ITunesDBListHolder.SONGLIST);
 
         // revalidate size
         this.recordSize += songlistHolder.getRecordSize();
 
-        logger.exiting("de.axelwernicke.mypod.ipod.ITunesDB", "initSonglistHolder");
     }
 
     /**
@@ -306,8 +314,8 @@ public class ITunesDB {
     }
 
     /**
-     * removes a song from the song list and all playlists. <BR>- iterate over all playlists and remove clip by fileindex (filename without extension) <BR>- remove clip from the
-     * songlist
+     * removes a song from the song list and all playlists. <BR>- iterate over all playlists and remove clip by fileindex (filename without extension) <BR>-
+     * remove clip from the songlist
      * 
      * @param fileIndex
      *            of the song to remove
@@ -501,36 +509,34 @@ public class ITunesDB {
     }
 
     /**
-     * Validates the database. Record sizes and content count is checked. <BR>- check db record size <BR>- check songlist holder size <BR>- check all song items size <BR>-
-     * check song item count <BR>- check playlist holder size <BR>- check all playlist items <BR>- check playlist count <BR>- check song count for each playlist
+     * Validates the database. Record sizes and content count is checked. <BR>- check db record size <BR>- check songlist holder size <BR>- check all song
+     * items size <BR>- check song item count <BR>- check playlist holder size <BR>- check all playlist items <BR>- check playlist count <BR>- check song
+     * count for each playlist
      * 
      * @return true, if the database is valid
      */
-    boolean isValid() {
+    public boolean isValid() {
         // delegate
         return isValid(false);
     }
 
     /**
-     * Validates the database. Record sizes and content count is checked. <BR>- check db record size <BR>- check songlist holder size <BR>- check all song items size <BR>-
-     * check song item count <BR>- check playlist holder size <BR>- check all playlist items <BR>- check playlist count <BR>- check song count for each playlist
+     * Validates the database. Record sizes and content count is checked. <BR>- check db record size <BR>- check songlist holder size <BR>- check all song
+     * items size <BR>- check song item count <BR>- check playlist holder size <BR>- check all playlist items <BR>- check playlist count <BR>- check song
+     * count for each playlist
      * 
      * @param correct
      *            if true, the offsets are corrected
      * @return true, if the database is valid
      */
     boolean isValid(boolean correct) {
-        logger.entering("de.axelwernicke.mypod.ipod.ITunesDB", "isValid");
         boolean valid = true;
 
         // check tag size, item counts and references
         valid = !(!tagSizesValid(correct) || !countsValid(correct) || !referencesValid(correct));
 
-        logger.exiting("de.axelwernicke.mypod.ipod.ITunesDB", "isValid");
-
         return valid;
-
-    } // validate
+    }
 
     /**
      * Checks the size of the records of the data base.
@@ -708,8 +714,8 @@ public class ITunesDB {
      * @return string representation of the database
      */
     public String toString() {
-        return new StringBuffer("[tagSize] ").append(tagSize).append('\t').append("[recordSize] ").append(recordSize).append('\t').append("[unknown3] ").append(unknown3).append(
-                '\t').append("[unknown4] ").append(unknown4).append('\t').append("[unknown5] ").append(unknown5).toString();
+        return new StringBuffer("[tagSize] ").append(tagSize).append('\t').append("[recordSize] ").append(recordSize).append('\t').append("[unknown3] ")
+                .append(unknown3).append('\t').append("[unknown4] ").append(unknown4).append('\t').append("[unknown5] ").append(unknown5).toString();
     }
 
     /**
@@ -727,8 +733,8 @@ public class ITunesDB {
             // because two items are used for the playlist name
             if (playlistItem.getSongItems().size() - 2 != playlistItem.getSongCount()) {
                 valid = false;
-                logger.warning("playlist " + playlistItem.getName() + " song count invalid ( playlist song count is : " + playlistItem.getSongCount() + ", but playlist has :"
-                        + (playlistItem.getSongItems().size() - 2) + " song items attached)");
+                logger.warning("playlist " + playlistItem.getName() + " song count invalid ( playlist song count is : " + playlistItem.getSongCount()
+                        + ", but playlist has :" + (playlistItem.getSongItems().size() - 2) + " song items attached)");
 
                 if (correct) {
                     playlistItem.setSongCount(playlistItem.getSongItems().size() - 2);
@@ -926,5 +932,4 @@ public class ITunesDB {
     public void setPlaylistHeader(de.axelwernicke.mypod.ipod.ITunesDBPlaylistHeader playlistHeader) {
         this.playlistHeader = playlistHeader;
     }
-
-} // itunes db
+}

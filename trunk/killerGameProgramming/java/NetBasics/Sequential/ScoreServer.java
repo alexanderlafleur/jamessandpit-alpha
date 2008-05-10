@@ -2,7 +2,6 @@ package NetBasics.Sequential;
 
 // ScoreServer.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /*
  A sequential server that stores a client's score (and name) in a
  list of top-10 high scores.
@@ -16,7 +15,6 @@ package NetBasics.Sequential;
  server starts.
  The server is terminated with a ctrl-C
  */
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,34 +25,34 @@ import java.net.Socket;
 public class ScoreServer {
     private static final int PORT = 1234;
 
+    public static void main(String args[]) {
+        new ScoreServer();
+    }
+
     private HighScores hs;
 
     public ScoreServer()
     // Sequentially process clients forever
     {
-        this.hs = new HighScores();
+        hs = new HighScores();
         try {
             ServerSocket serverSock = new ServerSocket(PORT);
             Socket clientSock;
             BufferedReader in; // i/o for the server
             PrintWriter out;
-
             while (true) {
                 System.out.println("Waiting for a client...");
                 clientSock = serverSock.accept();
                 System.out.println("Client connection from " + clientSock.getInetAddress().getHostAddress());
-
                 // Get I/O streams from the socket
                 in = new BufferedReader(new InputStreamReader(clientSock.getInputStream()));
                 out = new PrintWriter(clientSock.getOutputStream(), true); // autoflush
-
                 // interact with a client
                 processClient(in, out);
-
                 // Close client connection
                 clientSock.close();
                 System.out.println("Client connection closed\n");
-                this.hs.saveScores(); // backup high scores after each client has
+                hs.saveScores(); // backup high scores after each client has
                 // finished
             }
         } catch (Exception e) {
@@ -62,6 +60,24 @@ public class ScoreServer {
         }
     } // end of ScoreServer()
 
+    private void doRequest(String line, PrintWriter out)
+    /*
+     * The input line can be one of: "score name & score &" or "get"
+     */
+    {
+        if (line.trim().toLowerCase().equals("get")) {
+            System.out.println("Processing 'get'");
+            out.println(hs.toString());
+        } else if (line.length() >= 6 && // "score "
+                line.substring(0, 5).toLowerCase().equals("score")) {
+            System.out.println("Processing 'score'");
+            hs.addScore(line.substring(5)); // cut the score keyword
+        } else {
+            System.out.println("Ignoring input line");
+        }
+    } // end of doRequest()
+
+    // ------------------------------------
     private void processClient(BufferedReader in, PrintWriter out)
     // Stop when the input stream closes (is null) or "bye" is sent
     // Otherwise pass the input to doRequest()
@@ -85,29 +101,4 @@ public class ScoreServer {
             System.out.println(e);
         }
     } // end of processClient()
-
-    private void doRequest(String line, PrintWriter out)
-    /*
-     * The input line can be one of: "score name & score &" or "get"
-     */
-    {
-        if (line.trim().toLowerCase().equals("get")) {
-            System.out.println("Processing 'get'");
-            out.println(this.hs.toString());
-        } else if ((line.length() >= 6) && // "score "
-                (line.substring(0, 5).toLowerCase().equals("score"))) {
-            System.out.println("Processing 'score'");
-            this.hs.addScore(line.substring(5)); // cut the score keyword
-        } else {
-            System.out.println("Ignoring input line");
-        }
-    } // end of doRequest()
-
-    // ------------------------------------
-
-    public static void main(String args[]) {
-        new ScoreServer();
-    }
-
 } // end of ScoreServer class
-

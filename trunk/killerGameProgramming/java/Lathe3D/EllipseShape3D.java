@@ -2,7 +2,6 @@ package Lathe3D;
 
 // EllipseShape3D.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* An ellipse has a semi-major axis of length a,
  and semi-minor axis of length b.
 
@@ -15,7 +14,6 @@ package Lathe3D;
  We hardwire   b == 0.5 * radius.
 
  */
-
 import javax.media.j3d.Texture;
 import javax.vecmath.Color3f;
 
@@ -32,5 +30,4 @@ public class EllipseShape3D extends LatheShape3D {
     protected double zCoord(double radius, double angle) {
         return 0.5 * radius * Math.sin(angle);
     } // b == a/2
-
 } // end of EllipseShape3D class

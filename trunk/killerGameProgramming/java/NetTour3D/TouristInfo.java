@@ -2,7 +2,6 @@ package NetTour3D;
 
 // TouristInfo.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Stores information about a single client:
  the client's IP address, port, and output stream
 
@@ -13,15 +12,12 @@ package NetTour3D;
 
  Very similar to Chatter in the multithreaded Chat server.
  */
-
 import java.io.PrintWriter;
 
 public class TouristInfo {
     String cliAddr;
-
-    int port;
-
     PrintWriter out;
+    int port;
 
     public TouristInfo(String cliAddr, int port, PrintWriter out) {
         this.cliAddr = cliAddr;
@@ -30,7 +26,7 @@ public class TouristInfo {
     }
 
     public boolean matches(String ca, int p) {
-        if (this.cliAddr.equals(ca) && (this.port == p)) {
+        if (cliAddr.equals(ca) && port == p) {
             return true;
         }
         return false;
@@ -39,10 +35,8 @@ public class TouristInfo {
     public void sendMessage(String msg) { // System.out.println("sendMessage
         // to (" + cliAddr + "," +
         // port + ") : " + msg);
-        this.out.println(msg);
+        out.println(msg);
     }
-
     // public String toString()
     // { return cliAddr + " & " + port + " & "; }
-
 } // end of TouristInfo class

@@ -365,7 +365,7 @@ public class ITunesDBParser {
                 fis.read(dword);
                 tmp = littleEndianToInt(dword);
                 if (tmp != 0) {
-                    logger.warning("unknwon: " + i + " = " + tmp);
+                    logger.warning("unknown: " + i + " = " + tmp);
                 }
             }
 

@@ -2,7 +2,6 @@ package LoaderInfo3D;
 
 // LoaderInfo3D.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /*  Checkers3D scene with a model loaded using a Portfolio loader.
  The model is examined, and its shapes can be changed in various ways.
 
@@ -19,36 +18,16 @@ package LoaderInfo3D;
  show() --> setVisible(true);
 
  */
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 
 import javax.swing.JFrame;
 
 public class LoaderInfo3D extends JFrame {
-
     /**
      * 
      */
     private static final long serialVersionUID = -8405210931895491454L;
-
-    public LoaderInfo3D(String fn, int adaptNo) {
-        super("LoaderInfo3D");
-
-        Container c = getContentPane();
-        c.setLayout(new BorderLayout());
-        WrapLoaderInfo3D w3d = new WrapLoaderInfo3D(fn, adaptNo);
-        c.add(w3d, BorderLayout.CENTER);
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();
-        setResizable(false); // fixed size display
-        // show();
-        setVisible(true);
-        w3d.requestFocus();
-    } // end of LoaderInfo3D()
-
-    // -----------------------------------------
 
     public static void main(String[] args) {
         if (args.length == 2) {
@@ -58,12 +37,24 @@ public class LoaderInfo3D extends JFrame {
             } catch (NumberFormatException e) {
                 System.out.println("Illegal adaptNo, using 0");
             }
-
             new LoaderInfo3D("models/" + args[0], adaptNo); // assume in models/
         } else {
             System.out.println("Usage: java -cp %CLASSPATH%;ncsa\\portfolio.jar LoaderInfo3D  <file> <adaptNo>");
         }
     }
 
+    // -----------------------------------------
+    public LoaderInfo3D(String fn, int adaptNo) {
+        super("LoaderInfo3D");
+        Container c = getContentPane();
+        c.setLayout(new BorderLayout());
+        WrapLoaderInfo3D w3d = new WrapLoaderInfo3D(fn, adaptNo);
+        c.add(w3d, BorderLayout.CENTER);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setResizable(false); // fixed size display
+        // show();
+        setVisible(true);
+        w3d.requestFocus();
+    } // end of LoaderInfo3D()
 } // end of LoaderInfo3D class
-

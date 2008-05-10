@@ -2,7 +2,6 @@ package Chat.Threaded;
 
 // ChatWatcher.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* A threaded ChatWatcher object watches for messages 
  coming from the server.
 
@@ -17,7 +16,6 @@ package Chat.Threaded;
  The messages are placed in the ChatClient's
  GUI text area by calling its showMsg() method.
  */
-
 import java.io.BufferedReader;
 import java.util.StringTokenizer;
 
@@ -25,32 +23,30 @@ import javax.swing.JOptionPane;
 
 public class ChatWatcher extends Thread {
     private ChatClient client; // ref to top-level client
-
     private BufferedReader in; // stream coming from the server
 
     public ChatWatcher(ChatClient c, BufferedReader i) {
-        this.client = c;
-        this.in = i;
+        client = c;
+        in = i;
     }
 
     @Override
     public void run()
     /*
-     * Read a server message, display it, repeat. A message can be: "WHO$$ n1 & p1 & .... nN & pN & " or "(cliAddr,port): msg"
-     * 
-     * "WHO$$" messages are reformatted in showWho(), but other messages are displayed immediately by calling showMsg() in the client.
+     * Read a server message, display it, repeat. A message can be: "WHO$$ n1 & p1 & .... nN & pN & " or "(cliAddr,port): msg" "WHO$$" messages are
+     * reformatted in showWho(), but other messages are displayed immediately by calling showMsg() in the client.
      */
     {
         String line;
         try {
-            while ((line = this.in.readLine()) != null) {
-                if ((line.length() >= 6) && // "WHO$$ "
-                        (line.substring(0, 5).equals("WHO$$"))) {
+            while ((line = in.readLine()) != null) {
+                if (line.length() >= 6 && // "WHO$$ "
+                        line.substring(0, 5).equals("WHO$$")) {
                     showWho(line.substring(5).trim());
                     // remove WHO$$ keyword and surrounding space
                 } else {
                     // show immediately
-                    this.client.showMsg(line + "\n");
+                    client.showMsg(line + "\n");
                 }
             }
         } catch (Exception e) // socket closure will cause termination of
@@ -74,14 +70,13 @@ public class ChatWatcher extends Thread {
             while (st.hasMoreTokens()) {
                 addr = st.nextToken().trim();
                 port = Integer.parseInt(st.nextToken().trim());
-                this.client.showMsg("" + i + ". " + addr + " : " + port + "\n");
+                client.showMsg("" + i + ". " + addr + " : " + port + "\n");
                 i++;
             }
             // client.showMsg("\n");
         } catch (Exception e) {
-            this.client.showMsg("Problem parsing who info.\n");
+            client.showMsg("Problem parsing who info.\n");
             System.out.println("Parsing error with who info: \n" + e);
         }
     } // end of showWho()
-
 } // end of ChatWatcher class

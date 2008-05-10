@@ -2,7 +2,6 @@ package BugRunner;
 
 // BatSprite.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* The bat can move in a horizontal direction only, along the
  floor. It is controlled by the arrow keys or mouse
  presses. 
@@ -16,38 +15,44 @@ package BugRunner;
  The ant images come from the SpriteLib sprite library by 
  Ari Feldman at http://www.arifeldman.com/games/spritelib.html
  */
-
 public class BatSprite extends Sprite {
     private static double DURATION = 0.5; // secs
-
     // total time to cycle through all the images
-
     private static final int FLOOR_DIST = 41;
-
     // distance of ant's top from the floor
     private static final int XSTEP = 10;
-
     // step distance for moving along x-axis
-
     private int period;
 
     /*
      * in ms. The game's animation period used by the image cycling of the bat's left and right facing images.
      */
-
     public BatSprite(int w, int h, ImagesLoader imsLd, int p) {
         super(w / 2, h - FLOOR_DIST, w, h, imsLd, "leftBugs2");
         // positioned at the bottom of the panel, near the center
-        this.period = p;
+        period = p;
         setStep(0, 0); // no movement
     } // end of BatSprite()
+
+    public void mouseMove(int xCoord)
+    // start the ant moving based on a mouse click
+    {
+        if (xCoord < locx) {
+            moveLeft(); // make the bat move left
+        } else if (xCoord > locx + getWidth()) {
+            // bat
+            moveRight(); // make the bat move right
+        } else {
+            stayStill();
+        }
+    } // end of moveMove()
 
     public void moveLeft()
     // start the ant moving left
     {
         setStep(-XSTEP, 0);
         setImage("leftBugs2");
-        loopImage(this.period, DURATION); // cycle through the leftBugs2 images
+        loopImage(period, DURATION); // cycle through the leftBugs2 images
     } // end of moveLeft()
 
     public void moveRight()
@@ -55,7 +60,7 @@ public class BatSprite extends Sprite {
     {
         setStep(XSTEP, 0);
         setImage("rightBugs2");
-        loopImage(this.period, DURATION); // cycle through the images
+        loopImage(period, DURATION); // cycle through the images
     } // end of moveRight()
 
     public void stayStill()
@@ -69,26 +74,11 @@ public class BatSprite extends Sprite {
     public void updateSprite()
     // have the bat wrap-around at the walls
     {
-        if ((this.locx + getWidth() <= 0) && (this.dx < 0)) {
-            this.locx = getPWidth() - 1; // make it just visible on the right
-        } else if ((this.locx >= getPWidth() - 1) && (this.dx > 0)) {
-            this.locx = 1 - getWidth(); // make it just visible on the left
+        if (locx + getWidth() <= 0 && dx < 0) {
+            locx = getPWidth() - 1; // make it just visible on the right
+        } else if (locx >= getPWidth() - 1 && dx > 0) {
+            locx = 1 - getWidth(); // make it just visible on the left
         }
-
         super.updateSprite();
     } // end of updateSprite()
-
-    public void mouseMove(int xCoord)
-    // start the ant moving based on a mouse click
-    {
-        if (xCoord < this.locx) {
-            moveLeft(); // make the bat move left
-        } else if (xCoord > (this.locx + getWidth())) {
-            // bat
-            moveRight(); // make the bat move right
-        } else {
-            stayStill();
-        }
-    } // end of moveMove()
-
 } // end of BatSprite class

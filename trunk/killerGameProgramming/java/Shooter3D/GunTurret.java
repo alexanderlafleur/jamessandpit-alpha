@@ -2,7 +2,6 @@ package Shooter3D;
 
 // GunTurret.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* The GunTurret is a cylinder with a cone top which rotates
  to point at the checkboard location picked by the user.
 
@@ -14,7 +13,6 @@ package Shooter3D;
  it is resting on the XZ plane. The gun TG handle the cone
  rotation.
  */
-
 import javax.media.j3d.Appearance;
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Material;
@@ -31,49 +29,54 @@ import com.sun.j3d.utils.image.TextureLoader;
 
 public class GunTurret {
     private static final Vector3d ORIGIN = new Vector3d(0, 0, 0);
-
+    private Vector3d currTrans = new Vector3d();
     private BranchGroup gunBG;
-
-    private TransformGroup gunTG;
-
-    private Vector3d startVec;
-
     // for repeated calculations
     private Transform3D gunT3d = new Transform3D();
-
-    private Vector3d currTrans = new Vector3d();
-
+    private TransformGroup gunTG;
     private Transform3D rotT3d = new Transform3D();
+    private Vector3d startVec;
 
     public GunTurret(Vector3d svec) {
-        this.startVec = svec;
-        this.gunBG = new BranchGroup();
+        startVec = svec;
+        gunBG = new BranchGroup();
         Appearance apStone = stoneApp();
         placeGunBase(apStone);
         placeGun(apStone);
     } // end of GunTurret()
 
-    private Appearance stoneApp()
-    // stone appearance using a texture
+    public BranchGroup getGunBG() {
+        return gunBG;
+    }
+
+    public void makeRotation(AxisAngle4d rotAxis)
+    // rotate the cone of the gun turret
     {
-        Material stoneMat = new Material(); // white by default
-        stoneMat.setLightingEnable(true);
+        gunTG.getTransform(gunT3d); // get current transform
+        // System.out.println("Start gunT3d: " + gunT3d);
+        gunT3d.get(currTrans); // get current translation
+        gunT3d.setTranslation(ORIGIN); // translate to origin
+        rotT3d.setRotation(rotAxis); // apply rotation
+        gunT3d.mul(rotT3d);
+        gunT3d.setTranslation(currTrans); // translate back
+        gunTG.setTransform(gunT3d);
+        // System.out.println("End gunT3d: " + gunT3d);
+    } // end of makeRotation()
 
-        Appearance apStone = new Appearance();
-        apStone.setMaterial(stoneMat);
-
-        TextureLoader stoneTex = new TextureLoader("images/stone.jpg", null);
-        if (stoneTex != null) {
-            apStone.setTexture(stoneTex.getTexture());
-        }
-
-        // combine the texture with material and lighting
-        TextureAttributes texAttr = new TextureAttributes();
-        texAttr.setTextureMode(TextureAttributes.MODULATE);
-        apStone.setTextureAttributes(texAttr);
-
-        return apStone;
-    } // end of stoneApp()
+    private void placeGun(Appearance apStone)
+    // a rotatable cone, whose center is 2 unit above XZ plane
+    {
+        gunTG = new TransformGroup();
+        gunTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE); // can
+        // rotate
+        gunTG.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+        gunT3d.set(startVec); // centered at the top of the cylinder
+        gunTG.setTransform(gunT3d);
+        Cone cone = new Cone(1.0f, 2.0f, Primitive.GENERATE_NORMALS | Primitive.GENERATE_TEXTURE_COORDS, apStone);
+        cone.setPickable(false); // gun cone is unpickable
+        gunTG.addChild(cone);
+        gunBG.addChild(gunTG);
+    } // end of placeGun()
 
     private void placeGunBase(Appearance apStone)
     // a cylinder resting on the XZ plane, height 2 units
@@ -85,45 +88,24 @@ public class GunTurret {
         Cylinder cyl = new Cylinder(0.25f, 2.0f, Primitive.GENERATE_NORMALS | Primitive.GENERATE_TEXTURE_COORDS, apStone);
         cyl.setPickable(false); // gun base is unpickable
         baseTG.addChild(cyl);
-
-        this.gunBG.addChild(baseTG);
+        gunBG.addChild(baseTG);
     } // end of placeGunBase()
 
-    private void placeGun(Appearance apStone)
-    // a rotatable cone, whose center is 2 unit above XZ plane
+    private Appearance stoneApp()
+    // stone appearance using a texture
     {
-        this.gunTG = new TransformGroup();
-        this.gunTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE); // can
-        // rotate
-        this.gunTG.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-
-        this.gunT3d.set(this.startVec); // centered at the top of the cylinder
-        this.gunTG.setTransform(this.gunT3d);
-        Cone cone = new Cone(1.0f, 2.0f, Primitive.GENERATE_NORMALS | Primitive.GENERATE_TEXTURE_COORDS, apStone);
-        cone.setPickable(false); // gun cone is unpickable
-        this.gunTG.addChild(cone);
-
-        this.gunBG.addChild(this.gunTG);
-    } // end of placeGun()
-
-    public BranchGroup getGunBG() {
-        return this.gunBG;
-    }
-
-    public void makeRotation(AxisAngle4d rotAxis)
-    // rotate the cone of the gun turret
-    {
-        this.gunTG.getTransform(this.gunT3d); // get current transform
-        // System.out.println("Start gunT3d: " + gunT3d);
-        this.gunT3d.get(this.currTrans); // get current translation
-        this.gunT3d.setTranslation(ORIGIN); // translate to origin
-
-        this.rotT3d.setRotation(rotAxis); // apply rotation
-        this.gunT3d.mul(this.rotT3d);
-
-        this.gunT3d.setTranslation(this.currTrans); // translate back
-        this.gunTG.setTransform(this.gunT3d);
-        // System.out.println("End gunT3d: " + gunT3d);
-    } // end of makeRotation()
-
+        Material stoneMat = new Material(); // white by default
+        stoneMat.setLightingEnable(true);
+        Appearance apStone = new Appearance();
+        apStone.setMaterial(stoneMat);
+        TextureLoader stoneTex = new TextureLoader("images/stone.jpg", null);
+        if (stoneTex != null) {
+            apStone.setTexture(stoneTex.getTexture());
+        }
+        // combine the texture with material and lighting
+        TextureAttributes texAttr = new TextureAttributes();
+        texAttr.setTextureMode(TextureAttributes.MODULATE);
+        apStone.setTextureAttributes(texAttr);
+        return apStone;
+    } // end of stoneApp()
 } // end of GunTurret class

@@ -3,7 +3,6 @@ package Flocking3D;
 // PreyBoid.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
 // Sirinart Sakarin, March 2003, s4210315@calvin.coe.psu.ac.th
-
 /* A prey boid has an orange body and wants to avoid predators.
  When it sees nearby predators, it tries to evade them.
 
@@ -12,7 +11,6 @@ package Flocking3D;
  A Prey boid can be 'eaten' which means it is detached
  from the scene and removed from its BoidsList.
  */
-
 import javax.media.j3d.BranchGroup;
 import javax.vecmath.Color3f;
 import javax.vecmath.Vector3f;
@@ -25,21 +23,20 @@ public class PreyBoid extends Boid {
         setCapability(BranchGroup.ALLOW_DETACH); // prey boids can be 'eaten'
     } // end of PreyBoid()
 
-    @Override
-    protected void doVelocityRules()
-    /*
-     * Override doVelocityRules() to check for nearby predators and evade them.
-     */
-    {
-        Vector3f v = ((PreyBehavior) this.beh).seePredators(this.boidPos);
-        this.velChanges.add(v);
-        super.doVelocityRules();
-    } // end of doVelocityRules()
-
     public void boidDetach()
     // detach this boid from the scene, since being 'eaten'
     {
         detach();
     }
 
+    @Override
+    protected void doVelocityRules()
+    /*
+     * Override doVelocityRules() to check for nearby predators and evade them.
+     */
+    {
+        Vector3f v = ((PreyBehavior) beh).seePredators(boidPos);
+        velChanges.add(v);
+        super.doVelocityRules();
+    } // end of doVelocityRules()
 } // end of PreyBoid class

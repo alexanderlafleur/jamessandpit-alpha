@@ -2,7 +2,6 @@ package Chat.Multicasting;
 
 // NameServer.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* A server that accepts datagrams from users involved in
  a chat multicast group. 
 
@@ -18,7 +17,6 @@ package Chat.Multicasting;
  The response to a "who" message is a list of the current
  group member names.
  */
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -27,72 +25,68 @@ import java.net.SocketException;
 import java.util.ArrayList;
 
 public class NameServer {
-    private static final String GROUP_HOST = "228.5.6.7";
-
+    private static final int BUFSIZE = 1024; // max size of a message
     // the multicast group address sent to new members
-
+    private static final String GROUP_HOST = "228.5.6.7";
     private static final int PORT = 1234; // for this server
 
-    private static final int BUFSIZE = 1024; // max size of a message
-
-    private DatagramSocket serverSock;
+    public static void main(String args[]) {
+        new NameServer();
+    }
 
     private ArrayList groupMembers;
-
     // holds the names of the current members of the multicast group
+    private DatagramSocket serverSock;
 
     public NameServer() {
         try { // try to create a socket for the server
-            this.serverSock = new DatagramSocket(PORT);
+            serverSock = new DatagramSocket(PORT);
         } catch (SocketException se) {
             System.out.println(se);
             System.exit(1);
         }
-
-        this.groupMembers = new ArrayList();
+        groupMembers = new ArrayList();
         waitForPackets();
     } // end of NameServer()
 
-    private void waitForPackets()
-    // wait for a packet, process it, repeat
+    private boolean isUniqueName(String nm)
+    // return true if nm is not already in the group members list
     {
-        DatagramPacket receivePacket;
-        byte data[];
-
-        System.out.println("Ready for client messages");
-        try {
-            while (true) {
-                data = new byte[BUFSIZE]; // set up an empty packet
-                receivePacket = new DatagramPacket(data, data.length);
-                this.serverSock.receive(receivePacket); // wait for a packet
-
-                // extract client address, port, message
-                InetAddress clientAddr = receivePacket.getAddress();
-                int clientPort = receivePacket.getPort();
-
-                String clientMsg = new String(receivePacket.getData(), 0, receivePacket.getLength()).trim();
-                System.out.println("Received: " + clientMsg);
-
-                processClient(clientMsg, clientAddr, clientPort);
+        String name;
+        for (int i = 0; i < groupMembers.size(); i++) {
+            name = (String) groupMembers.get(i);
+            if (name.equals(nm)) {
+                return false;
             }
-        } catch (IOException ioe) {
-            System.out.println(ioe);
         }
-    } // end of waitForPackets()
+        return true;
+    } // end of isUniqueName()
 
+    private String listNames()
+    /*
+     * Return the group members list as a string of the form no. name \n no1. name1 \n ...
+     */
+    {
+        String list = new String();
+        String name;
+        for (int i = 0; i < groupMembers.size(); i++) {
+            name = (String) groupMembers.get(i);
+            list += "" + (i + 1) + " " + name + "\n";
+        }
+        return list;
+    } // end of listNames()
+
+    // ------------------- names processing -------------------
     private void processClient(String msg, InetAddress addr, int port)
     /*
      * There are three possible types of message: hi <name> // add the name to the group list (if name is unique) and tell them the multicast address
-     * 
-     * bye <name> // delete this name from the group list
-     * 
-     * who // send back a list of all the current members
+     * bye <name> // delete this name from the group list who // send back a list of all the current members
      */
     {
         if (msg.startsWith("hi")) {
             String name = msg.substring(2).trim();
             if (name != null && isUniqueName(name)) {
-                this.groupMembers.add(name);
+                groupMembers.add(name);
                 sendMessage(GROUP_HOST, addr, port); // send multicast addr
             } else {
                 sendMessage("no", addr, port);
@@ -109,66 +103,53 @@ public class NameServer {
         } else {
             System.out.println("Do not understand the message");
         }
-
     } // end of processClient()
+
+    private void removeName(String nm)
+    // remove nm from the group members list
+    {
+        String name;
+        for (int i = 0; i < groupMembers.size(); i++) {
+            name = (String) groupMembers.get(i);
+            if (name.equals(nm)) {
+                groupMembers.remove(i);
+                break;
+            }
+        }
+    } // end of removeName()
 
     private void sendMessage(String msg, InetAddress addr, int port)
     // send message back to the client
     {
         try {
             DatagramPacket sendPacket = new DatagramPacket(msg.getBytes(), msg.length(), addr, port);
-            this.serverSock.send(sendPacket);
+            serverSock.send(sendPacket);
         } catch (IOException ioe) {
             System.out.println(ioe);
         }
     } // end of sendMessage()
 
-    // ------------------- names processing -------------------
-
-    private boolean isUniqueName(String nm)
-    // return true if nm is not already in the group members list
-    {
-        String name;
-        for (int i = 0; i < this.groupMembers.size(); i++) {
-            name = (String) this.groupMembers.get(i);
-            if (name.equals(nm)) {
-                return false;
-            }
-        }
-        return true;
-    } // end of isUniqueName()
-
-    private void removeName(String nm)
-    // remove nm from the group members list
-    {
-        String name;
-        for (int i = 0; i < this.groupMembers.size(); i++) {
-            name = (String) this.groupMembers.get(i);
-            if (name.equals(nm)) {
-                this.groupMembers.remove(i);
-                break;
-            }
-        }
-    } // end of removeName()
-
-    private String listNames()
-    /*
-     * Return the group members list as a string of the form no. name \n no1. name1 \n ...
-     */
-    {
-        String list = new String();
-        String name;
-        for (int i = 0; i < this.groupMembers.size(); i++) {
-            name = (String) this.groupMembers.get(i);
-            list += "" + (i + 1) + " " + name + "\n";
-        }
-        return list;
-    } // end of listNames()
-
     // ------------------------------------
-
-    public static void main(String args[]) {
-        new NameServer();
-    }
-
+    private void waitForPackets()
+    // wait for a packet, process it, repeat
+    {
+        DatagramPacket receivePacket;
+        byte data[];
+        System.out.println("Ready for client messages");
+        try {
+            while (true) {
+                data = new byte[BUFSIZE]; // set up an empty packet
+                receivePacket = new DatagramPacket(data, data.length);
+                serverSock.receive(receivePacket); // wait for a packet
+                // extract client address, port, message
+                InetAddress clientAddr = receivePacket.getAddress();
+                int clientPort = receivePacket.getPort();
+                String clientMsg = new String(receivePacket.getData(), 0, receivePacket.getLength()).trim();
+                System.out.println("Received: " + clientMsg);
+                processClient(clientMsg, clientAddr, clientPort);
+            }
+        } catch (IOException ioe) {
+            System.out.println(ioe);
+        }
+    } // end of waitForPackets()
 } // end of NameServer class

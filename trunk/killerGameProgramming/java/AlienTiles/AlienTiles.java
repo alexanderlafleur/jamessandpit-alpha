@@ -2,7 +2,6 @@ package AlienTiles;
 
 // AlienTiles.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* AlienTiles is a basic isometric game consisting of one player
  who must pick up 3 items (a cup, flower pot, and a watch)
  before 4 nasty aliens have hit him 3 times.
@@ -47,7 +46,6 @@ package AlienTiles;
  The player and tyhe alien sprites are subclasses of the 
  Sprite class discussed in chapter 6.
  */
-
 import java.awt.Container;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -55,65 +53,8 @@ import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 
 public class AlienTiles extends JFrame implements WindowListener {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 615308493168699580L;
-
     private static int DEFAULT_FPS = 40;
-
-    private AlienTilesPanel atp; // where the game is drawn
-
-    private MidisLoader midisLoader;
-
-    public AlienTiles(long period) {
-        super("AlienTiles");
-
-        // load the background MIDI sequence
-        this.midisLoader = new MidisLoader();
-        this.midisLoader.load("mi", "Mission_Impossible.mid");
-        this.midisLoader.play("mi", true); // repeatedly play it
-
-        Container c = getContentPane(); // default BorderLayout used
-        this.atp = new AlienTilesPanel(this, period);
-        c.add(this.atp, "Center");
-
-        addWindowListener(this);
-        pack();
-        setResizable(false);
-        setVisible(true);
-    } // end of AlienTiles() constructor
-
-    // ----------------- window listener methods -------------
-
-    public void windowActivated(WindowEvent e) {
-        this.atp.resumeGame();
-    }
-
-    public void windowDeactivated(WindowEvent e) {
-        this.atp.pauseGame();
-    }
-
-    public void windowDeiconified(WindowEvent e) {
-        this.atp.resumeGame();
-    }
-
-    public void windowIconified(WindowEvent e) {
-        this.atp.pauseGame();
-    }
-
-    public void windowClosing(WindowEvent e) {
-        this.atp.stopGame();
-        this.midisLoader.close(); // not really required
-    }
-
-    public void windowClosed(WindowEvent e) {
-    }
-
-    public void windowOpened(WindowEvent e) {
-    }
-
-    // ----------------------------------------------------
+    private static final long serialVersionUID = 615308493168699580L;
 
     public static void main(String args[]) {
         long period = (long) 1000.0 / DEFAULT_FPS;
@@ -122,5 +63,50 @@ public class AlienTiles extends JFrame implements WindowListener {
         new AlienTiles(period * 1000000L); // ms --> nanosecs
     }
 
-} // end of AlienTiles class
+    private AlienTilesPanel atp; // where the game is drawn
+    private MidisLoader midisLoader;
 
+    // ----------------- window listener methods -------------
+    public AlienTiles(long period) {
+        super("AlienTiles");
+        // load the background MIDI sequence
+        midisLoader = new MidisLoader();
+        midisLoader.load("mi", "Mission_Impossible.mid");
+        midisLoader.play("mi", true); // repeatedly play it
+        Container c = getContentPane(); // default BorderLayout used
+        atp = new AlienTilesPanel(this, period);
+        c.add(atp, "Center");
+        addWindowListener(this);
+        pack();
+        setResizable(false);
+        setVisible(true);
+    } // end of AlienTiles() constructor
+
+    public void windowActivated(WindowEvent e) {
+        atp.resumeGame();
+    }
+
+    public void windowClosed(WindowEvent e) {
+    }
+
+    public void windowClosing(WindowEvent e) {
+        atp.stopGame();
+        midisLoader.close(); // not really required
+    }
+
+    public void windowDeactivated(WindowEvent e) {
+        atp.pauseGame();
+    }
+
+    public void windowDeiconified(WindowEvent e) {
+        atp.resumeGame();
+    }
+
+    public void windowIconified(WindowEvent e) {
+        atp.pauseGame();
+    }
+
+    // ----------------------------------------------------
+    public void windowOpened(WindowEvent e) {
+    }
+} // end of AlienTiles class

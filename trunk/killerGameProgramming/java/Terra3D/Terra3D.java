@@ -2,7 +2,6 @@ package Terra3D;
 
 // Terra3D.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Load a terrain created using the TerraGen application,
  and exported as a .obj file (a mesh) and a .jpg (a texture).
 
@@ -32,34 +31,16 @@ package Terra3D;
  Compilation can be carried out with compileTerra3D.bat:
  javac -classpath "%CLASSPATH%;ncsa\portfolio.jar" *.java
  */
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 
 import javax.swing.JFrame;
 
 public class Terra3D extends JFrame {
-
     /**
      * 
      */
     private static final long serialVersionUID = -3020505106328410325L;
-
-    public Terra3D(String fn) {
-        super("Terra3D");
-
-        Container c = getContentPane();
-        c.setLayout(new BorderLayout());
-        WrapTerra3D w3d = new WrapTerra3D(fn);
-        c.add(w3d, BorderLayout.CENTER);
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();
-        setResizable(false); // fixed size display
-        setVisible(true);
-    } // end of Terra3D()
-
-    // -----------------------------------------
 
     public static void main(String[] args) {
         if (args.length == 1) {
@@ -69,5 +50,16 @@ public class Terra3D extends JFrame {
         }
     }
 
+    // -----------------------------------------
+    public Terra3D(String fn) {
+        super("Terra3D");
+        Container c = getContentPane();
+        c.setLayout(new BorderLayout());
+        WrapTerra3D w3d = new WrapTerra3D(fn);
+        c.add(w3d, BorderLayout.CENTER);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setResizable(false); // fixed size display
+        setVisible(true);
+    } // end of Terra3D()
 } // end of Terra3D class
-

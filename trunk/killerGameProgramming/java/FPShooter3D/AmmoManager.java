@@ -2,7 +2,6 @@ package FPShooter3D;
 
 // AmmoManager.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* AmmoManager starts by loading a predetermined set of explosion images
  into exploIms[].
 
@@ -13,7 +12,6 @@ package FPShooter3D;
  AmmoManager also handles a fireBeam() call from KeyBehavior by firing 
  a beam if one is available, otherwise doing nothing.
  */
-
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.ImageComponent2D;
 import javax.media.j3d.TransformGroup;
@@ -23,18 +21,16 @@ import com.sun.j3d.utils.image.TextureLoader;
 
 public class AmmoManager {
     private final static int NUMBEAMS = 20;
-
     private LaserShot[] shots; // for the beams
 
     public AmmoManager(TransformGroup steerTG, BranchGroup sceneBG, Vector3d targetVec) {
         // load the explosion images
         ImageComponent2D[] exploIms = loadImages("explo/explo", 6);
-
-        this.shots = new LaserShot[NUMBEAMS];
+        shots = new LaserShot[NUMBEAMS];
         for (int i = 0; i < NUMBEAMS; i++) {
-            this.shots[i] = new LaserShot(steerTG, exploIms, targetVec);
+            shots[i] = new LaserShot(steerTG, exploIms, targetVec);
             // a laser shot represents a single beam and explosion
-            sceneBG.addChild(this.shots[i].getTG());
+            sceneBG.addChild(shots[i].getTG());
         }
     } // end of AmmoManager()
 
@@ -42,7 +38,7 @@ public class AmmoManager {
     // fire an available beam (called from KeyBehavior)
     {
         for (int i = 0; i < NUMBEAMS; i++) {
-            if (this.shots[i].requestFiring()) {
+            if (shots[i].requestFiring()) {
                 // System.out.println("Fired shot " + i);
                 return;
             }
@@ -69,6 +65,4 @@ public class AmmoManager {
         }
         return ims;
     } // end of loadImages()
-
 } // end of AmmoManager class
-

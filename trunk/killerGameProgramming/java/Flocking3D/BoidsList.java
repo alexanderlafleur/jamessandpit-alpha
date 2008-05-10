@@ -3,12 +3,10 @@ package Flocking3D;
 // BoidsList.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
 // Sirinart Sakarin, March 2003, s4210315@calvin.coe.psu.ac.th
-
 /* An ArrayList for boids. 
  The methods are synchronized so that boid removal cannot
  affect the retrieval of a reference to a boid.
  */
-
 import java.util.ArrayList;
 
 public class BoidsList extends ArrayList {
@@ -39,5 +37,4 @@ public class BoidsList extends ArrayList {
         }
         return false;
     }
-
 } // end of BoidsList class

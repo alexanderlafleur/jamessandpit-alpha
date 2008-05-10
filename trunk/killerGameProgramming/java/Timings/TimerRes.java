@@ -2,7 +2,6 @@ package Timings;
 
 // TimerRes.java
 // Andrew Davison, April 2005, ad@fivedots.psu.ac.th
-
 /* Measure the resolution of System.currentTimeMillis(),
  the Java 3D timer, the sun.misc.Perf counter, and the J2SE 5.0
  nano timer.
@@ -26,10 +25,13 @@ package Timings;
  Perf resolution: 1257 nsecs;  Perf Time: 10476 nsecs
 
  */
-
 import com.sun.j3d.utils.timer.J3DTimer;
 
 public class TimerRes {
+    private static void j3dTimeResolution() {
+        System.out.println("Java 3D Timer Resolution: " + J3DTimer.getResolution() + " nsecs");
+    }
+
     public static void main(String args[]) {
         j3dTimeResolution();
         sysTimeResolution();
@@ -37,87 +39,71 @@ public class TimerRes {
         nanoTimeResolution();
     }
 
-    private static void j3dTimeResolution() {
-        System.out.println("Java 3D Timer Resolution: " + J3DTimer.getResolution() + " nsecs");
-    }
+    private static void nanoTimeResolution()
+    // Note: System.nanoTime() is only available in J2SE 5.0 or later
+    {
+        long total, count1, count2;
+        count1 = System.nanoTime();
+        count2 = System.nanoTime();
+        while (count1 == count2) {
+            count2 = System.nanoTime();
+        }
+        total = count2 - count1;
+        count1 = System.nanoTime();
+        count2 = System.nanoTime();
+        while (count1 == count2) {
+            count2 = System.nanoTime();
+        }
+        total += count2 - count1;
+        count1 = System.nanoTime();
+        count2 = System.nanoTime();
+        while (count1 == count2) {
+            count2 = System.nanoTime();
+        }
+        total += count2 - count1;
+        count1 = System.nanoTime();
+        count2 = System.nanoTime();
+        while (count1 == count2) {
+            count2 = System.nanoTime();
+        }
+        total += count2 - count1;
+        System.out.println("Nano Time resolution: " + total / 4 + " ns");
+    } // end of nanoTimeResolution()
+
+    private static void perfTimeResolution() {
+        StopWatch sw = new StopWatch();
+        System.out.println("Perf Resolution: " + sw.getResolution() + " nsecs");
+        sw.start();
+        long time = sw.stop();
+        System.out.println("Perf Time " + time + " nsecs");
+    } // end of perfTimeResolution()
 
     private static void sysTimeResolution() {
         long total, count1, count2;
-
         count1 = System.currentTimeMillis();
         count2 = System.currentTimeMillis();
         while (count1 == count2) {
             count2 = System.currentTimeMillis();
         }
         total = 1000L * (count2 - count1);
-
         count1 = System.currentTimeMillis();
         count2 = System.currentTimeMillis();
         while (count1 == count2) {
             count2 = System.currentTimeMillis();
         }
         total += 1000L * (count2 - count1);
-
         count1 = System.currentTimeMillis();
         count2 = System.currentTimeMillis();
         while (count1 == count2) {
             count2 = System.currentTimeMillis();
         }
         total += 1000L * (count2 - count1);
-
         count1 = System.currentTimeMillis();
         count2 = System.currentTimeMillis();
         while (count1 == count2) {
             count2 = System.currentTimeMillis();
         }
         total += 1000L * (count2 - count1);
-
         System.out.println("System Time resolution: " + total / 4 + " microsecs");
     } // end of sysTimeResolution()
-
-    private static void perfTimeResolution() {
-        StopWatch sw = new StopWatch();
-        System.out.println("Perf Resolution: " + sw.getResolution() + " nsecs");
-
-        sw.start();
-        long time = sw.stop();
-        System.out.println("Perf Time " + time + " nsecs");
-    } // end of perfTimeResolution()
-
-    private static void nanoTimeResolution()
-    // Note: System.nanoTime() is only available in J2SE 5.0 or later
-    {
-        long total, count1, count2;
-
-        count1 = System.nanoTime();
-        count2 = System.nanoTime();
-        while (count1 == count2) {
-            count2 = System.nanoTime();
-        }
-        total = (count2 - count1);
-
-        count1 = System.nanoTime();
-        count2 = System.nanoTime();
-        while (count1 == count2) {
-            count2 = System.nanoTime();
-        }
-        total += (count2 - count1);
-
-        count1 = System.nanoTime();
-        count2 = System.nanoTime();
-        while (count1 == count2) {
-            count2 = System.nanoTime();
-        }
-        total += (count2 - count1);
-
-        count1 = System.nanoTime();
-        count2 = System.nanoTime();
-        while (count1 == count2) {
-            count2 = System.nanoTime();
-        }
-        total += (count2 - count1);
-
-        System.out.println("Nano Time resolution: " + total / 4 + " ns");
-    } // end of nanoTimeResolution()
-
 } // end of TimerRes class

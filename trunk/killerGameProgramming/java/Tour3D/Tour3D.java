@@ -2,7 +2,6 @@ package Tour3D;
 
 // Tour3D.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Usual checkboard world but with:
  * extra scenery and obstacles
  - the scenery is loaded with PropManager objects
@@ -20,7 +19,6 @@ package Tour3D;
  specified on the command line and read from the /models
  subdirectory.
  */
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 
@@ -32,35 +30,28 @@ public class Tour3D extends JFrame {
      */
     private static final long serialVersionUID = -3370051493053475866L;
 
+    public static void main(String[] args) {
+        new Tour3D(args);
+    }
+
+    // -----------------------------------------
     public Tour3D(String args[]) {
         super("3D Tour");
         String tourFnm = null;
-
         if (args.length == 1) {
             tourFnm = args[0];
         } else {
             System.out.println("Usage: java -cp %CLASSPATH%;ncsa\\portfolio.jar Tour3D <TourFile>");
             System.exit(0);
         }
-
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
         WrapTour3D w3d = new WrapTour3D(tourFnm, this);
         c.add(w3d, BorderLayout.CENTER);
-
         setUndecorated(true); // no menu bars, borders
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         pack();
         setResizable(false); // fixed size display
         setVisible(true);
     } // end of Tour3D()
-
-    // -----------------------------------------
-
-    public static void main(String[] args) {
-        new Tour3D(args);
-    }
-
 } // end of Tour3D class
-

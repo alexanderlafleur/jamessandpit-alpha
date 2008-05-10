@@ -43,34 +43,24 @@ import de.axelwernicke.mypod.util.FileUtils;
 
 /** Class representing an iPod. */
 public class IPod {
-    /** jdk1.4 logger */
     private static Logger logger = Logger.getLogger("de.axelwernicke.mypod.ipod");
-
     /** platform specific file separator */
     private static final String fileSeparator = System.getProperty("file.separator");
-
     /** string to probe ipod availability */
     private static final String IPOD_CONTROL_DIR = "iPod_Control";
-
     /** Relative Path to the music directory on the iPod */
     private static final String IPOD_DEVICE_DIR = IPOD_CONTROL_DIR + fileSeparator + "Device";
-
     /** Relative Path to the music directory on the iPod */
     private static final String IPOD_MUSIC_DIR = IPOD_CONTROL_DIR + fileSeparator + "Music";
-
     /** Relative Path to the iTunes directory on the iPod */
     private static final String IPOD_ITUNES_DIR = IPOD_CONTROL_DIR + fileSeparator + "iTunes";
-
     /** names of directories containing music on the iPod */
-    private static final String IPOD_CLIP_DIR[] = { "F00", "F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08", "F09", "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17",
-            "F18", "F19" };
-
+    private static final String IPOD_CLIP_DIR[] = { "F00", "F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08", "F09", "F10", "F11", "F12", "F13", "F14",
+            "F15", "F16", "F17", "F18", "F19" };
     /** relative path to the SysInfo file on the iPod */
     private static final String IPOD_SYS_INFO_PATH = IPOD_DEVICE_DIR + fileSeparator + "SysInfo";
-
     /** relative path to the DeviceInfo file on the iPod */
     private static final String IPOD_DEVICE_INFO_PATH = IPOD_CONTROL_DIR + fileSeparator + "DeviceInfo";
-
     /** iTunes Database containing song meta data and playlists * */
     private ITunesDB iTunesDB;
 
@@ -245,7 +235,8 @@ public class IPod {
         while (iter.hasNext()) {
             try {
                 // update dialog
-                dialog.statusContentLabel.setText(new StringBuffer(baseMessage).append(" ( ").append(curr++).append(" / ").append(total).append(" )").toString());
+                dialog.statusContentLabel.setText(new StringBuffer(baseMessage).append(" ( ").append(curr++).append(" / ").append(total).append(" )")
+                        .toString());
 
                 // get oid, file index and file name of the clip to remove
                 oid = (Long) iter.next();
@@ -295,7 +286,7 @@ public class IPod {
     /**
      * Removes all Clips from iPod.
      */
-    public void removeAllClips() {
+    protected void removeAllClips() {
         logger.entering("de.axelwernicke.mypod.ipod.IPod", "removeAllClips");
 
         boolean deleted = false;
@@ -408,7 +399,8 @@ public class IPod {
                 meta = dataPool.getMeta(oid);
 
                 // do some gui stuff
-                dialog.statusContentLabel.setText(GuiUtils.getStringLocalized("resource/language", "copyingFiles") + " ( " + fileCnt + " / " + oids.size() + " ) ");
+                dialog.statusContentLabel.setText(GuiUtils.getStringLocalized("resource/language", "copyingFiles") + " ( " + fileCnt + " / " + oids.size()
+                        + " ) ");
                 dialog.fileNameContentLabel.setText(meta.getArtist() + " - " + meta.getTitle());
                 dialog.fileSizeContentLabel.setText(GuiUtils.formatFilesize(meta.getFilesize()));
 
@@ -479,8 +471,8 @@ public class IPod {
     }
 
     /**
-     * Creates playlists on iPod. All myPod playlists are checked for synchronization. If a playlist is synchronized with iPod, a playlist is created on iPod, containing all the
-     * songs of the myPod playlist, as far as they are transfered correctly to the iPod.
+     * Creates playlists on iPod. All myPod playlists are checked for synchronization. If a playlist is synchronized with iPod, a playlist is created on iPod,
+     * containing all the songs of the myPod playlist, as far as they are transfered correctly to the iPod.
      * 
      * @param playlistList
      *            list of playlists to create
@@ -509,8 +501,8 @@ public class IPod {
             // we are interested in playlists to sync only
             if (playlist.isIPodSync()) {
                 // update dialog
-                dialog.statusContentLabel.setText(new StringBuffer().append(GuiUtils.getStringLocalized("resource/language", "creatingPlaylists")).append(" ( ").append(name)
-                        .append(" )").toString());
+                dialog.statusContentLabel.setText(new StringBuffer().append(GuiUtils.getStringLocalized("resource/language", "creatingPlaylists"))
+                        .append(" ( ").append(name).append(" )").toString());
 
                 logger.info("synchronizing playlist " + name + " with iPod");
 
@@ -590,40 +582,37 @@ public class IPod {
         logger.exiting("de.axelwernicke.mypod.ipod.IPod", "getName");
 
         return name;
-
-    } // get iPod name
+    }
 
     /**
-     * Wipes all music from the iPod. <BR>- create a new empty database from given name <BR>- remove all clips from iPod <BR>- save new database <BR>- serialize iPodMapper
+     * Wipes all music from the iPod. <BR>- create a new empty database from given name <BR>- remove all clips from iPod <BR>- save new database <BR>-
+     * serialize iPodMapper
      */
     public void wipe() {
-        logger.entering("de.axelwernicke.mypod.ipod.IPod", "wipe");
-
-        // create new empty iTunes database
         setITunesDB(new ITunesDB(getName()));
 
-        // check db vor validity
         if (logger.isLoggable(Level.FINE)) {
             logger.fine("new db valid: " + getITunesDB().isValid());
         }
 
-        // remove all music files from the iPod
+        removeAllPlaylists();
         removeAllClips();
-
-        // save iTunes DB
         saveITunesDB();
 
-        // create new iMapper
         myPod.getBackend().serializeIPodMapper(new Hashtable());
-
-        logger.exiting("de.axelwernicke.mypod.ipod.IPod", "wipe");
     }
 
-    /**
-     * Getter for property itunesDB.
-     * 
-     * @return Value of property itunesDB.
-     */
+    private void removeAllPlaylists() {
+        ITunesDBPlaylistHeader header = iTunesDB.getPlaylistHeader();
+
+        for (int i = 0; i < header.getPlaylistCount(); i++) {
+            header.removePlaylist(i);
+        }
+
+        ITunesDBListHolder holder = iTunesDB.getPlaylistHolder();
+        holder.setRecordSize(0);
+    }
+
     public de.axelwernicke.mypod.ipod.ITunesDB getITunesDB() {
         if (iTunesDB == null) {
             loadITunesDB();
@@ -632,21 +621,10 @@ public class IPod {
         return iTunesDB;
     }
 
-    /**
-     * Setter for property itunesDB.
-     * 
-     * @param iTunesDB
-     *            to set
-     */
     public void setITunesDB(ITunesDB iTunesDB) {
         this.iTunesDB = iTunesDB;
     }
 
-    /**
-     * Getter for property version.
-     * 
-     * @return Value of property version.
-     */
     public String getVersion() {
         logger.entering("de.axelwernicke.mypod.ipod.IPod", "getVersion");
 

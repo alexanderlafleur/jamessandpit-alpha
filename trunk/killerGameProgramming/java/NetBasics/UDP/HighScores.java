@@ -2,7 +2,6 @@ package NetBasics.UDP;
 
 // HighScores.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -14,30 +13,15 @@ import java.util.StringTokenizer;
 public class HighScores
 // Maintains the collection of high scores
 {
+    private static final int MAX_SCORES = 10;
+    private static String SCORE_FN = "scores.txt";
+    private int numScores; // number of scores in the array
     private ScoreInfo scores[];
 
-    private int numScores; // number of scores in the array
-
-    private static final int MAX_SCORES = 10;
-
-    private static String SCORE_FN = "scores.txt";
-
     public HighScores() {
-        this.scores = new ScoreInfo[MAX_SCORES];
-        this.numScores = 0;
+        scores = new ScoreInfo[MAX_SCORES];
+        numScores = 0;
         loadScores();
-    }
-
-    @Override
-    public String toString()
-    // The returned string is "HIGH$$ name1 & score1 & .... nameN & scoreN & "
-    {
-        String details = "HIGH$$ ";
-        for (int i = 0; i < this.numScores; i++) {
-            details += this.scores[i].getName() + " & " + this.scores[i].getScore() + " & ";
-        }
-        System.out.println("details: " + details);
-        return details;
     }
 
     public void addScore(String line)
@@ -56,31 +40,25 @@ public class HighScores
 
     public void addScore(String name, int scr) {
         int i = 0;
-
-        while ((i < this.numScores) && (this.scores[i].getScore() >= scr)) {
+        while (i < numScores && scores[i].getScore() >= scr) {
             i++;
         }
-
         if (i == MAX_SCORES) { // array is full and new score is smaller than
             // existing ones
             System.out.println("Score too small to be added to full array");
             return; // do not add new score
         }
-
-        if (this.numScores == MAX_SCORES) {
+        if (numScores == MAX_SCORES) {
             // smallest
-            this.numScores--;
+            numScores--;
         }
-
         // move smaller scores to the right in the array
-        for (int j = this.numScores - 1; j >= i; j--) {
-            this.scores[j + 1] = this.scores[j];
+        for (int j = numScores - 1; j >= i; j--) {
+            scores[j + 1] = scores[j];
         }
-
         // add in new score
-        this.scores[i] = new ScoreInfo(name, scr);
-
-        this.numScores++;
+        scores[i] = new ScoreInfo(name, scr);
+        numScores++;
     } // end of addScore()
 
     private void loadScores()
@@ -108,8 +86,8 @@ public class HighScores
         String line;
         try {
             PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(SCORE_FN)), true);
-            for (int i = 0; i < this.numScores; i++) {
-                line = this.scores[i].getName() + " & " + this.scores[i].getScore() + " &";
+            for (int i = 0; i < numScores; i++) {
+                line = scores[i].getName() + " & " + scores[i].getScore() + " &";
                 out.println(line);
             }
             out.close();
@@ -118,29 +96,36 @@ public class HighScores
         }
     } // end of saveScores()
 
+    @Override
+    public String toString()
+    // The returned string is "HIGH$$ name1 & score1 & .... nameN & scoreN & "
+    {
+        String details = "HIGH$$ ";
+        for (int i = 0; i < numScores; i++) {
+            details += scores[i].getName() + " & " + scores[i].getScore() + " & ";
+        }
+        System.out.println("details: " + details);
+        return details;
+    }
 } // end of HighScores class
 
 // --------------------------------------------------------------
-
 class ScoreInfo
 // Maintains the name and score details
 {
     private String name;
-
     private int score;
 
     public ScoreInfo(String n, int s) {
-        this.name = n;
-        this.score = s;
+        name = n;
+        score = s;
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public int getScore() {
-        return this.score;
+        return score;
     }
-
 } // end of ScoreInfo
-

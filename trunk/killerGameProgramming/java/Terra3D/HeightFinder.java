@@ -2,7 +2,6 @@ package Terra3D;
 
 // HeightFinder.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* HeightFinder was designed to hide the slowness of picking
  for such a large object (the mesh loaded from the landscape's 
  OBJ file).
@@ -38,7 +37,6 @@ package Terra3D;
  This approach means that KeyBehavior can deal with very fast user
  keypresses, even though picking is slow. 
  */
-
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -48,87 +46,38 @@ import com.sun.j3d.utils.picking.PickTool;
 
 public class HeightFinder extends Thread {
     private final static Vector3d DOWN_VEC = new Vector3d(0.0, -1.0, 0.0);
-
-    private Landscape land;
-
-    private KeyBehavior keyBeh;
-
-    private PickTool picker; // used to pick into the landscape
-
-    private double scaleLen;
-
-    private Vector3d theMove; // holds the current move request from
-    // KeyBehavior
-
     private boolean calcRequested;
+    private KeyBehavior keyBeh;
+    private Landscape land;
+    private PickTool picker; // used to pick into the landscape
+    private double scaleLen;
+    private Vector3d theMove; // holds the current move request from
 
+    // KeyBehavior
     public HeightFinder(Landscape ld, KeyBehavior kb) {
-        this.land = ld;
-        this.keyBeh = kb;
-
-        this.picker = new PickTool(this.land.getLandBG()); // only check the landscape
-        this.picker.setMode(PickTool.GEOMETRY_INTERSECT_INFO);
-
-        this.scaleLen = this.land.getScaleLen();
-        this.theMove = new Vector3d();
-        this.calcRequested = false;
+        land = ld;
+        keyBeh = kb;
+        picker = new PickTool(land.getLandBG()); // only check the landscape
+        picker.setMode(PickTool.GEOMETRY_INTERSECT_INFO);
+        scaleLen = land.getScaleLen();
+        theMove = new Vector3d();
+        calcRequested = false;
     } // end of heightFinder()
-
-    synchronized public void requestMoveHeight(Vector3d mv)
-    // KeyBehaviour sends a new move request
-    {
-        this.theMove.set(mv.x, mv.y, mv.z); // this will overwrite any pending
-        // request
-        this.calcRequested = true;
-    }
-
-    synchronized private Vector3d getMove()
-    /*
-     * getLandHeight() gets the move request. A synchronized method is used so that the get cannot be mixed with a set if Keybehavior happens to call requestMoveHeight() at the
-     * same time.
-     */
-    {
-        this.calcRequested = false;
-        return new Vector3d(this.theMove.x, this.theMove.y, this.theMove.z);
-    }
-
-    @Override
-    public void run()
-    /*
-     * Repeatedly get a move request and process it by picking. If there is no pending request (calcRequested == false), then sleep for a short time.
-     */
-    {
-        Vector3d vec;
-        while (true) {
-            if (this.calcRequested) {
-                vec = getMove(); // get the requested move
-                getLandHeight(vec.x, vec.z); // pick with it
-            } else { // no pending request
-                try {
-                    Thread.sleep(200); // sleep a little
-                } catch (InterruptedException e) {
-                }
-            }
-        }
-    } // end of run()
 
     private void getLandHeight(double x, double z)
     /*
-     * Picking is a bit flakey, especially near edges and corners, so if no PickResult is found, no intersections found, or the extraction of intersection coords fails, then
-     * keyBeh.adjustHeight() is not called.
-     * 
-     * pickStart and the pick ray use world coordinates, but the intersection info is returned in landscape coords (floor is XY, height is Z). This means that the height must be
-     * converted to world coordinates (i.e. scaled) before being sent to KeyBehavior.
+     * Picking is a bit flakey, especially near edges and corners, so if no PickResult is found, no intersections found, or the extraction of
+     * intersection coords fails, then keyBeh.adjustHeight() is not called. pickStart and the pick ray use world coordinates, but the intersection
+     * info is returned in landscape coords (floor is XY, height is Z). This means that the height must be converted to world coordinates (i.e.
+     * scaled) before being sent to KeyBehavior.
      */
     {
         Point3d pickStart = new Point3d(x, 2000, z); // high up in world
         // coords
-        this.picker.setShapeRay(pickStart, DOWN_VEC); // shoot a ray downwards in
+        picker.setShapeRay(pickStart, DOWN_VEC); // shoot a ray downwards in
         // world coords
-
-        PickResult picked = this.picker.pickClosest();
+        PickResult picked = picker.pickClosest();
         // System.out.println("picked value: " + picked);
-
         if (picked != null) { // pick sometimes misses at an edge/corner
             if (picked.numIntersections() != 0) { // sometimes no intersects
                 // are found
@@ -142,14 +91,50 @@ public class HeightFinder extends Thread {
                     return; // don't talk to KeyBehavior since no height was
                     // found
                 }
-
-                double nextYHeight = nextPt.z * this.scaleLen; // z-axis land -->
+                double nextYHeight = nextPt.z * scaleLen; // z-axis land -->
                 // y-axis world
                 // System.out.println("nextYHeight: " + nextYHeight);
-                this.keyBeh.adjustHeight(nextYHeight); // tell KeyBehavior the new
+                keyBeh.adjustHeight(nextYHeight); // tell KeyBehavior the new
                 // height
             }
         }
     } // end of getLandHeight()
 
+    synchronized private Vector3d getMove()
+    /*
+     * getLandHeight() gets the move request. A synchronized method is used so that the get cannot be mixed with a set if Keybehavior happens to call
+     * requestMoveHeight() at the same time.
+     */
+    {
+        calcRequested = false;
+        return new Vector3d(theMove.x, theMove.y, theMove.z);
+    }
+
+    synchronized public void requestMoveHeight(Vector3d mv)
+    // KeyBehaviour sends a new move request
+    {
+        theMove.set(mv.x, mv.y, mv.z); // this will overwrite any pending
+        // request
+        calcRequested = true;
+    }
+
+    @Override
+    public void run()
+    /*
+     * Repeatedly get a move request and process it by picking. If there is no pending request (calcRequested == false), then sleep for a short time.
+     */
+    {
+        Vector3d vec;
+        while (true) {
+            if (calcRequested) {
+                vec = getMove(); // get the requested move
+                getLandHeight(vec.x, vec.z); // pick with it
+            } else { // no pending request
+                try {
+                    Thread.sleep(200); // sleep a little
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+    } // end of run()
 } // end of HeightFinder class

@@ -2,7 +2,6 @@ package Chat.ChatServlet;
 
 // ChatGroup.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* ChatGroup maintains two ArrayLists: chatUsers and messages.
 
  chatUsers is an ArrayList of Chatter objects; each Chatter
@@ -22,53 +21,34 @@ package Chat.ChatServlet;
  doGet() servlet threads wishing to access the ChatGroup object
  at the same time.
  */
-
 import java.util.ArrayList;
 
 public class ChatGroup {
     private ArrayList chatUsers;
-
     private ArrayList messages;
-
     private int numUsers;
 
     public ChatGroup() {
-        this.chatUsers = new ArrayList();
-        this.messages = new ArrayList();
-        this.numUsers = 0;
+        chatUsers = new ArrayList();
+        messages = new ArrayList();
+        numUsers = 0;
     }
 
     synchronized public int addUser(String name)
     // adds a user, returns UID if okay, -1 otherwise
     {
-        if (this.numUsers == 0) {
-            this.messages.clear();
+        if (numUsers == 0) {
+            messages.clear();
         }
-
         if (isUniqueName(name)) {
             Chatter c = new Chatter(name);
-            this.chatUsers.add(c);
-            this.messages.add("(" + name + ") has arrived");
-            this.numUsers++;
+            chatUsers.add(c);
+            messages.add("(" + name + ") has arrived");
+            numUsers++;
             return c.getUID();
         }
         return -1;
     }
-
-    private boolean isUniqueName(String name)
-    /*
-     * Returns true if there is no existing Chatter object with the given name.
-     */
-    {
-        Chatter c;
-        for (int i = 0; i < this.chatUsers.size(); i++) {
-            c = (Chatter) this.chatUsers.get(i);
-            if (c.getUserName().equals(name)) {
-                return false;
-            }
-        }
-        return true;
-    } // end of findUser()
 
     synchronized public boolean delUser(String name, int uid)
     // delete the specified user
@@ -76,14 +56,13 @@ public class ChatGroup {
         if (uid == -1) {
             return false;
         }
-
         Chatter c;
-        for (int i = 0; i < this.chatUsers.size(); i++) {
-            c = (Chatter) this.chatUsers.get(i);
+        for (int i = 0; i < chatUsers.size(); i++) {
+            c = (Chatter) chatUsers.get(i);
             if (c.matches(name, uid)) {
-                this.chatUsers.remove(i);
-                this.messages.add("(" + name + ") has departed");
-                this.numUsers--;
+                chatUsers.remove(i);
+                messages.add("(" + name + ") has departed");
+                numUsers--;
                 return true;
             }
         }
@@ -96,10 +75,9 @@ public class ChatGroup {
         if (uid == -1) {
             return null;
         }
-
         Chatter c;
-        for (int i = 0; i < this.chatUsers.size(); i++) {
-            c = (Chatter) this.chatUsers.get(i);
+        for (int i = 0; i < chatUsers.size(); i++) {
+            c = (Chatter) chatUsers.get(i);
             if (c.matches(name, uid)) {
                 return c;
             }
@@ -107,44 +85,20 @@ public class ChatGroup {
         return null;
     } // end of findUser()
 
-    synchronized public boolean storeMessage(String name, int uid, String msg)
+    private boolean isUniqueName(String name)
     /*
-     * Add msg to the messages list. It is up to the clients to read it by sending "read" messages.
+     * Returns true if there is no existing Chatter object with the given name.
      */
     {
-        Chatter c = findUser(name, uid);
-        if (c != null) {
-            this.messages.add("(" + name + ") " + msg);
-            return true;
-        }
-        return false;
-    } // end of storeMessage()
-
-    synchronized public String read(String name, int uid)
-    /*
-     * Read all the unread messages since the last "read" message.
-     * 
-     * A message may be invisible -- it may be addressed to a single person by using the message format: msg / toName
-     * 
-     * Message of this kind are not added to the list returned to the client.
-     */
-    {
-        StringBuffer msgs = new StringBuffer();
-        Chatter c = findUser(name, uid);
-
-        if (c != null) {
-            int msgsIndex = c.getMsgsIndex(); // where read to last time
-            String msg;
-            for (int i = msgsIndex; i < this.messages.size(); i++) {
-                msg = (String) this.messages.get(i);
-                if (isVisibleMsg(msg, name)) {
-                    msgs.append(msg + "\n");
-                }
+        Chatter c;
+        for (int i = 0; i < chatUsers.size(); i++) {
+            c = (Chatter) chatUsers.get(i);
+            if (c.getUserName().equals(name)) {
+                return false;
             }
-            c.setMsgsIndex(this.messages.size()); // update client's read index
         }
-        return msgs.toString();
-    } // end of read()
+        return true;
+    } // end of findUser()
 
     private boolean isVisibleMsg(String msg, String name)
     /*
@@ -155,7 +109,6 @@ public class ChatGroup {
         if (index == -1) {
             return true;
         }
-
         // does have a "/ name" part
         String toName = msg.substring(index + 1).trim();
         if (toName.equals(name)) {
@@ -170,16 +123,50 @@ public class ChatGroup {
         }
     } // end of isVisibleMsg()
 
+    synchronized public String read(String name, int uid)
+    /*
+     * Read all the unread messages since the last "read" message. A message may be invisible -- it may be addressed to a single person by using the
+     * message format: msg / toName Message of this kind are not added to the list returned to the client.
+     */
+    {
+        StringBuffer msgs = new StringBuffer();
+        Chatter c = findUser(name, uid);
+        if (c != null) {
+            int msgsIndex = c.getMsgsIndex(); // where read to last time
+            String msg;
+            for (int i = msgsIndex; i < messages.size(); i++) {
+                msg = (String) messages.get(i);
+                if (isVisibleMsg(msg, name)) {
+                    msgs.append(msg + "\n");
+                }
+            }
+            c.setMsgsIndex(messages.size()); // update client's read index
+        }
+        return msgs.toString();
+    } // end of read()
+
+    synchronized public boolean storeMessage(String name, int uid, String msg)
+    /*
+     * Add msg to the messages list. It is up to the clients to read it by sending "read" messages.
+     */
+    {
+        Chatter c = findUser(name, uid);
+        if (c != null) {
+            messages.add("(" + name + ") " + msg);
+            return true;
+        }
+        return false;
+    } // end of storeMessage()
+
     synchronized public String who()
     // Returns a list of who is currently logged on
     {
         Chatter c;
         StringBuffer whoList = new StringBuffer();
-        for (int i = 0; i < this.chatUsers.size(); i++) {
-            c = (Chatter) this.chatUsers.get(i);
+        for (int i = 0; i < chatUsers.size(); i++) {
+            c = (Chatter) chatUsers.get(i);
             whoList.append("" + (i + 1) + ". " + c.getUserName() + "\n");
         }
         return whoList.toString();
     } // end of who()
-
 } // end of ChatGroup class

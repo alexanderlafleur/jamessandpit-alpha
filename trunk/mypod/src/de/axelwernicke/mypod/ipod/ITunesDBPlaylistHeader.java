@@ -29,16 +29,11 @@ import java.util.Vector;
  * mhlp: 0x0000 'mhlp' - tag 0x0004 - tag size 0x0008 - number of playlist items in there
  * 
  * </PRE>
- * 
- * @see techdoc for more details
- * @author axelwe
  */
-class ITunesDBPlaylistHeader {
+public class ITunesDBPlaylistHeader {
     /** tag size in bytes */
     private int tagSize = 92;
 
-    /** number of playlsit items */
-    // private int playlistCount = -1;
     /** list of song items */
     private Vector playlistItems = null;
 
@@ -46,38 +41,18 @@ class ITunesDBPlaylistHeader {
         playlistItems = new Vector();
     };
 
-    /**
-     * @return
-     */
-    @Override
     public String toString() {
         return new StringBuffer("[tag size] ").append(tagSize).append('\t').append("[playlistCount] ").append(getPlaylistCount()).toString();
     }
 
-    /**
-     * Getter for property tagSize.
-     * 
-     * @return Value of property tagSize.
-     */
     public int getTagSize() {
         return tagSize;
     }
 
-    /**
-     * Setter for property tagSize.
-     * 
-     * @param tagSize
-     *            New value of property tagSize.
-     */
     public void setTagSize(int tagSize) {
         this.tagSize = tagSize;
     }
 
-    /**
-     * Getter for property playlistCount.
-     * 
-     * @return Value of property playlistCount.
-     */
     public int getPlaylistCount() {
         return this.playlistItems.size();
     }
@@ -101,5 +76,4 @@ class ITunesDBPlaylistHeader {
     public boolean containsPlaylist(ITunesDBPlaylistItem playlistItem) {
         return this.playlistItems.contains(playlistItem);
     }
-
-} // class playlist header
+}

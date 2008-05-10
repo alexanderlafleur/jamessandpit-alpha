@@ -2,7 +2,6 @@ package FPShooter3D;
 
 // FPShooter3D.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* The usual checkboard world used to illustrate coding for a
  First Person Shooter (FPS).
 
@@ -16,7 +15,6 @@ package FPShooter3D;
  - done by threads, but the Shapes are created at initialisation
  time and reused.
  */
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 
@@ -28,24 +26,20 @@ public class FPShooter3D extends JFrame {
      */
     private static final long serialVersionUID = -8250482743643978898L;
 
+    public static void main(String[] args) {
+        new FPShooter3D();
+    }
+
+    // -----------------------------------------
     public FPShooter3D() {
         super("FPShooter3D");
-
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
         WrapFPShooter3D w3d = new WrapFPShooter3D();
         c.add(w3d, BorderLayout.CENTER);
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setResizable(false); // fixed size display
         setVisible(true);
     } // end of FPShooter3D()
-
-    // -----------------------------------------
-
-    public static void main(String[] args) {
-        new FPShooter3D();
-    }
-
 } // end of FPShooter3D class
