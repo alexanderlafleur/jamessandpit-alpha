@@ -2,7 +2,6 @@ package Lathe3D;
 
 // RhodoneaShape3D.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* So named because it resembles a rose. The equation is:
  r = a cos(k . angle)
  There will be k or 2k petals depending on if k is an odd 
@@ -13,7 +12,6 @@ package Lathe3D;
  After obtaining r, we must convert back to cartesian (x,y)
  coordinates.
  */
-
 import javax.media.j3d.Texture;
 import javax.vecmath.Color3f;
 
@@ -37,5 +35,4 @@ public class RhodoneaShape3D extends LatheShape3D {
         double r = radius * Math.cos(4 * angle);
         return r * Math.sin(angle);
     }
-
 } // end of RhodoneaShape3D class

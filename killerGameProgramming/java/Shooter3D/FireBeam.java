@@ -2,7 +2,6 @@ package Shooter3D;
 
 // FireBeam.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* The beam is shot at the intercept point.
  A boolean back in the ShootingBehaviour object
  is set when the beam has reached the intercept.
@@ -14,36 +13,30 @@ package Shooter3D;
  from other activities, and is triggered from ShootingBehavior
  after the cone and beam are pointing in the right direction.
  */
-
 import javax.vecmath.Point3d;
 
 public class FireBeam extends Thread {
-    private Point3d intercept;
-
-    private ShootingBehaviour shooter;
-
-    private LaserBeam laser;
-
     private ExplosionsClip explsClip;
-
+    private Point3d intercept;
+    private LaserBeam laser;
+    private ShootingBehaviour shooter;
     private double turnAngle;
 
     public FireBeam(Point3d ipt, ShootingBehaviour b, LaserBeam lb, ExplosionsClip ec, double ta) {
-        this.intercept = ipt;
-        this.shooter = b; // so boolean can be set back in calling behaviour
-        this.laser = lb;
-        this.explsClip = ec;
-        this.turnAngle = ta;
+        intercept = ipt;
+        shooter = b; // so boolean can be set back in calling behaviour
+        laser = lb;
+        explsClip = ec;
+        turnAngle = ta;
     } // end of FireBeam
 
     @Override
     public void run() {
-        this.laser.shootBeam(this.intercept);
-        this.shooter.setFinishedShot(); // beam has reached its target
-        this.explsClip.showExplosion(this.turnAngle, this.intercept); // boom!
+        laser.shootBeam(intercept);
+        shooter.setFinishedShot(); // beam has reached its target
+        explsClip.showExplosion(turnAngle, intercept); // boom!
         /*
          * If this method is called at the same time by two copies of this thread then only a partial animation appears.
          */
     } // end of run()
-
 } // end of FireBeam class

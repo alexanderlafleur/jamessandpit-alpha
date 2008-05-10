@@ -2,7 +2,6 @@ package NetBasics.Threaded;
 
 // ThreadedScoreServer.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* A threaded server that stores a client's score (and name) in a
  list of top-10 high scores.
 
@@ -18,7 +17,6 @@ package NetBasics.Threaded;
  Horstmann and Cornell
  Sun Microsystems Press, 2000, 4th Edition
  */
-
 // import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -26,33 +24,29 @@ import java.net.Socket;
 public class ThreadedScoreServer {
     private static final int PORT = 1234;
 
+    public static void main(String args[]) {
+        new ThreadedScoreServer();
+    }
+
     private HighScores hs;
 
+    // -----------------------------------
     public ThreadedScoreServer()
     // Concurrently process clients forever
     {
-        this.hs = new HighScores();
+        hs = new HighScores();
         try {
             ServerSocket serverSock = new ServerSocket(PORT);
             Socket clientSock;
             String cliAddr;
-
             while (true) {
                 System.out.println("Waiting for a client...");
                 clientSock = serverSock.accept();
                 cliAddr = clientSock.getInetAddress().getHostAddress();
-                new ThreadedScoreHandler(clientSock, cliAddr, this.hs).start();
+                new ThreadedScoreHandler(clientSock, cliAddr, hs).start();
             }
         } catch (Exception e) {
             System.out.println(e);
         }
     } // end of ThreadedScoreServer()
-
-    // -----------------------------------
-
-    public static void main(String args[]) {
-        new ThreadedScoreServer();
-    }
-
 } // end of ThreadedScoreServer class
-

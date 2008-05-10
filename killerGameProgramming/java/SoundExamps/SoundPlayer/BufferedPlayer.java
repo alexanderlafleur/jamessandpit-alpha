@@ -2,7 +2,6 @@ package SoundExamps.SoundPlayer;
 
 // BufferedPlayer.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Read the sound file as chunks of bytes into a buffer
  via an AudioInputStream, then pass them on to the 
  SourceDataLine. 
@@ -18,7 +17,6 @@ package SoundExamps.SoundPlayer;
  bug: will not play short WAV files, in similar way to PlayClip.java
  - added checkDuration() to report on length of sound file
  */
-
 import java.io.File;
 import java.io.IOException;
 
@@ -30,34 +28,12 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class BufferedPlayer {
+    private static AudioFormat format = null;
+    private static SourceDataLine line = null;
     private static AudioInputStream stream;
 
-    private static AudioFormat format = null;
-
-    private static SourceDataLine line = null;
-
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java BufferedPlayer <clip file>");
-            System.exit(0);
-        }
-
-        createInput("Sounds/" + args[0]);
-        createOutput();
-
-        int numBytes = (int) (stream.getFrameLength() * format.getFrameSize());
-        // use getFrameLength() from the stream, since the format
-        // version may return -1 (WAV file formats always return -1)
-        System.out.println("Size in bytes: " + numBytes);
-
-        checkDuration();
-        play();
-
-        System.exit(0); // necessary in J2SE 1.4.2 and earlier
-    } // end of main()
-
     private static void checkDuration() {
-        long milliseconds = (long) ((stream.getFrameLength() * 1000) / stream.getFormat().getFrameRate());
+        long milliseconds = (long) (stream.getFrameLength() * 1000 / stream.getFormat().getFrameRate());
         double duration = milliseconds / 1000.0;
         if (duration <= 1.0) {
             System.out.println("WARNING. Duration <= 1 sec : " + duration + " secs");
@@ -75,11 +51,11 @@ public class BufferedPlayer {
             stream = AudioSystem.getAudioInputStream(new File(fnm));
             format = stream.getFormat();
             System.out.println("Audio format: " + format);
-
             // convert ULAW/ALAW formats to PCM format
-            if ((format.getEncoding() == AudioFormat.Encoding.ULAW) || (format.getEncoding() == AudioFormat.Encoding.ALAW)) {
-                AudioFormat newFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format.getChannels(), format
-                        .getFrameSize() * 2, format.getFrameRate(), true); // big
+            if (format.getEncoding() == AudioFormat.Encoding.ULAW || format.getEncoding() == AudioFormat.Encoding.ALAW) {
+                AudioFormat newFormat =
+                        new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format
+                                .getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true); // big
                 // endian
                 // update stream and format details
                 stream = AudioSystem.getAudioInputStream(newFormat, stream);
@@ -114,6 +90,22 @@ public class BufferedPlayer {
         }
     } // end of createOutput()
 
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java BufferedPlayer <clip file>");
+            System.exit(0);
+        }
+        createInput("Sounds/" + args[0]);
+        createOutput();
+        int numBytes = (int) (stream.getFrameLength() * format.getFrameSize());
+        // use getFrameLength() from the stream, since the format
+        // version may return -1 (WAV file formats always return -1)
+        System.out.println("Size in bytes: " + numBytes);
+        checkDuration();
+        play();
+        System.exit(0); // necessary in J2SE 1.4.2 and earlier
+    } // end of main()
+
     private static void play()
     /*
      * Read the sound file in chunks of bytes into buffer, and pass them on through the SourceDataLine
@@ -121,7 +113,6 @@ public class BufferedPlayer {
     {
         int numRead = 0;
         byte[] buffer = new byte[line.getBufferSize()];
-
         line.start();
         // read and play chunks of the audio
         try {
@@ -136,7 +127,6 @@ public class BufferedPlayer {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-
         // wait until all data is played, then close the line
         // System.out.println("drained start");
         line.drain();
@@ -144,5 +134,4 @@ public class BufferedPlayer {
         line.stop();
         line.close();
     } // end of play()
-
 } // end of BufferedPlayer class

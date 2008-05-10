@@ -2,7 +2,6 @@ package NetTour3D;
 
 // DistTourSprite.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* DistTourSprite moves and rotates a sprite representing
  a client from another machine. 
 
@@ -13,10 +12,8 @@ package NetTour3D;
  response to move/rotation messages received from the 
  server.
  */
-
 public class DistTourSprite extends Sprite3D {
     private final static double MOVERATE = 0.3;
-
     private final static double ROTATE_AMT = Math.PI / 16.0;
 
     public DistTourSprite(String userName, String fnm, Obstacles obs, double xPosn, double zPosn) {
@@ -24,13 +21,13 @@ public class DistTourSprite extends Sprite3D {
         setPosition(xPosn, zPosn);
     } // end of DistTourSprite()
 
+    public boolean moveBackward() {
+        return moveBy(0.0, -MOVERATE);
+    }
+
     // moves
     public boolean moveForward() {
         return moveBy(0.0, MOVERATE);
-    }
-
-    public boolean moveBackward() {
-        return moveBy(0.0, -MOVERATE);
     }
 
     public boolean moveLeft() {
@@ -49,5 +46,4 @@ public class DistTourSprite extends Sprite3D {
     public void rotCounterClock() {
         doRotateY(ROTATE_AMT);
     } // counter-clockwise
-
 } // end of DistTourSprite

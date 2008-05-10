@@ -2,7 +2,6 @@ package Maze3D;
 
 // TexturedFloor.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* A TexturedFloor is a single TexuredPlane, filled with
  quads whose coordinates go from
  FLOOR_LEN/2 to -FLOOR_LEN/2 in steps of STEP along
@@ -11,7 +10,6 @@ package Maze3D;
  The texture comes from FLOOR_IMG.
  The floor coordinates all have an up-facing normal.
  */
-
 import java.util.ArrayList;
 
 import javax.media.j3d.BranchGroup;
@@ -19,32 +17,27 @@ import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
 public class TexturedFloor {
-    private final static int FLOOR_LEN = 80; // should be even
-
-    private final static int STEP = 4; // should divide into FLOOR_LEN
-
     private final static String FLOOR_IMG = "images/stone.jpg";
-
+    private final static int FLOOR_LEN = 80; // should be even
+    private final static int STEP = 4; // should divide into FLOOR_LEN
     private BranchGroup floorBG; // parent for the TexturedPlane node
 
     public TexturedFloor()
     // create quad coords, make TexturedPlane, add to floorBG
     {
         ArrayList coords = new ArrayList();
-        this.floorBG = new BranchGroup();
-
+        floorBG = new BranchGroup();
         // create coords for the quad
-        for (int z = FLOOR_LEN / 2; z >= (-FLOOR_LEN / 2) + STEP; z -= STEP) { // front
+        for (int z = FLOOR_LEN / 2; z >= -FLOOR_LEN / 2 + STEP; z -= STEP) { // front
             // to
             // back
-            for (int x = -FLOOR_LEN / 2; x <= (FLOOR_LEN / 2) - STEP; x += STEP) {
+            for (int x = -FLOOR_LEN / 2; x <= FLOOR_LEN / 2 - STEP; x += STEP) {
                 // left to right
                 createCoords(x, z, coords);
             }
         }
-
         Vector3f upNormal = new Vector3f(0.0f, 1.0f, 0.0f); // pointing upwards
-        this.floorBG.addChild(new TexturedPlane(coords, FLOOR_IMG, upNormal));
+        floorBG.addChild(new TexturedPlane(coords, FLOOR_IMG, upNormal));
     } // end of TexturedFloor()
 
     private void createCoords(int x, int z, ArrayList coords) {
@@ -61,8 +54,6 @@ public class TexturedFloor {
     } // end of createCoords()
 
     public BranchGroup getBG() {
-        return this.floorBG;
+        return floorBG;
     }
-
 } // end of TexturedFloor class
-

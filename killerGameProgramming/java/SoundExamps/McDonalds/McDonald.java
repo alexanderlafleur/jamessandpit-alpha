@@ -2,12 +2,10 @@ package SoundExamps.McDonalds;
 
 // McDonald.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Download an audio clip inside init(), and play it repeatedly.
  when start() is called. Mercifully, stop() will stop it when
  the page is no longer active in the browser.
  */
-
 import java.applet.AudioClip;
 import java.awt.Graphics;
 
@@ -22,7 +20,7 @@ public class McDonald extends JApplet {
 
     @Override
     public void init() {
-        this.mcdClip = getAudioClip(getCodeBase(), "mcdonald.mid");
+        mcdClip = getAudioClip(getCodeBase(), "mcdonald.mid");
     }
 
     @Override
@@ -31,17 +29,16 @@ public class McDonald extends JApplet {
     }
 
     @Override
-    public void stop() {
-        this.mcdClip.stop();
-    }
-
-    @Override
     public void start()
     /*
      * A looping play (and a call to play()) always starts at the beginning of the clip.
      */
     {
-        this.mcdClip.loop();
+        mcdClip.loop();
     }
 
+    @Override
+    public void stop() {
+        mcdClip.stop();
+    }
 } // end of McDonald.java

@@ -2,7 +2,6 @@ package SoundExamps.SoundPlayer;
 
 // FadeMidi.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Play a Midi sequence, allowing its volume to be adjusted
  while it is being played. In this example, the volume is
  gradually reduced to 0 during the course of the playing.
@@ -14,7 +13,7 @@ package SoundExamps.SoundPlayer;
  The volume manipulation is done by a separate VolChanger thread,
  set up in main(). A call to FadeMidi's startVolChanger() starts
  the volume changing.
- 
+
  FadeMidi (and PanMidi) are extended versions of PlayMidi.
 
  Change 6th August 2004
@@ -24,7 +23,6 @@ package SoundExamps.SoundPlayer;
  - got sequencer by explicitly requesting it in obtainSequencer()
 
  */
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -44,36 +42,67 @@ import javax.sound.midi.Transmitter;
 public class FadeMidi implements MetaEventListener {
     // midi meta-event constant used to signal the end of a track
     private static final int END_OF_TRACK = 47;
-
+    private final static String SOUND_DIR = "Sounds/";
     private static final int VOLUME_CONTROLLER = 7;
 
-    private final static String SOUND_DIR = "Sounds/";
-
-    private Sequencer sequencer;
-
-    private Synthesizer synthesizer;
-
-    private Sequence seq;
-
-    private String filename;
-
-    private DecimalFormat df;
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java FadeMidi <midi file>");
+            System.exit(0);
+        }
+        // set up the player and the volume changer
+        FadeMidi player = new FadeMidi(args[0]);
+        VolChanger vc = new VolChanger(player);
+        player.startVolChanger(vc); // start volume manipulation
+    } // end of main()
 
     // holds the synthesizer's channels
     private MidiChannel[] channels;
+    private DecimalFormat df;
+    private String filename;
+    private Sequence seq;
+    private Sequencer sequencer;
+    private Synthesizer synthesizer;
 
     public FadeMidi(String fnm) {
-        this.df = new DecimalFormat("0.#"); // 1 dp
-
-        this.filename = SOUND_DIR + fnm;
+        df = new DecimalFormat("0.#"); // 1 dp
+        filename = SOUND_DIR + fnm;
         initSequencer();
-        loadMidi(this.filename);
+        loadMidi(filename);
         play();
-
         /*
          * No need for sleeping to keep the object alive, since the VolChanger thread refers to it.
          */
     } // end of FadeMidi()
+
+    private void close()
+    // Close down the sequencer and synthesizer
+    {
+        if (sequencer != null) {
+            if (sequencer.isRunning()) {
+                sequencer.stop();
+            }
+            sequencer.removeMetaEventListener(this);
+            sequencer.close();
+            if (synthesizer != null) {
+                synthesizer.close();
+            }
+        }
+    } // end of close()
+
+    public int getMaxVolume()
+    // return the max level for all the volume controllers
+    {
+        int maxVol = 0;
+        int channelVol;
+        for (MidiChannel element : channels) {
+            channelVol = element.getController(VOLUME_CONTROLLER);
+            if (maxVol < channelVol) {
+                maxVol = channelVol;
+            }
+        }
+        return maxVol;
+    } // end of getVolume()
 
     private void initSequencer()
     /*
@@ -81,27 +110,24 @@ public class FadeMidi implements MetaEventListener {
      */
     {
         try {
-            this.sequencer = obtainSequencer();
-
-            if (this.sequencer == null) {
+            sequencer = obtainSequencer();
+            if (sequencer == null) {
                 System.out.println("Cannot get a sequencer");
                 System.exit(0);
             }
-
-            this.sequencer.open();
-            this.sequencer.addMetaEventListener(this);
-
+            sequencer.open();
+            sequencer.addMetaEventListener(this);
             // maybe the sequencer is not the same as the synthesizer
             // so link sequencer --> synth (this is required in J2SE 1.5)
-            if (!(this.sequencer instanceof Synthesizer)) {
+            if (!(sequencer instanceof Synthesizer)) {
                 System.out.println("Linking the MIDI sequencer and synthesizer");
-                this.synthesizer = MidiSystem.getSynthesizer();
-                this.synthesizer.open(); // new
-                Receiver synthReceiver = this.synthesizer.getReceiver();
-                Transmitter seqTransmitter = this.sequencer.getTransmitter();
+                synthesizer = MidiSystem.getSynthesizer();
+                synthesizer.open(); // new
+                Receiver synthReceiver = synthesizer.getReceiver();
+                Transmitter seqTransmitter = sequencer.getTransmitter();
                 seqTransmitter.setReceiver(synthReceiver);
             } else {
-                this.synthesizer = (Synthesizer) this.sequencer;
+                synthesizer = (Synthesizer) sequencer;
             }
         } catch (MidiUnavailableException e) {
             System.out.println("No sequencer available");
@@ -109,42 +135,12 @@ public class FadeMidi implements MetaEventListener {
         }
     } // end of initSequencer()
 
-    private Sequencer obtainSequencer()
-    /*
-     * This method handles a bug in J2SE 1.5.0 which retrieves the sequencer with getSequencer() but does not allow its volume to be changed.
-     */
-    {
-        // return MidiSystem.getSequencer();
-        // okay in J2SE 1.4.2, but not in J2SE 1.5.0
-
-        MidiDevice.Info[] mdi = MidiSystem.getMidiDeviceInfo();
-        int seqPosn = -1;
-        for (int i = 0; i < mdi.length; i++) {
-            System.out.println(mdi[i].getName());
-            // if (mdi[i].getName().contains("Sequencer")) {
-            if (mdi[i].getName().indexOf("Sequencer") != -1) {
-                seqPosn = i; // found the Sequencer
-                System.out.println("  Found Sequencer");
-            }
-        }
-
-        try {
-            if (seqPosn != -1) {
-                return (Sequencer) MidiSystem.getMidiDevice(mdi[seqPosn]);
-            } else {
-                return null;
-            }
-        } catch (MidiUnavailableException e) {
-            return null;
-        }
-    } // end of obtainSequencer()
-
     private void loadMidi(String fnm) {
-        this.seq = null;
+        seq = null;
         try {
-            this.seq = MidiSystem.getSequence(getClass().getResource(fnm));
-            double duration = ((double) this.seq.getMicrosecondLength()) / 1000000;
-            System.out.println("Duration: " + this.df.format(duration) + " secs");
+            seq = MidiSystem.getSequence(getClass().getResource(fnm));
+            double duration = (double) seq.getMicrosecondLength() / 1000000;
+            System.out.println("Duration: " + df.format(duration) + " secs");
         } catch (InvalidMidiDataException e) {
             System.out.println("Unreadable/unsupported midi file: " + fnm);
             System.exit(0);
@@ -156,20 +152,6 @@ public class FadeMidi implements MetaEventListener {
             System.exit(0);
         }
     } // end of loadMidi()
-
-    private void play() {
-        if ((this.sequencer != null) && (this.seq != null)) {
-            try {
-                this.sequencer.setSequence(this.seq); // load MIDI into sequencer
-                this.sequencer.start(); // play it
-                this.channels = this.synthesizer.getChannels();
-                // showChannelVolumes();
-            } catch (InvalidMidiDataException e) {
-                System.out.println("Corrupted/invalid midi file: " + this.filename);
-                System.exit(0);
-            }
-        }
-    } // end of play()
 
     public void meta(MetaMessage event)
     /*
@@ -183,69 +165,65 @@ public class FadeMidi implements MetaEventListener {
         }
     } // end of meta()
 
-    private void close()
-    // Close down the sequencer and synthesizer
-    {
-        if (this.sequencer != null) {
-            if (this.sequencer.isRunning()) {
-                this.sequencer.stop();
-            }
-
-            this.sequencer.removeMetaEventListener(this);
-            this.sequencer.close();
-
-            if (this.synthesizer != null) {
-                this.synthesizer.close();
-            }
-        }
-    } // end of close()
-
     // ------------------- Volume Changer methods ------------------
-
-    public void startVolChanger(VolChanger vc)
+    private Sequencer obtainSequencer()
     /*
-     * Start the volume changing thread running, and supply the duration of the MIDI sequence in ms. The duration is needed to estimate how often to change the volume.
+     * This method handles a bug in J2SE 1.5.0 which retrieves the sequencer with getSequencer() but does not allow its volume to be changed.
      */
     {
-        vc.startChanging((int) (this.seq.getMicrosecondLength() / 1000));
-    }
-
-    public int getMaxVolume()
-    // return the max level for all the volume controllers
-    {
-        int maxVol = 0;
-        int channelVol;
-        for (MidiChannel element : this.channels) {
-            channelVol = element.getController(VOLUME_CONTROLLER);
-            if (maxVol < channelVol) {
-                maxVol = channelVol;
+        // return MidiSystem.getSequencer();
+        // okay in J2SE 1.4.2, but not in J2SE 1.5.0
+        MidiDevice.Info[] mdi = MidiSystem.getMidiDeviceInfo();
+        int seqPosn = -1;
+        for (int i = 0; i < mdi.length; i++) {
+            System.out.println(mdi[i].getName());
+            // if (mdi[i].getName().contains("Sequencer")) {
+            if (mdi[i].getName().indexOf("Sequencer") != -1) {
+                seqPosn = i; // found the Sequencer
+                System.out.println("  Found Sequencer");
             }
         }
-        return maxVol;
-    } // end of getVolume()
+        try {
+            if (seqPosn != -1) {
+                return (Sequencer) MidiSystem.getMidiDevice(mdi[seqPosn]);
+            } else {
+                return null;
+            }
+        } catch (MidiUnavailableException e) {
+            return null;
+        }
+    } // end of obtainSequencer()
+
+    private void play() {
+        if (sequencer != null && seq != null) {
+            try {
+                sequencer.setSequence(seq); // load MIDI into sequencer
+                sequencer.start(); // play it
+                channels = synthesizer.getChannels();
+                // showChannelVolumes();
+            } catch (InvalidMidiDataException e) {
+                System.out.println("Corrupted/invalid midi file: " + filename);
+                System.exit(0);
+            }
+        }
+    } // end of play()
 
     public void setVolume(int vol)
     // set all the controller's volume levels to vol
     {
-        for (MidiChannel element : this.channels) {
+        for (MidiChannel element : channels) {
             element.controlChange(VOLUME_CONTROLLER, vol);
         }
-
         // showChannelVolumes();
     }
 
     // ----------------------------------------------
-
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java FadeMidi <midi file>");
-            System.exit(0);
-        }
-        // set up the player and the volume changer
-        FadeMidi player = new FadeMidi(args[0]);
-        VolChanger vc = new VolChanger(player);
-
-        player.startVolChanger(vc); // start volume manipulation
-    } // end of main()
-
+    public void startVolChanger(VolChanger vc)
+    /*
+     * Start the volume changing thread running, and supply the duration of the MIDI sequence in ms. The duration is needed to estimate how often to
+     * change the volume.
+     */
+    {
+        vc.startChanging((int) (seq.getMicrosecondLength() / 1000));
+    }
 } // end of FadeMidi class

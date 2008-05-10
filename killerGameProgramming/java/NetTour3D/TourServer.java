@@ -11,38 +11,33 @@ package NetTour3D;
 
  Very similar to the multithreaded Chat server.
  */
-
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class TourServer {
     static final int PORT = 5555;
 
+    public static void main(String args[]) {
+        new TourServer();
+    }
+
     private TourGroup tg;
 
+    // -----------------------------------
     public TourServer()
     // wait for a client connection, spawn a thread, repeat
     {
-        this.tg = new TourGroup();
+        tg = new TourGroup();
         try {
             ServerSocket serverSock = new ServerSocket(PORT);
             Socket clientSock;
-
             while (true) {
                 System.out.println("Waiting for a client...");
                 clientSock = serverSock.accept();
-                new TourServerHandler(clientSock, this.tg).start();
+                new TourServerHandler(clientSock, tg).start();
             }
         } catch (Exception e) {
             System.out.println(e);
         }
     } // end of TourServer()
-
-    // -----------------------------------
-
-    public static void main(String args[]) {
-        new TourServer();
-    }
-
 } // end of TourServer class
-

@@ -2,7 +2,6 @@ package SoundExamps.SoundPlayer;
 
 // PlayMidi.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Load a MIDI sequence and play it once. PlayMidi goes to sleep
  while the sequence is playing. It is woken up by a
  end-of-track meta-event triggering a call to its meta()
@@ -12,7 +11,6 @@ package SoundExamps.SoundPlayer;
  - added synthesizer.open() to initSequencer()
 
  */
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -30,27 +28,29 @@ import javax.sound.midi.Transmitter;
 public class PlayMidi implements MetaEventListener {
     // midi meta-event constant used to signal the end of a track
     private static final int END_OF_TRACK = 47;
-
     private final static String SOUND_DIR = "Sounds/";
 
-    private Sequencer sequencer;
-
-    private Synthesizer synthesizer;
-
-    private Sequence seq = null;
-
-    private String filename;
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java PlayMidi <midi file>");
+            System.exit(0);
+        }
+        new PlayMidi(args[0]);
+        System.exit(0); // required in J2SE 1.4.2. or earlier
+    } // end of main()
 
     private DecimalFormat df;
+    private String filename;
+    private Sequence seq = null;
+    private Sequencer sequencer;
+    private Synthesizer synthesizer;
 
     public PlayMidi(String fnm) {
-        this.df = new DecimalFormat("0.#"); // 1 dp
-
-        this.filename = SOUND_DIR + fnm;
+        df = new DecimalFormat("0.#"); // 1 dp
+        filename = SOUND_DIR + fnm;
         initSequencer();
-        loadMidi(this.filename);
+        loadMidi(filename);
         play();
-
         // wait for the sound to finish playing; guess at 10 mins!
         System.out.println("Waiting");
         try {
@@ -60,33 +60,45 @@ public class PlayMidi implements MetaEventListener {
         }
     } // end of PlayMidi()
 
+    private void close()
+    // Close down the sequencer and synthesizer
+    {
+        if (sequencer != null) {
+            if (sequencer.isRunning()) {
+                sequencer.stop();
+            }
+            sequencer.removeMetaEventListener(this);
+            sequencer.close();
+            if (synthesizer != null) {
+                synthesizer.close();
+            }
+        }
+    } // end of close()
+
     private void initSequencer()
     /*
      * Set up the MIDI sequencer, the sequencer's meta-event listener, and its synthesizer.
      */
     {
         try {
-            this.sequencer = MidiSystem.getSequencer();
-
-            if (this.sequencer == null) {
+            sequencer = MidiSystem.getSequencer();
+            if (sequencer == null) {
                 System.out.println("Cannot get a sequencer");
                 System.exit(0);
             }
-
-            this.sequencer.open();
-            this.sequencer.addMetaEventListener(this);
-
+            sequencer.open();
+            sequencer.addMetaEventListener(this);
             // maybe the sequencer is not the same as the synthesizer
             // so link sequencer --> synth (this is required in J2SE 1.5)
-            if (!(this.sequencer instanceof Synthesizer)) {
+            if (!(sequencer instanceof Synthesizer)) {
                 System.out.println("Linking the sequencer to a synthesizer");
-                this.synthesizer = MidiSystem.getSynthesizer();
-                this.synthesizer.open(); // new
-                Receiver synthReceiver = this.synthesizer.getReceiver();
-                Transmitter seqTransmitter = this.sequencer.getTransmitter();
+                synthesizer = MidiSystem.getSynthesizer();
+                synthesizer.open(); // new
+                Receiver synthReceiver = synthesizer.getReceiver();
+                Transmitter seqTransmitter = sequencer.getTransmitter();
                 seqTransmitter.setReceiver(synthReceiver);
             } else {
-                this.synthesizer = (Synthesizer) this.sequencer;
+                synthesizer = (Synthesizer) sequencer;
                 // we don't use the synthesizer in this simple code,
                 // so storing it as a global isn't really necessary
             }
@@ -98,9 +110,9 @@ public class PlayMidi implements MetaEventListener {
 
     private void loadMidi(String fnm) {
         try {
-            this.seq = MidiSystem.getSequence(getClass().getResource(fnm));
-            double duration = ((double) this.seq.getMicrosecondLength()) / 1000000;
-            System.out.println("Duration: " + this.df.format(duration) + " secs");
+            seq = MidiSystem.getSequence(getClass().getResource(fnm));
+            double duration = (double) seq.getMicrosecondLength() / 1000000;
+            System.out.println("Duration: " + df.format(duration) + " secs");
         } catch (InvalidMidiDataException e) {
             System.out.println("Unreadable/unsupported midi file: " + fnm);
             System.exit(0);
@@ -112,18 +124,6 @@ public class PlayMidi implements MetaEventListener {
             System.exit(0);
         }
     } // end of loadMidi()
-
-    private void play() {
-        if ((this.sequencer != null) && (this.seq != null)) {
-            try {
-                this.sequencer.setSequence(this.seq); // load MIDI into sequencer
-                this.sequencer.start(); // start playing it
-            } catch (InvalidMidiDataException e) {
-                System.out.println("Corrupted/invalid midi file: " + this.filename);
-                System.exit(0);
-            }
-        }
-    } // end of play()
 
     public void meta(MetaMessage event)
     /*
@@ -137,32 +137,16 @@ public class PlayMidi implements MetaEventListener {
         }
     } // end of meta()
 
-    private void close()
-    // Close down the sequencer and synthesizer
-    {
-        if (this.sequencer != null) {
-            if (this.sequencer.isRunning()) {
-                this.sequencer.stop();
-            }
-
-            this.sequencer.removeMetaEventListener(this);
-            this.sequencer.close();
-
-            if (this.synthesizer != null) {
-                this.synthesizer.close();
-            }
-        }
-    } // end of close()
-
     // ----------------------------------------------
-
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java PlayMidi <midi file>");
-            System.exit(0);
+    private void play() {
+        if (sequencer != null && seq != null) {
+            try {
+                sequencer.setSequence(seq); // load MIDI into sequencer
+                sequencer.start(); // start playing it
+            } catch (InvalidMidiDataException e) {
+                System.out.println("Corrupted/invalid midi file: " + filename);
+                System.exit(0);
+            }
         }
-        new PlayMidi(args[0]);
-        System.exit(0); // required in J2SE 1.4.2. or earlier
-    } // end of main()
-
+    } // end of play()
 } // end of PlayMidi class

@@ -2,7 +2,6 @@ package SoundExamps.SoundPlayer;
 
 // PlaceClip.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Load an audio file as a clip, and play it once.
  Its termination is detected by update() being called. 
 
@@ -40,7 +39,6 @@ package SoundExamps.SoundPlayer;
  the clip duration is <= 1 sec
 
  */
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -57,34 +55,30 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class PlaceClip implements LineListener {
+    private final static float NO_PAN_CHANGE = 0.0f;
+    private final static float NO_VOL_CHANGE = -1.0f;
     private final static String SOUND_DIR = "Sounds/";
 
-    private final static float NO_VOL_CHANGE = -1.0f;
-
-    private final static float NO_PAN_CHANGE = 0.0f;
+    public static void main(String[] args) {
+        new PlaceClip(args);
+        System.exit(0); // required in J2SE 1.4.2. or earlier
+    }
 
     private Clip clip = null;
-
-    private AudioFormat format;
-
     private DecimalFormat df;
-
+    private AudioFormat format;
     private float volume, pan; // settings supplied on the command line
 
     public PlaceClip(String[] args) {
-        this.df = new DecimalFormat("0.#"); // 1 dp
-
+        df = new DecimalFormat("0.#"); // 1 dp
         getSettings(args); // get the volume and pan settings
         // from the command line
         loadClip(SOUND_DIR + args[0]);
-
         // clip control methods
         showControls();
-        setVolume(this.volume);
-        setPan(this.pan);
-
+        setVolume(volume);
+        setPan(pan);
         play();
-
         // wait for the sound to finish playing; guess at 10 mins!
         try {
             Thread.sleep(600000); // 10 mins in ms
@@ -93,20 +87,47 @@ public class PlaceClip implements LineListener {
         }
     } // end of PlaceClip()
 
+    private void checkDuration() {
+        // duration (in secs) of the clip
+        double duration = clip.getMicrosecondLength() / 1000000.0; // new
+        if (duration <= 1.0) {
+            System.out.println("WARNING. Duration <= 1 sec : " + df.format(duration) + " secs");
+            System.out.println("         The clip may not play in J2SE 1.5 -- make it longer");
+        } else {
+            System.out.println("Duration: " + df.format(duration) + " secs");
+        }
+    } // end of checkDuration()
+
+    private void getPanSetting(String panStr) {
+        try {
+            pan = Float.parseFloat(panStr);
+        } catch (NumberFormatException ex) {
+            System.out.println("Incorrect pan format");
+            pan = NO_PAN_CHANGE;
+        }
+        if (pan == NO_PAN_CHANGE) {
+            System.out.println("No pan change");
+        } else if (pan >= -1.0f && pan <= 1.0f) {
+            System.out.println("Pan setting: " + pan);
+        } else {
+            System.out.println("Pan out of range (-1.0f - 1.0f); pan not being changed");
+            pan = NO_PAN_CHANGE;
+        }
+    } // end of getPanSetting()
+
     private void getSettings(String[] args)
     /*
-     * The format for the command line is: java PlaceClip <clip file> [ <volume> [<pan>] ]
-     * 
-     * so we have to do some work to extract the volume and pan settings.
+     * The format for the command line is: java PlaceClip <clip file> [ <volume> [<pan>] ] so we have to do some work to extract the volume and pan
+     * settings.
      */
     {
         if (args.length == 1) {
-            this.volume = NO_VOL_CHANGE;
-            this.pan = NO_PAN_CHANGE;
+            volume = NO_VOL_CHANGE;
+            pan = NO_PAN_CHANGE;
             System.out.println("No volume or pan settings supplied");
         } else if (args.length == 2) {
             getVolumeSetting(args[1]);
-            this.pan = NO_PAN_CHANGE;
+            pan = NO_PAN_CHANGE;
             System.out.println("No pan setting supplied");
         } else if (args.length == 3) {
             getVolumeSetting(args[1]);
@@ -119,78 +140,53 @@ public class PlaceClip implements LineListener {
 
     private void getVolumeSetting(String volStr) {
         try {
-            this.volume = Float.parseFloat(volStr);
+            volume = Float.parseFloat(volStr);
         } catch (NumberFormatException ex) {
             System.out.println("Incorrect volume format");
-            this.volume = NO_VOL_CHANGE;
+            volume = NO_VOL_CHANGE;
         }
-        if (this.volume == NO_VOL_CHANGE) {
+        if (volume == NO_VOL_CHANGE) {
             System.out.println("No volume change");
-        } else if ((this.volume >= 0.0f) && (this.volume <= 1.0f)) {
-            System.out.println("Volume setting: " + this.volume);
+        } else if (volume >= 0.0f && volume <= 1.0f) {
+            System.out.println("Volume setting: " + volume);
         } else {
             System.out.println("Volume out of range (0-1.0f); volume not being changed");
-            this.volume = NO_VOL_CHANGE;
+            volume = NO_VOL_CHANGE;
         }
     } // end of getVolumeSetting()
-
-    private void getPanSetting(String panStr) {
-        try {
-            this.pan = Float.parseFloat(panStr);
-        } catch (NumberFormatException ex) {
-            System.out.println("Incorrect pan format");
-            this.pan = NO_PAN_CHANGE;
-        }
-        if (this.pan == NO_PAN_CHANGE) {
-            System.out.println("No pan change");
-        } else if ((this.pan >= -1.0f) && (this.pan <= 1.0f)) {
-            System.out.println("Pan setting: " + this.pan);
-        } else {
-            System.out.println("Pan out of range (-1.0f - 1.0f); pan not being changed");
-            this.pan = NO_PAN_CHANGE;
-        }
-    } // end of getPanSetting()
 
     private void loadClip(String fnm) {
         try {
             // link an audio stream to the sound clip's file
             AudioInputStream stream = AudioSystem.getAudioInputStream(getClass().getResource(fnm));
-
-            this.format = stream.getFormat(); // format is a global since it's
+            format = stream.getFormat(); // format is a global since it's
             // used in setPan()
-            System.out.println("Audio format: " + this.format);
-
+            System.out.println("Audio format: " + format);
             // convert ULAW/ALAW formats to PCM format
-            if ((this.format.getEncoding() == AudioFormat.Encoding.ULAW) || (this.format.getEncoding() == AudioFormat.Encoding.ALAW)) {
-                AudioFormat newFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, this.format.getSampleRate(), this.format.getSampleSizeInBits() * 2, this.format
-                        .getChannels(), this.format.getFrameSize() * 2, this.format.getFrameRate(), true); // big
+            if (format.getEncoding() == AudioFormat.Encoding.ULAW || format.getEncoding() == AudioFormat.Encoding.ALAW) {
+                AudioFormat newFormat =
+                        new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format
+                                .getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true); // big
                 // endian
                 // update stream and format details
                 stream = AudioSystem.getAudioInputStream(newFormat, stream);
                 System.out.println("Converted Audio format: " + newFormat);
-                this.format = newFormat;
+                format = newFormat;
             }
-
-            DataLine.Info info = new DataLine.Info(Clip.class, this.format);
-
+            DataLine.Info info = new DataLine.Info(Clip.class, format);
             // make sure sound system supports data line
             if (!AudioSystem.isLineSupported(info)) {
                 System.out.println("Unsupported Clip File: " + fnm);
                 System.exit(0);
             }
-
             // get clip line resource
-            this.clip = (Clip) AudioSystem.getLine(info);
-
+            clip = (Clip) AudioSystem.getLine(info);
             // listen to clip for events
-            this.clip.addLineListener(this);
-
-            this.clip.open(stream); // open the sound file as a clip
+            clip.addLineListener(this);
+            clip.open(stream); // open the sound file as a clip
             stream.close(); // we're done with the input stream // new
-
             checkDuration();
         } // end of try block
-
         catch (UnsupportedAudioFileException audioException) {
             System.out.println("Unsupported audio file: " + fnm);
             System.exit(0);
@@ -206,40 +202,49 @@ public class PlaceClip implements LineListener {
         }
     } // end of loadClip()
 
-    private void checkDuration() {
-        // duration (in secs) of the clip
-        double duration = this.clip.getMicrosecondLength() / 1000000.0; // new
-        if (duration <= 1.0) {
-            System.out.println("WARNING. Duration <= 1 sec : " + this.df.format(duration) + " secs");
-            System.out.println("         The clip may not play in J2SE 1.5 -- make it longer");
-        } else {
-            System.out.println("Duration: " + this.df.format(duration) + " secs");
+    private void play() {
+        if (clip != null) {
+            clip.start(); // start playing
         }
-    } // end of checkDuration()
+    }
 
-    private void showControls()
-    // display all the controls available for this clip
+    private void setPan(float pan)
+    /*
+     * pan is between -1.0f and 1.0f (left to right speaker), or NO_PAN_CHANGE (0.0f). If panning isn't available, we try using a balance control. The
+     * default mixer in J2SE 1.5 doesn't support panning, but has a balance control. However, the control will only be available if the input is in
+     * stereo.
+     */
     {
-        if (this.clip != null) {
-            Control cntls[] = this.clip.getControls();
-            for (int i = 0; i < cntls.length; i++) {
-                System.out.println(i + ".  " + cntls[i].toString());
+        if (clip == null || pan == NO_PAN_CHANGE) {
+            return; // do nothing
+        }
+        if (clip.isControlSupported(FloatControl.Type.PAN)) {
+            FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
+            // System.out.println("Pan range: " + pan);
+            panControl.setValue(pan);
+        } else if (clip.isControlSupported(FloatControl.Type.BALANCE)) {
+            FloatControl balControl = (FloatControl) clip.getControl(FloatControl.Type.BALANCE);
+            // System.out.println("balance range: " + pan);
+            balControl.setValue(pan);
+        } else {
+            System.out.println("No Pan or Balance controls available");
+            if (format.getChannels() == 1) {
+                System.out.println("Your audio file is mono; try converting it to stereo");
             }
         }
-    } // end of showControls()
+    } // end of setPan()
 
     private void setVolume(float volume)
     /*
-     * Volume is between 0.0f and 1.0f (loudest), or NO_VOL_CHANGE (-1.0f) The gain is calculated using a linear scale, although it would be better to use a logarithmic scale since
-     * this is how gain is expressed in decibels.
+     * Volume is between 0.0f and 1.0f (loudest), or NO_VOL_CHANGE (-1.0f) The gain is calculated using a linear scale, although it would be better to
+     * use a logarithmic scale since this is how gain is expressed in decibels.
      */
     {
-        if ((this.clip != null) && (volume != NO_VOL_CHANGE)) {
-            if (this.clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                FloatControl gainControl = (FloatControl) this.clip.getControl(FloatControl.Type.MASTER_GAIN);
-
+        if (clip != null && volume != NO_VOL_CHANGE) {
+            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
                 float range = gainControl.getMaximum() - gainControl.getMinimum();
-                float gain = (range * volume) + gainControl.getMinimum();
+                float gain = range * volume + gainControl.getMinimum();
                 System.out.println("Volume: " + volume + "; New gain: " + gain);
                 gainControl.setValue(gain);
             } else {
@@ -248,58 +253,27 @@ public class PlaceClip implements LineListener {
         }
     } // end of setVolume()
 
-    private void setPan(float pan)
-    /*
-     * pan is between -1.0f and 1.0f (left to right speaker), or NO_PAN_CHANGE (0.0f).
-     * 
-     * If panning isn't available, we try using a balance control.
-     * 
-     * The default mixer in J2SE 1.5 doesn't support panning, but has a balance control. However, the control will only be available if the input is in stereo.
-     */
+    private void showControls()
+    // display all the controls available for this clip
     {
-        if ((this.clip == null) || (pan == NO_PAN_CHANGE)) {
-            return; // do nothing
-        }
-
-        if (this.clip.isControlSupported(FloatControl.Type.PAN)) {
-            FloatControl panControl = (FloatControl) this.clip.getControl(FloatControl.Type.PAN);
-            // System.out.println("Pan range: " + pan);
-            panControl.setValue(pan);
-        } else if (this.clip.isControlSupported(FloatControl.Type.BALANCE)) {
-            FloatControl balControl = (FloatControl) this.clip.getControl(FloatControl.Type.BALANCE);
-            // System.out.println("balance range: " + pan);
-            balControl.setValue(pan);
-        } else {
-            System.out.println("No Pan or Balance controls available");
-            if (this.format.getChannels() == 1) {
-                System.out.println("Your audio file is mono; try converting it to stereo");
+        if (clip != null) {
+            Control cntls[] = clip.getControls();
+            for (int i = 0; i < cntls.length; i++) {
+                System.out.println(i + ".  " + cntls[i].toString());
             }
         }
-    } // end of setPan()
+    } // end of showControls()
 
-    private void play() {
-        if (this.clip != null) {
-            this.clip.start(); // start playing
-        }
-    }
-
+    // --------------------------------------------------
     public void update(LineEvent lineEvent)
     // called when the clip's line detects open, close, start, stop events
     {
         // the clip has reaches its end
         if (lineEvent.getType() == LineEvent.Type.STOP) {
             // System.out.println("Exiting...");
-            this.clip.stop();
+            clip.stop();
             lineEvent.getLine().close();
             System.exit(0); // necessary in J2SE 1.4.2 and earlier
         }
     } // end of update()
-
-    // --------------------------------------------------
-
-    public static void main(String[] args) {
-        new PlaceClip(args);
-        System.exit(0); // required in J2SE 1.4.2. or earlier
-    }
-
 } // end of PlaceClip.java

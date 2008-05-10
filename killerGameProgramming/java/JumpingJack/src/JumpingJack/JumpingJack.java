@@ -2,7 +2,6 @@ package JumpingJack;
 
 // JumpingJack.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* A side-scroller showing how to implement background
  movement, bricks, and a jumping sprite (called 'jack)
  who can run, jump, and collide with bricks.
@@ -31,7 +30,6 @@ package JumpingJack;
  The jumping and fireball sprites are subclasses of the 
  Sprite class discussed in chapter 6.
  */
-
 import java.awt.Container;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -39,65 +37,11 @@ import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 
 public class JumpingJack extends JFrame implements WindowListener {
+    private static int DEFAULT_FPS = 30; // 40 is too fast!
     /**
      * 
      */
     private static final long serialVersionUID = 3916404443702150253L;
-
-    private static int DEFAULT_FPS = 30; // 40 is too fast!
-
-    private JackPanel jp; // where the game is drawn
-
-    private MidisLoader midisLoader;
-
-    public JumpingJack(long period) {
-        super("JumpingJack");
-
-        // load the background MIDI sequence
-        this.midisLoader = new MidisLoader();
-        this.midisLoader.load("jjf", "jumping_jack_flash.mid");
-        this.midisLoader.play("jjf", true); // repeatedly play it
-
-        Container c = getContentPane(); // default BorderLayout used
-        this.jp = new JackPanel(this, period);
-        c.add(this.jp, "Center");
-
-        addWindowListener(this);
-        pack();
-        setResizable(false);
-        setVisible(true);
-    } // end of JumpingJack() constructor
-
-    // ----------------- window listener methods -------------
-
-    public void windowActivated(WindowEvent e) {
-        this.jp.resumeGame();
-    }
-
-    public void windowDeactivated(WindowEvent e) {
-        this.jp.pauseGame();
-    }
-
-    public void windowDeiconified(WindowEvent e) {
-        this.jp.resumeGame();
-    }
-
-    public void windowIconified(WindowEvent e) {
-        this.jp.pauseGame();
-    }
-
-    public void windowClosing(WindowEvent e) {
-        this.jp.stopGame();
-        this.midisLoader.close(); // not really required
-    }
-
-    public void windowClosed(WindowEvent e) {
-    }
-
-    public void windowOpened(WindowEvent e) {
-    }
-
-    // ----------------------------------------------------
 
     public static void main(String args[]) {
         long period = (long) 1000.0 / DEFAULT_FPS;
@@ -106,5 +50,50 @@ public class JumpingJack extends JFrame implements WindowListener {
         new JumpingJack(period * 1000000L); // ms --> nanosecs
     }
 
-} // end of JumpingJack class
+    private JackPanel jp; // where the game is drawn
+    private MidisLoader midisLoader;
 
+    // ----------------- window listener methods -------------
+    public JumpingJack(long period) {
+        super("JumpingJack");
+        // load the background MIDI sequence
+        midisLoader = new MidisLoader();
+        midisLoader.load("jjf", "jumping_jack_flash.mid");
+        midisLoader.play("jjf", true); // repeatedly play it
+        Container c = getContentPane(); // default BorderLayout used
+        jp = new JackPanel(this, period);
+        c.add(jp, "Center");
+        addWindowListener(this);
+        pack();
+        setResizable(false);
+        setVisible(true);
+    } // end of JumpingJack() constructor
+
+    public void windowActivated(WindowEvent e) {
+        jp.resumeGame();
+    }
+
+    public void windowClosed(WindowEvent e) {
+    }
+
+    public void windowClosing(WindowEvent e) {
+        jp.stopGame();
+        midisLoader.close(); // not really required
+    }
+
+    public void windowDeactivated(WindowEvent e) {
+        jp.pauseGame();
+    }
+
+    public void windowDeiconified(WindowEvent e) {
+        jp.resumeGame();
+    }
+
+    public void windowIconified(WindowEvent e) {
+        jp.pauseGame();
+    }
+
+    // ----------------------------------------------------
+    public void windowOpened(WindowEvent e) {
+    }
+} // end of JumpingJack class

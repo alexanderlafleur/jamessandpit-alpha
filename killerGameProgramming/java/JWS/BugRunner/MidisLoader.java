@@ -2,7 +2,6 @@ package JWS.BugRunner;
 
 // MidisLoader.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* MidisLoader  stores a collection of MidiInfo objects
  in a HashMap whose keys are their names. 
 
@@ -23,7 +22,6 @@ package JWS.BugRunner;
  which are responsible for playing, stopping, resuming and looping
  their sequences.
  */
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,29 +41,40 @@ import javax.sound.midi.Transmitter;
 public class MidisLoader implements MetaEventListener {
     // midi meta-event constant used to signal the end of a track
     private static final int END_OF_TRACK = 47;
-
     private final static String SOUND_DIR = "Sounds/";
-
-    private Sequencer sequencer;
-
-    private HashMap midisMap;
-
     private MidiInfo currentMidi = null;
-
+    private HashMap midisMap;
+    private Sequencer sequencer;
     // reference to currently playing MidiInfo object
-
     private SoundsWatcher watcher = null;
 
     public MidisLoader() {
-        this.midisMap = new HashMap();
+        midisMap = new HashMap();
         initSequencer();
     }
 
     public MidisLoader(String soundsFnm) {
-        this.midisMap = new HashMap();
+        midisMap = new HashMap();
         initSequencer();
         loadSoundsFile(soundsFnm);
     }
+
+    public void close()
+    /*
+     * Close down the sequencer (and any playing sequence). This is different from close() in ClipsLoader in that it is dealing with the sequencer
+     * primarily, rather than a particular midi sequence.
+     */
+    {
+        stop(); // stop the playing sequence
+        if (sequencer != null) {
+            if (sequencer.isRunning()) {
+                sequencer.stop();
+            }
+            sequencer.removeMetaEventListener(this);
+            sequencer.close();
+            sequencer = null;
+        }
+    } // end of close()
 
     private void initSequencer()
     /*
@@ -73,29 +82,40 @@ public class MidisLoader implements MetaEventListener {
      */
     {
         try {
-            this.sequencer = MidiSystem.getSequencer();
-            if (this.sequencer == null) {
+            sequencer = MidiSystem.getSequencer();
+            if (sequencer == null) {
                 System.out.println("Cannot get a sequencer");
                 return;
             }
-
-            this.sequencer.open();
-            this.sequencer.addMetaEventListener(this);
-
+            sequencer.open();
+            sequencer.addMetaEventListener(this);
             // maybe the sequencer is not the same as the synthesizer
             // so link sequencer --> synth (this is required in J2SE 1.5)
-            if (!(this.sequencer instanceof Synthesizer)) {
+            if (!(sequencer instanceof Synthesizer)) {
                 System.out.println("Linking the MIDI sequencer and synthesizer");
                 Synthesizer synthesizer = MidiSystem.getSynthesizer();
                 Receiver synthReceiver = synthesizer.getReceiver();
-                Transmitter seqTransmitter = this.sequencer.getTransmitter();
+                Transmitter seqTransmitter = sequencer.getTransmitter();
                 seqTransmitter.setReceiver(synthReceiver);
             }
         } catch (MidiUnavailableException e) {
             System.out.println("No sequencer available");
-            this.sequencer = null;
+            sequencer = null;
         }
     } // end of initSequencer()
+
+    public void load(String name, String fnm)
+    // create a MidiInfo object, and store it under name
+    {
+        if (midisMap.containsKey(name)) {
+            System.out.println("Error: " + name + "already stored");
+        } else if (sequencer == null) {
+            System.out.println("No sequencer for: " + name);
+        } else {
+            midisMap.put(name, new MidiInfo(name, fnm, sequencer));
+            System.out.println("-- " + name + "/" + fnm);
+        }
+    } // end of load()
 
     private void loadSoundsFile(String soundsFnm)
     /*
@@ -117,7 +137,6 @@ public class MidisLoader implements MetaEventListener {
                 if (line.startsWith("//")) {
                     continue;
                 }
-
                 tokens = new StringTokenizer(line);
                 if (tokens.countTokens() != 2) {
                     System.out.println("Wrong no. of arguments for " + line);
@@ -134,112 +153,76 @@ public class MidisLoader implements MetaEventListener {
         }
     } // end of loadSoundsFile()
 
-    public void close()
-    /*
-     * Close down the sequencer (and any playing sequence). This is different from close() in ClipsLoader in that it is dealing with the sequencer primarily, rather than a
-     * particular midi sequence.
-     */
-    {
-        stop(); // stop the playing sequence
-        if (this.sequencer != null) {
-            if (this.sequencer.isRunning()) {
-                this.sequencer.stop();
-            }
-
-            this.sequencer.removeMetaEventListener(this);
-            this.sequencer.close();
-            this.sequencer = null;
-        }
-    } // end of close()
-
-    public void setWatcher(SoundsWatcher sw) {
-        this.watcher = sw;
-    }
-
     // ----------- manipulate a particular midi sequence --------
-
-    public void load(String name, String fnm)
-    // create a MidiInfo object, and store it under name
-    {
-        if (this.midisMap.containsKey(name)) {
-            System.out.println("Error: " + name + "already stored");
-        } else if (this.sequencer == null) {
-            System.out.println("No sequencer for: " + name);
-        } else {
-            this.midisMap.put(name, new MidiInfo(name, fnm, this.sequencer));
-            System.out.println("-- " + name + "/" + fnm);
-        }
-    } // end of load()
-
-    public void play(String name, boolean toLoop)
-    // play (perhaps loop) the sequence
-    {
-        MidiInfo mi = (MidiInfo) this.midisMap.get(name);
-        if (mi == null) {
-            System.out.println("Error: " + name + "not stored");
-        } else {
-            if (this.currentMidi != null) {
-                System.out.println("Sorry, " + this.currentMidi.getName() + " already playing");
-            } else {
-                this.currentMidi = mi; // store a reference to playing midi
-                mi.play(toLoop);
-            }
-        }
-    } // end of play()
-
-    public void stop() {
-        if (this.currentMidi != null) {
-            this.currentMidi.stop(); // triggers an 'end-of-track' meta event
-        } else {
-            // which causes meta() to be called here
-            System.out.println("No music playing");
-        }
-    } // end of stop()
-
-    public void pause() {
-        if (this.currentMidi != null) {
-            this.currentMidi.pause();
-        } else {
-            System.out.println("No music to pause");
-        }
-    } // end of pause()
-
-    public void resume() {
-        if (this.currentMidi != null) {
-            this.currentMidi.resume();
-        } else {
-            System.out.println("No music to resume");
-        }
-    } // end of resume()
-
-    // ---------------------------------------------------
-
     public void meta(MetaMessage meta)
     /*
-     * Called when a meta event occurs during sequence playing. The code only deals with an end-of-track event, which can be triggered by the MidisInfo object when a sequence
-     * reaches its end _or_ is stopped. However, a sequence at its end may be looping, and so this is checked by calling tryLooping() in MidiInfo.
-     * 
-     * If there is a watcher, it is notified of the status.
+     * Called when a meta event occurs during sequence playing. The code only deals with an end-of-track event, which can be triggered by the
+     * MidisInfo object when a sequence reaches its end _or_ is stopped. However, a sequence at its end may be looping, and so this is checked by
+     * calling tryLooping() in MidiInfo. If there is a watcher, it is notified of the status.
      */
     {
         if (meta.getType() == END_OF_TRACK) {
-            String name = this.currentMidi.getName();
+            String name = currentMidi.getName();
             // System.out.println(" END_OF_TRACK for " + name);
-            boolean hasLooped = this.currentMidi.tryLooping(); // music still
+            boolean hasLooped = currentMidi.tryLooping(); // music still
             // looping?
             if (!hasLooped) {
-                this.currentMidi = null;
+                currentMidi = null;
             }
-
-            if (this.watcher != null) { // tell the watcher
+            if (watcher != null) { // tell the watcher
                 if (hasLooped) {
-                    this.watcher.atSequenceEnd(name, SoundsWatcher.REPLAYED);
+                    watcher.atSequenceEnd(name, SoundsWatcher.REPLAYED);
                 } else {
                     // the music has finished
-                    this.watcher.atSequenceEnd(name, SoundsWatcher.STOPPED);
+                    watcher.atSequenceEnd(name, SoundsWatcher.STOPPED);
                 }
             }
         }
     } // end of meta()
 
+    public void pause() {
+        if (currentMidi != null) {
+            currentMidi.pause();
+        } else {
+            System.out.println("No music to pause");
+        }
+    } // end of pause()
+
+    public void play(String name, boolean toLoop)
+    // play (perhaps loop) the sequence
+    {
+        MidiInfo mi = (MidiInfo) midisMap.get(name);
+        if (mi == null) {
+            System.out.println("Error: " + name + "not stored");
+        } else {
+            if (currentMidi != null) {
+                System.out.println("Sorry, " + currentMidi.getName() + " already playing");
+            } else {
+                currentMidi = mi; // store a reference to playing midi
+                mi.play(toLoop);
+            }
+        }
+    } // end of play()
+
+    public void resume() {
+        if (currentMidi != null) {
+            currentMidi.resume();
+        } else {
+            System.out.println("No music to resume");
+        }
+    } // end of resume()
+
+    public void setWatcher(SoundsWatcher sw) {
+        watcher = sw;
+    }
+
+    // ---------------------------------------------------
+    public void stop() {
+        if (currentMidi != null) {
+            currentMidi.stop(); // triggers an 'end-of-track' meta event
+        } else {
+            // which causes meta() to be called here
+            System.out.println("No music playing");
+        }
+    } // end of stop()
 } // end of MidisLoader class

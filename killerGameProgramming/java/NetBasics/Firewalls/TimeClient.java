@@ -2,12 +2,10 @@ package NetBasics.Firewalls;
 
 // TimeClient.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Contact the TimeServlet running locally at 
  http://localhost:8080/servlet/TimeServlet
  and print its response.
  */
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,5 +21,4 @@ public class TimeClient {
         }
         br.close();
     }
-
 } // end of TimeClient class

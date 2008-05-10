@@ -2,7 +2,6 @@ package Worm.WormApplet;
 
 // WormChaseApplet.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* A worm moves around the screen and the user must
  click (press) on its head to complete the game.
 
@@ -46,7 +45,6 @@ package Worm.WormApplet;
  Win XP:         20/20       50/50       83/83      100/100
 
  */
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 
@@ -56,77 +54,62 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class WormChaseApplet extends JApplet {
+    private static final int DEFAULT_FPS = 80;
     /**
      * 
      */
     private static final long serialVersionUID = 8794015237463029164L;
-
-    private static final int DEFAULT_FPS = 80;
-
+    private JTextField jtfBox; // displays no.of boxes used
+    private JTextField jtfTime; // displays time spent in game
     private WormPanel wp; // where the worm is drawn
 
-    private JTextField jtfBox; // displays no.of boxes used
-
-    private JTextField jtfTime; // displays time spent in game
+    @Override
+    public void destroy() {
+        wp.stopGame();
+    }
 
     @Override
     public void init() {
         String str = getParameter("fps");
-        int fps = (str != null) ? Integer.parseInt(str) : DEFAULT_FPS;
-
+        int fps = str != null ? Integer.parseInt(str) : DEFAULT_FPS;
         long period = (long) 1000.0 / fps;
         System.out.println("fps: " + fps + "; period: " + period + " ms");
-
         makeGUI(period);
-        this.wp.startGame();
+        wp.startGame();
     } // end of init()
 
     private void makeGUI(long period) {
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
-
-        this.wp = new WormPanel(this, period * 1000000L); // ms --> nanosecs
-        c.add(this.wp, "Center");
-
+        wp = new WormPanel(this, period * 1000000L); // ms --> nanosecs
+        c.add(wp, "Center");
         JPanel ctrls = new JPanel(); // holds a row of two textfields
         ctrls.setLayout(new BoxLayout(ctrls, BoxLayout.X_AXIS));
-
-        this.jtfBox = new JTextField("Boxes used: 0");
-        this.jtfBox.setEditable(false);
-        ctrls.add(this.jtfBox);
-
-        this.jtfTime = new JTextField("Time Spent: 0 secs");
-        this.jtfTime.setEditable(false);
-        ctrls.add(this.jtfTime);
-
+        jtfBox = new JTextField("Boxes used: 0");
+        jtfBox.setEditable(false);
+        ctrls.add(jtfBox);
+        jtfTime = new JTextField("Time Spent: 0 secs");
+        jtfTime.setEditable(false);
+        ctrls.add(jtfTime);
         c.add(ctrls, "South");
-
     } // end of makeGUI()
 
     public void setBoxNumber(int no) {
-        this.jtfBox.setText("Boxes used: " + no);
-    }
-
-    public void setTimeSpent(int t) {
-        this.jtfTime.setText("Time Spent: " + t + " secs");
+        jtfBox.setText("Boxes used: " + no);
     }
 
     // -------------------- applet life cycle methods --------------
+    public void setTimeSpent(int t) {
+        jtfTime.setText("Time Spent: " + t + " secs");
+    }
 
     @Override
     public void start() {
-        this.wp.resumeGame();
+        wp.resumeGame();
     }
 
     @Override
     public void stop() {
-        this.wp.pauseGame();
+        wp.pauseGame();
     }
-
-    @Override
-    public void destroy() {
-        this.wp.stopGame();
-    }
-
 } // end of WormChaseApplet class
-

@@ -2,7 +2,6 @@ package FourByFour;
 
 // FourByFour.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* 
  Derived from  FourByFour.java 1.13 01/01/11 07:32:10
  Copyright (c) 1996-2000 Sun Microsystems, Inc. All Rights Reserved.
@@ -26,7 +25,6 @@ package FourByFour;
  - modified the PickDragBehavior logic so that dragging 
  doesn't 'jump' when first used
  */
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 
@@ -40,40 +38,35 @@ public class FourByFour extends JFrame {
      * 
      */
     private static final long serialVersionUID = 6233185937072018778L;
+
+    public static void main(String[] args) {
+        new FourByFour();
+    }
+
     private JTextField messageTF;
 
     public FourByFour() {
         super("Four By Four");
-
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
         WrapFourByFour w3d = new WrapFourByFour(this);
         c.add(w3d, BorderLayout.CENTER);
-
         JLabel mesgLabel = new JLabel("Messages: ");
-        this.messageTF = new JTextField(30);
-        this.messageTF.setText("Player 1's turn");
-        this.messageTF.setEditable(false);
+        messageTF = new JTextField(30);
+        messageTF.setText("Player 1's turn");
+        messageTF.setEditable(false);
         JPanel p1 = new JPanel();
         p1.add(mesgLabel);
-        p1.add(this.messageTF);
+        p1.add(messageTF);
         c.add(p1, BorderLayout.SOUTH);
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setResizable(false); // fixed size display
         setVisible(true);
     } // end of FourByFour()
 
-    public void showMessage(String mesg) {
-        this.messageTF.setText(mesg);
-    }
-
     // -----------------------------------------
-
-    public static void main(String[] args) {
-        new FourByFour();
+    public void showMessage(String mesg) {
+        messageTF.setText(mesg);
     }
-
 } // end of FourByFour class
-

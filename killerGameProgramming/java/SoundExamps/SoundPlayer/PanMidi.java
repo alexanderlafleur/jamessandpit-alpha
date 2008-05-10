@@ -2,7 +2,6 @@ package SoundExamps.SoundPlayer;
 
 // PanMidi.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* Play a Midi sequence, allowing its pan settings to be adjusted
  while it is being played. In this example, the pan is constantly
  switched from left speaker full on/no right speaker to right
@@ -24,7 +23,6 @@ package SoundExamps.SoundPlayer;
  Change 6th August 2004
  - added synthesizer.open() to initSequencer()
  */
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -41,39 +39,70 @@ import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
 
 public class PanMidi implements MetaEventListener {
-    // private static final int BALANCE_CONTROLLER = 8; // not working (?)
-    private static final int PAN_CONTROLLER = 10;
-
     // midi meta event constant used to signal the end of a track
     private static final int END_OF_TRACK = 47;
-
+    // private static final int BALANCE_CONTROLLER = 8; // not working (?)
+    private static final int PAN_CONTROLLER = 10;
     private final static String SOUND_DIR = "Sounds/";
 
-    private Sequencer sequencer;
-
-    private Synthesizer synthesizer;
-
-    private Sequence seq;
-
-    private String filename;
-
-    private DecimalFormat df;
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java PanMidi <midi file>");
+            System.exit(0);
+        }
+        // set up the player and the pan changer
+        PanMidi player = new PanMidi(args[0]);
+        PanChanger pc = new PanChanger(player);
+        player.startPanChanger(pc); // start pan manipulation
+    } // end of main()
 
     // holds the synthesizer's channels
     private MidiChannel[] channels;
+    private DecimalFormat df;
+    private String filename;
+    private Sequence seq;
+    private Sequencer sequencer;
+    private Synthesizer synthesizer;
 
     public PanMidi(String fnm) {
-        this.df = new DecimalFormat("0.#"); // 1 dp
-
-        this.filename = SOUND_DIR + fnm;
+        df = new DecimalFormat("0.#"); // 1 dp
+        filename = SOUND_DIR + fnm;
         initSequencer();
-        loadMidi(this.filename);
+        loadMidi(filename);
         play();
-
         /*
          * No need for sleeping to keep the object alive, since the PanChanger thread refers to it.
          */
     } // end of PanMidi()
+
+    private void close()
+    // Close down the sequencer and synthesizer
+    {
+        if (sequencer != null) {
+            if (sequencer.isRunning()) {
+                sequencer.stop();
+            }
+            sequencer.removeMetaEventListener(this);
+            sequencer.close();
+            if (synthesizer != null) {
+                synthesizer.close();
+            }
+        }
+    } // end of close()
+
+    public int getMaxPan()
+    // return the max value for all the pan controllers
+    {
+        int maxPan = 0;
+        int channelPan;
+        for (MidiChannel element : channels) {
+            channelPan = element.getController(PAN_CONTROLLER);
+            if (maxPan < channelPan) {
+                maxPan = channelPan;
+            }
+        }
+        return maxPan;
+    } // end of getMaxPan()
 
     private void initSequencer()
     /*
@@ -81,27 +110,24 @@ public class PanMidi implements MetaEventListener {
      */
     {
         try {
-            this.sequencer = MidiSystem.getSequencer();
-
-            if (this.sequencer == null) {
+            sequencer = MidiSystem.getSequencer();
+            if (sequencer == null) {
                 System.out.println("Cannot get a sequencer");
                 System.exit(0);
             }
-
-            this.sequencer.open();
-            this.sequencer.addMetaEventListener(this);
-
+            sequencer.open();
+            sequencer.addMetaEventListener(this);
             // maybe the sequencer is not the same as the synthesizer
             // so link sequencer --> synth (this is required in J2SE 1.5)
-            if (!(this.sequencer instanceof Synthesizer)) {
+            if (!(sequencer instanceof Synthesizer)) {
                 System.out.println("Linking the MIDI sequencer and synthesizer");
-                this.synthesizer = MidiSystem.getSynthesizer();
-                this.synthesizer.open(); // new
-                Receiver synthReceiver = this.synthesizer.getReceiver();
-                Transmitter seqTransmitter = this.sequencer.getTransmitter();
+                synthesizer = MidiSystem.getSynthesizer();
+                synthesizer.open(); // new
+                Receiver synthReceiver = synthesizer.getReceiver();
+                Transmitter seqTransmitter = sequencer.getTransmitter();
                 seqTransmitter.setReceiver(synthReceiver);
             } else {
-                this.synthesizer = (Synthesizer) this.sequencer;
+                synthesizer = (Synthesizer) sequencer;
             }
         } catch (MidiUnavailableException e) {
             System.out.println("No sequencer available");
@@ -110,11 +136,11 @@ public class PanMidi implements MetaEventListener {
     } // end of initSequencer()
 
     private void loadMidi(String fnm) {
-        this.seq = null;
+        seq = null;
         try {
-            this.seq = MidiSystem.getSequence(getClass().getResource(fnm));
-            double duration = ((double) this.seq.getMicrosecondLength()) / 1000000;
-            System.out.println("Duration: " + this.df.format(duration) + " secs");
+            seq = MidiSystem.getSequence(getClass().getResource(fnm));
+            double duration = (double) seq.getMicrosecondLength() / 1000000;
+            System.out.println("Duration: " + df.format(duration) + " secs");
         } catch (InvalidMidiDataException e) {
             System.out.println("Unreadable/unsupported midi file: " + fnm);
             System.exit(0);
@@ -127,20 +153,7 @@ public class PanMidi implements MetaEventListener {
         }
     } // end of loadMidi()
 
-    private void play() {
-        if ((this.sequencer != null) && (this.seq != null)) {
-            try {
-                this.sequencer.setSequence(this.seq); // load MIDI into sequencer
-                this.sequencer.start(); // play it
-                this.channels = this.synthesizer.getChannels();
-                // showChannelPans();
-            } catch (InvalidMidiDataException e) {
-                System.out.println("Corrupted/invalid midi file: " + this.filename);
-                System.exit(0);
-            }
-        }
-    } // end of play()
-
+    // ------------------- Pan Changer methods ------------------
     public void meta(MetaMessage event)
     /*
      * Meta-events trigger this method. The end-of-track meta-event signals that the sequence has finished
@@ -153,67 +166,35 @@ public class PanMidi implements MetaEventListener {
         }
     } // end of meta()
 
-    private void close()
-    // Close down the sequencer and synthesizer
-    {
-        if (this.sequencer != null) {
-            if (this.sequencer.isRunning()) {
-                this.sequencer.stop();
-            }
-
-            this.sequencer.removeMetaEventListener(this);
-            this.sequencer.close();
-
-            if (this.synthesizer != null) {
-                this.synthesizer.close();
+    private void play() {
+        if (sequencer != null && seq != null) {
+            try {
+                sequencer.setSequence(seq); // load MIDI into sequencer
+                sequencer.start(); // play it
+                channels = synthesizer.getChannels();
+                // showChannelPans();
+            } catch (InvalidMidiDataException e) {
+                System.out.println("Corrupted/invalid midi file: " + filename);
+                System.exit(0);
             }
         }
-    } // end of close()
-
-    // ------------------- Pan Changer methods ------------------
-
-    public void startPanChanger(PanChanger pc)
-    /*
-     * Start the volume changing thread running, and supply the duration of the MIDI sequence in ms. The duration is needed to estimate how often to change the pan setting.
-     */
-    {
-        pc.startChanging((int) (this.seq.getMicrosecondLength() / 1000));
-    }
-
-    public int getMaxPan()
-    // return the max value for all the pan controllers
-    {
-        int maxPan = 0;
-        int channelPan;
-        for (MidiChannel element : this.channels) {
-            channelPan = element.getController(PAN_CONTROLLER);
-            if (maxPan < channelPan) {
-                maxPan = channelPan;
-            }
-        }
-        return maxPan;
-    } // end of getMaxPan()
+    } // end of play()
 
     public void setPan(int panVal)
     // set all the controller's pan levels to panVal
     {
-        for (MidiChannel element : this.channels) {
+        for (MidiChannel element : channels) {
             element.controlChange(PAN_CONTROLLER, panVal);
         }
     }
 
     // ----------------------------------------------
-
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java PanMidi <midi file>");
-            System.exit(0);
-        }
-        // set up the player and the pan changer
-        PanMidi player = new PanMidi(args[0]);
-        PanChanger pc = new PanChanger(player);
-
-        player.startPanChanger(pc); // start pan manipulation
-    } // end of main()
-
+    public void startPanChanger(PanChanger pc)
+    /*
+     * Start the volume changing thread running, and supply the duration of the MIDI sequence in ms. The duration is needed to estimate how often to
+     * change the pan setting.
+     */
+    {
+        pc.startChanging((int) (seq.getMicrosecondLength() / 1000));
+    }
 } // end of PanMidi class

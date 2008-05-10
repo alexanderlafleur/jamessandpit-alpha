@@ -11,7 +11,6 @@ package NetBasics;
  Or we could just use:
  telnet localhost 1234
  */
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
@@ -36,137 +35,142 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class ScoreClient extends JFrame implements ActionListener {
+    private static final String HOST = "localhost";
+    private static final int PORT = 1234; // server details
     /**
      * 
      */
     private static final long serialVersionUID = -7496531017894635451L;
 
-    private static final int PORT = 1234; // server details
-
-    private static final String HOST = "localhost";
-
-    private Socket sock;
+    public static void main(String args[]) {
+        new ScoreClient();
+    }
 
     private BufferedReader in; // i/o for the client
-
-    private PrintWriter out;
-
-    private JTextArea jtaMesgs;
-
-    private JTextField jtfName, jtfScore;
-
     private JButton jbGetScores;
+    private JTextArea jtaMesgs;
+    private JTextField jtfName, jtfScore;
+    private PrintWriter out;
+    private Socket sock;
 
     public ScoreClient() {
         super("High Score Client");
-
         initializeGUI();
         makeContact();
-
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 closeLink();
             }
         });
-
         setSize(300, 450);
         setVisible(true);
     } // end of ScoreClient();
+
+    public void actionPerformed(ActionEvent e)
+    // Either a name/score is to be sent or the "Get Scores"
+    // button has been pressed
+    {
+        if (e.getSource() == jbGetScores) {
+            sendGet();
+        } else if (e.getSource() == jtfScore) {
+            sendScore();
+        }
+    }
+
+    private void closeLink() {
+        try {
+            out.println("bye"); // tell server that client is disconnecting
+            sock.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        System.exit(0);
+    }
 
     private void initializeGUI()
     // text area in center, and controls in south
     {
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
-
-        this.jtaMesgs = new JTextArea(7, 7);
-        this.jtaMesgs.setEditable(false);
-        JScrollPane jsp = new JScrollPane(this.jtaMesgs);
+        jtaMesgs = new JTextArea(7, 7);
+        jtaMesgs.setEditable(false);
+        JScrollPane jsp = new JScrollPane(jtaMesgs);
         c.add(jsp, "Center");
-
         JLabel jlName = new JLabel("Name: ");
-        this.jtfName = new JTextField(10);
-
+        jtfName = new JTextField(10);
         JLabel jlScore = new JLabel("Score: ");
-        this.jtfScore = new JTextField(5);
-        this.jtfScore.addActionListener(this); // pressing enter triggers sending
+        jtfScore = new JTextField(5);
+        jtfScore.addActionListener(this); // pressing enter triggers sending
         // of name/score
-
-        this.jbGetScores = new JButton("Get Scores");
-        this.jbGetScores.addActionListener(this);
-
+        jbGetScores = new JButton("Get Scores");
+        jbGetScores.addActionListener(this);
         JPanel p1 = new JPanel(new FlowLayout());
         p1.add(jlName);
-        p1.add(this.jtfName);
+        p1.add(jtfName);
         p1.add(jlScore);
-        p1.add(this.jtfScore);
-
+        p1.add(jtfScore);
         JPanel p2 = new JPanel(new FlowLayout());
-        p2.add(this.jbGetScores);
-
+        p2.add(jbGetScores);
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.add(p1);
         p.add(p2);
-
         c.add(p, "South");
-
     } // end of initializeGUI()
-
-    private void closeLink() {
-        try {
-            this.out.println("bye"); // tell server that client is disconnecting
-            this.sock.close();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
-        System.exit(0);
-    }
 
     private void makeContact() {
         try {
-            this.sock = new Socket(HOST, PORT);
-            this.in = new BufferedReader(new InputStreamReader(this.sock.getInputStream()));
-            this.out = new PrintWriter(this.sock.getOutputStream(), true); // autoflush
+            sock = new Socket(HOST, PORT);
+            in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+            out = new PrintWriter(sock.getOutputStream(), true); // autoflush
         } catch (Exception e) {
             System.out.println(e);
         }
     } // end of makeContact()
 
-    public void actionPerformed(ActionEvent e)
-    // Either a name/score is to be sent or the "Get Scores"
-    // button has been pressed
-    {
-        if (e.getSource() == this.jbGetScores) {
-            sendGet();
-        } else if (e.getSource() == this.jtfScore) {
-            sendScore();
-        }
-    }
-
     private void sendGet() {
         // Send "get" command, read response and display it
         // Response should be "HIGH$$ n1 & s1 & .... nN & sN & "
         try {
-            this.out.println("get");
-            String line = this.in.readLine();
+            out.println("get");
+            String line = in.readLine();
             System.out.println(line);
-            if ((line.length() >= 7) && // "HIGH$$ "
-                    (line.substring(0, 6).equals("HIGH$$"))) {
+            if (line.length() >= 7 && // "HIGH$$ "
+                    line.substring(0, 6).equals("HIGH$$")) {
                 showHigh(line.substring(6).trim());
                 // remove HIGH$$ keyword and surrounding spaces
             } else {
                 // should not happen
-                this.jtaMesgs.append(line + "\n");
+                jtaMesgs.append(line + "\n");
             }
         } catch (Exception ex) {
-            this.jtaMesgs.append("Problem obtaining high scores\n");
+            jtaMesgs.append("Problem obtaining high scores\n");
             System.out.println(ex);
         }
     } // end of sendGet()
 
+    private void sendScore()
+    // Check if the user has supplied a name and score, then
+    // send "score name & score &" to server
+    // NOte: we should check that score is an integer, but we don't
+    {
+        String name = jtfName.getText().trim();
+        String score = jtfScore.getText().trim();
+        // System.out.println("'"+name+"' '"+score+"'");
+        if (name.equals("") && score.equals("")) {
+            JOptionPane.showMessageDialog(null, "No name and score entered", "Send Score Error", JOptionPane.ERROR_MESSAGE);
+        } else if (name.equals("")) {
+            JOptionPane.showMessageDialog(null, "No name entered", "Send Score Error", JOptionPane.ERROR_MESSAGE);
+        } else if (score.equals("")) {
+            JOptionPane.showMessageDialog(null, "No score entered", "Send Score Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            out.println("score " + name + " & " + score + " &");
+            jtaMesgs.append("Sent " + name + " & " + score + "\n");
+        }
+    } // end of sendScore()
+
+    // ------------------------------------
     private void showHigh(String line)
     // Parse the high scores and display in a nicer way
     {
@@ -178,42 +182,13 @@ public class ScoreClient extends JFrame implements ActionListener {
             while (st.hasMoreTokens()) {
                 name = st.nextToken().trim();
                 score = Integer.parseInt(st.nextToken().trim());
-                this.jtaMesgs.append("" + i + ". " + name + " : " + score + "\n");
+                jtaMesgs.append("" + i + ". " + name + " : " + score + "\n");
                 i++;
             }
-            this.jtaMesgs.append("\n");
+            jtaMesgs.append("\n");
         } catch (Exception e) {
-            this.jtaMesgs.append("Problem parsing high scores\n");
+            jtaMesgs.append("Problem parsing high scores\n");
             System.out.println("Parsing error with high scores: \n" + e);
         }
     } // end of showHigh()
-
-    private void sendScore()
-    // Check if the user has supplied a name and score, then
-    // send "score name & score &" to server
-    // NOte: we should check that score is an integer, but we don't
-    {
-        String name = this.jtfName.getText().trim();
-        String score = this.jtfScore.getText().trim();
-        // System.out.println("'"+name+"' '"+score+"'");
-
-        if ((name.equals("")) && (score.equals(""))) {
-            JOptionPane.showMessageDialog(null, "No name and score entered", "Send Score Error", JOptionPane.ERROR_MESSAGE);
-        } else if (name.equals("")) {
-            JOptionPane.showMessageDialog(null, "No name entered", "Send Score Error", JOptionPane.ERROR_MESSAGE);
-        } else if (score.equals("")) {
-            JOptionPane.showMessageDialog(null, "No score entered", "Send Score Error", JOptionPane.ERROR_MESSAGE);
-        } else {
-            this.out.println("score " + name + " & " + score + " &");
-            this.jtaMesgs.append("Sent " + name + " & " + score + "\n");
-        }
-    } // end of sendScore()
-
-    // ------------------------------------
-
-    public static void main(String args[]) {
-        new ScoreClient();
-    }
-
 } // end of ScoreClient class
-

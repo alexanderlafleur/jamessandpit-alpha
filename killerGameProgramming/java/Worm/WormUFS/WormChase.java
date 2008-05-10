@@ -2,7 +2,6 @@ package Worm.WormUFS;
 
 // WormChase.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* A worm moves around the screen and the user must
  click (press) on its head to complete the game.
 
@@ -21,7 +20,7 @@ package Worm.WormUFS;
  boxes and less time mean a higher score.
 
  -------------
- 
+
  Full screen JFrame with no title bar or insets (borders).
  They are switched off with setUndecorated().
 
@@ -46,28 +45,35 @@ package Worm.WormUFS;
 
  Located in /WormUFS
  */
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 
 import javax.swing.JFrame;
 
 public class WormChase extends JFrame {
+    private static int DEFAULT_FPS = 80;
     /**
      * 
      */
     private static final long serialVersionUID = -5356013894243272164L;
-    private static int DEFAULT_FPS = 80;
 
+    public static void main(String args[]) {
+        int fps = DEFAULT_FPS;
+        if (args.length != 0) {
+            fps = Integer.parseInt(args[0]);
+        }
+        long period = (long) 1000.0 / fps;
+        System.out.println("fps: " + fps + "; period: " + period + " ms");
+        new WormChase(period * 1000000L); // ms --> nanosecs
+    }
+
+    // -----------------------------------------
     public WormChase(long period) {
         super("The Worm Chase");
-
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
-
         WormPanel wp = new WormPanel(this, period);
         c.add(wp, "Center");
-
         setUndecorated(true); // no borders or title bar
         setIgnoreRepaint(true); // turn off all paint events since doing active
         // rendering
@@ -75,20 +81,4 @@ public class WormChase extends JFrame {
         setResizable(false);
         setVisible(true);
     } // end of WormChase() constructor
-
-    // -----------------------------------------
-
-    public static void main(String args[]) {
-        int fps = DEFAULT_FPS;
-        if (args.length != 0) {
-            fps = Integer.parseInt(args[0]);
-        }
-
-        long period = (long) 1000.0 / fps;
-        System.out.println("fps: " + fps + "; period: " + period + " ms");
-
-        new WormChase(period * 1000000L); // ms --> nanosecs
-    }
-
 } // end of WormChase class
-

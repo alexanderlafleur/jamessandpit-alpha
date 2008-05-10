@@ -2,7 +2,6 @@ package ImagesTests;
 
 // ImagesLoader.java
 // Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
 /* The Imagesfile and images are stored in "Images/"
  (the IMAGE_DIR constant).
 
@@ -36,7 +35,6 @@ package ImagesTests;
  The images are stored as BufferedImage objects, so they will be 
  manipulated as 'managed' images by the JVM (when possible).
  */
-
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -58,19 +56,20 @@ import javax.swing.JPanel;
 
 public class ImagesLoader {
     private final static String IMAGE_DIR = "Images/";
-
-    private HashMap imagesMap;
-
+    private GraphicsConfiguration gc;
     /*
      * The key is the filename prefix, the object (value) is an ArrayList of BufferedImages
      */
     private HashMap gNamesMap;
-
     /*
-     * The key is the 'g' <name> string, the object is an ArrayList of filename prefixes for the group. This is used to access a group image by its 'g' name and filename.
+     * The key is the 'g' <name> string, the object is an ArrayList of filename prefixes for the group. This is used to access a group image by its
+     * 'g' name and filename.
      */
+    private HashMap imagesMap;
 
-    private GraphicsConfiguration gc;
+    public ImagesLoader() {
+        initLoader();
+    }
 
     public ImagesLoader(String fnm)
     // begin by loading the images specified in fnm
@@ -79,23 +78,305 @@ public class ImagesLoader {
         loadImagesFile(fnm);
     } // end of ImagesLoader()
 
-    public ImagesLoader() {
-        initLoader();
+    private void getFileNameImage(String line)
+    /*
+     * format: o <fnm>
+     */
+    {
+        StringTokenizer tokens = new StringTokenizer(line);
+        if (tokens.countTokens() != 2) {
+            System.out.println("Wrong no. of arguments for " + line);
+        } else {
+            tokens.nextToken(); // skip command label
+            System.out.print("o Line: ");
+            loadSingleImage(tokens.nextToken());
+        }
+    } // end of getFileNameImage()
+
+    private void getGroupImages(String line)
+    /*
+     * format: g <name> <fnm> [ <fnm> ]*
+     */
+    {
+        StringTokenizer tokens = new StringTokenizer(line);
+        if (tokens.countTokens() < 3) {
+            System.out.println("Wrong no. of arguments for " + line);
+        } else {
+            tokens.nextToken(); // skip command label
+            System.out.print("g Line: ");
+            String name = tokens.nextToken();
+            ArrayList fnms = new ArrayList();
+            fnms.add(tokens.nextToken()); // read filenames
+            while (tokens.hasMoreTokens()) {
+                fnms.add(tokens.nextToken());
+            }
+            loadGroupImages(name, fnms);
+        }
+    } // end of getGroupImages()
+
+    // --------- load a single image -------------------------------
+    private int getGroupPosition(String name, String fnmPrefix)
+    /*
+     * Search the hashmap entry for <name>, looking for <fnmPrefix>. Return its position in the list, or -1.
+     */
+    {
+        ArrayList groupNames = (ArrayList) gNamesMap.get(name);
+        if (groupNames == null) {
+            System.out.println("No group names for " + name);
+            return -1;
+        }
+        String nm;
+        for (int i = 0; i < groupNames.size(); i++) {
+            nm = (String) groupNames.get(i);
+            if (nm.equals(fnmPrefix)) {
+                return i; // the posn of <fnmPrefix> in the list of names
+            }
+        }
+        System.out.println("No " + fnmPrefix + " group name found for " + name);
+        return -1;
+    } // end of getGroupPosition()
+
+    public BufferedImage getImage(String name)
+    /*
+     * Get the image associated with <name>. If there are several images stored under that name, return the first one in the list.
+     */
+    {
+        ArrayList imsList = (ArrayList) imagesMap.get(name);
+        if (imsList == null) {
+            System.out.println("No image(s) stored under " + name);
+            return null;
+        }
+        // System.out.println("Returning image stored under " + name);
+        return (BufferedImage) imsList.get(0);
+    } // end of getImage() with name input;
+
+    public BufferedImage getImage(String name, int posn)
+    /*
+     * Get the image associated with <name> at position <posn> in its list. If <posn> is < 0 then return the first image in the list. If posn is
+     * bigger than the list's size, then calculate its value modulo the size.
+     */
+    {
+        ArrayList imsList = (ArrayList) imagesMap.get(name);
+        if (imsList == null) {
+            System.out.println("No image(s) stored under " + name);
+            return null;
+        }
+        int size = imsList.size();
+        if (posn < 0) {
+            // System.out.println("No " + name + " image at position " + posn +
+            // "; return position 0");
+            return (BufferedImage) imsList.get(0); // return first image
+        } else if (posn >= size) {
+            // System.out.println("No " + name + " image at position " + posn);
+            int newPosn = posn % size; // modulo
+            // System.out.println("Return image at position " + newPosn);
+            return (BufferedImage) imsList.get(newPosn);
+        }
+        // System.out.println("Returning " + name + " image at position " +
+        // posn);
+        return (BufferedImage) imsList.get(posn);
+    } // end of getImage() with posn input;
+
+    // --------- load numbered images -------------------------------
+    public BufferedImage getImage(String name, String fnmPrefix)
+    /*
+     * Get the image associated with the group <name> and filename prefix <fnmPrefix>.
+     */
+    {
+        ArrayList imsList = (ArrayList) imagesMap.get(name);
+        if (imsList == null) {
+            System.out.println("No image(s) stored under " + name);
+            return null;
+        }
+        int posn = getGroupPosition(name, fnmPrefix);
+        if (posn < 0) {
+            // System.out.println("Returning image at position 0");
+            return (BufferedImage) imsList.get(0); // return first image
+        }
+        // System.out.println("Returning " + name +
+        // " image with pair name " + fnmPrefix);
+        return (BufferedImage) imsList.get(posn);
+    } // end of getImage() with fnmPrefix input;
+
+    public ArrayList getImages(String name)
+    // return all the BufferedImages for the given name
+    {
+        ArrayList imsList = (ArrayList) imagesMap.get(name);
+        if (imsList == null) {
+            System.out.println("No image(s) stored under " + name);
+            return null;
+        }
+        System.out.println("Returning all images stored under " + name);
+        return imsList;
+    } // end of getImages();
+
+    private void getNumberedImages(String line)
+    /*
+     * format: n <fnm*.ext> <number>
+     */
+    {
+        StringTokenizer tokens = new StringTokenizer(line);
+        if (tokens.countTokens() != 3) {
+            System.out.println("Wrong no. of arguments for " + line);
+        } else {
+            tokens.nextToken(); // skip command label
+            System.out.print("n Line: ");
+            String fnm = tokens.nextToken();
+            int number = -1;
+            try {
+                number = Integer.parseInt(tokens.nextToken());
+            } catch (Exception e) {
+                System.out.println("Number is incorrect for " + line);
+            }
+            loadNumImages(fnm, number);
+        }
+    } // end of getNumberedImages()
+
+    // --------- load image strip -------------------------------
+    private String getPrefix(String fnm)
+    // extract name before '.' of filename
+    {
+        int posn;
+        if ((posn = fnm.lastIndexOf(".")) == -1) {
+            System.out.println("No prefix found for filename: " + fnm);
+            return fnm;
+        } else {
+            return fnm.substring(0, posn);
+        }
+    } // end of getPrefix()
+
+    private void getStripImages(String line)
+    /*
+     * format: s <fnm> <number>
+     */
+    {
+        StringTokenizer tokens = new StringTokenizer(line);
+        if (tokens.countTokens() != 3) {
+            System.out.println("Wrong no. of arguments for " + line);
+        } else {
+            tokens.nextToken(); // skip command label
+            System.out.print("s Line: ");
+            String fnm = tokens.nextToken();
+            int number = -1;
+            try {
+                number = Integer.parseInt(tokens.nextToken());
+            } catch (Exception e) {
+                System.out.println("Number is incorrect for " + line);
+            }
+            loadStripImages(fnm, number);
+        }
+    } // end of getStripImages()
+
+    // ------ grouped filename seq. of images ---------
+    private void initLoader() {
+        imagesMap = new HashMap();
+        gNamesMap = new HashMap();
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        gc = ge.getDefaultScreenDevice().getDefaultConfiguration();
+    } // end of initLoader()
+
+    public boolean isLoaded(String name)
+    // is <name> a key in the imagesMap hashMap?
+    {
+        ArrayList imsList = (ArrayList) imagesMap.get(name);
+        if (imsList == null) {
+            return false;
+        }
+        return true;
+    } // end of isLoaded()
+
+    public int loadGroupImages(String name, ArrayList fnms)
+    /*
+     * Can be called directly to load a group of images, whose filenames are stored in the ArrayList <fnms>. They will be stored under the 'g' name
+     * <name>.
+     */
+    {
+        if (imagesMap.containsKey(name)) {
+            System.out.println("Error: " + name + "already used");
+            return 0;
+        }
+        if (fnms.size() == 0) {
+            System.out.println("List of filenames is empty");
+            return 0;
+        }
+        BufferedImage bi;
+        ArrayList nms = new ArrayList();
+        ArrayList imsList = new ArrayList();
+        String nm, fnm;
+        int loadCount = 0;
+        System.out.println("  Adding to " + name + "...");
+        System.out.print("  ");
+        for (int i = 0; i < fnms.size(); i++) { // load the files
+            fnm = (String) fnms.get(i);
+            nm = getPrefix(fnm);
+            if ((bi = loadImage(fnm)) != null) {
+                loadCount++;
+                imsList.add(bi);
+                nms.add(nm);
+                System.out.print(nm + "/" + fnm + " ");
+            }
+        }
+        System.out.println();
+        if (loadCount == 0) {
+            System.out.println("No images loaded for " + name);
+        } else {
+            imagesMap.put(name, imsList);
+            gNamesMap.put(name, nms);
+        }
+        return loadCount;
+    } // end of loadGroupImages()
+
+    // ------------------ access methods -------------------
+    public int loadGroupImages(String name, String[] fnms)
+    // supply the group filenames in an array
+    {
+        ArrayList al = new ArrayList(Arrays.asList(fnms));
+        return loadGroupImages(name, al);
     }
 
-    private void initLoader() {
-        this.imagesMap = new HashMap();
-        this.gNamesMap = new HashMap();
+    public BufferedImage loadImage(String fnm)
+    /*
+     * Load the image from <fnm>, returning it as a BufferedImage which is compatible with the graphics device being used. Uses ImageIO.
+     */
+    {
+        try {
+            BufferedImage im = ImageIO.read(getClass().getResource(IMAGE_DIR + fnm));
+            // An image returned from ImageIO in J2SE <= 1.4.2 is
+            // _not_ a managed image, but is after copying!
+            int transparency = im.getColorModel().getTransparency();
+            BufferedImage copy = gc.createCompatibleImage(im.getWidth(), im.getHeight(), transparency);
+            // create a graphics context
+            Graphics2D g2d = copy.createGraphics();
+            // g2d.setComposite(AlphaComposite.Src);
+            // reportTransparency(IMAGE_DIR + fnm, transparency);
+            // copy image
+            g2d.drawImage(im, 0, 0, null);
+            g2d.dispose();
+            return copy;
+        } catch (IOException e) {
+            System.out.println("Load Image error for " + IMAGE_DIR + "/" + fnm + ":\n" + e);
+            return null;
+        }
+    } // end of loadImage() using ImageIO
 
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        this.gc = ge.getDefaultScreenDevice().getDefaultConfiguration();
-    } // end of initLoader()
+    public BufferedImage loadImage3(String fnm)
+    /*
+     * Load the image from <fnm>, returning it as a BufferedImage. Use Image.
+     */
+    {
+        Image im = readImage(fnm);
+        if (im == null) {
+            return null;
+        }
+        int width = im.getWidth(null);
+        int height = im.getHeight(null);
+        return makeBIM(im, width, height);
+    } // end of loadImage() using Image
 
     private void loadImagesFile(String fnm)
     /*
-     * Formats: o <fnm> // a single image n <fnm*.ext> <number> // a numbered sequence of images s <fnm> <number> // an images strip g <name> <fnm> [ <fnm> ]* // a group of images
-     * 
-     * and blank lines and comment lines.
+     * Formats: o <fnm> // a single image n <fnm*.ext> <number> // a numbered sequence of images s <fnm> <number> // an images strip g <name> <fnm> [
+     * <fnm> ]* // a group of images and blank lines and comment lines.
      */
     {
         String imsFNm = IMAGE_DIR + fnm;
@@ -133,85 +414,6 @@ public class ImagesLoader {
         }
     } // end of loadImagesFile()
 
-    // --------- load a single image -------------------------------
-
-    private void getFileNameImage(String line)
-    /*
-     * format: o <fnm>
-     */
-    {
-        StringTokenizer tokens = new StringTokenizer(line);
-
-        if (tokens.countTokens() != 2) {
-            System.out.println("Wrong no. of arguments for " + line);
-        } else {
-            tokens.nextToken(); // skip command label
-            System.out.print("o Line: ");
-            loadSingleImage(tokens.nextToken());
-        }
-    } // end of getFileNameImage()
-
-    public boolean loadSingleImage(String fnm)
-    // can be called directly
-    {
-        String name = getPrefix(fnm);
-
-        if (this.imagesMap.containsKey(name)) {
-            System.out.println("Error: " + name + "already used");
-            return false;
-        }
-
-        BufferedImage bi = loadImage(fnm);
-        if (bi != null) {
-            ArrayList imsList = new ArrayList();
-            imsList.add(bi);
-            this.imagesMap.put(name, imsList);
-            System.out.println("  Stored " + name + "/" + fnm);
-            return true;
-        } else {
-            return false;
-        }
-    } // end of loadSingleImage()
-
-    private String getPrefix(String fnm)
-    // extract name before '.' of filename
-    {
-        int posn;
-        if ((posn = fnm.lastIndexOf(".")) == -1) {
-            System.out.println("No prefix found for filename: " + fnm);
-            return fnm;
-        } else {
-            return fnm.substring(0, posn);
-        }
-    } // end of getPrefix()
-
-    // --------- load numbered images -------------------------------
-
-    private void getNumberedImages(String line)
-    /*
-     * format: n <fnm*.ext> <number>
-     */
-    {
-        StringTokenizer tokens = new StringTokenizer(line);
-
-        if (tokens.countTokens() != 3) {
-            System.out.println("Wrong no. of arguments for " + line);
-        } else {
-            tokens.nextToken(); // skip command label
-            System.out.print("n Line: ");
-
-            String fnm = tokens.nextToken();
-            int number = -1;
-            try {
-                number = Integer.parseInt(tokens.nextToken());
-            } catch (Exception e) {
-                System.out.println("Number is incorrect for " + line);
-            }
-
-            loadNumImages(fnm, number);
-        }
-    } // end of getNumberedImages()
-
     public int loadNumImages(String fnm, int number)
     /*
      * Can be called directly. fnm is the filename argument in: n <f*.ext> <number>
@@ -227,12 +429,10 @@ public class ImagesLoader {
             prefix = fnm.substring(0, starPosn);
             postfix = fnm.substring(starPosn + 1);
         }
-
-        if (this.imagesMap.containsKey(prefix)) {
+        if (imagesMap.containsKey(prefix)) {
             System.out.println("Error: " + prefix + "already used");
             return 0;
         }
-
         return loadNumImages(prefix, postfix, number);
     } // end of loadNumImages()
 
@@ -245,7 +445,6 @@ public class ImagesLoader {
         BufferedImage bi;
         ArrayList imsList = new ArrayList();
         int loadCount = 0;
-
         if (number <= 0) {
             System.out.println("Error: Number <= 0: " + number);
             imFnm = prefix + postfix;
@@ -266,42 +465,71 @@ public class ImagesLoader {
             }
             System.out.println();
         }
-
         if (loadCount == 0) {
             System.out.println("No images loaded for " + prefix);
         } else {
-            this.imagesMap.put(prefix, imsList);
+            imagesMap.put(prefix, imsList);
         }
-
         return loadCount;
     } // end of loadNumImages()
 
-    // --------- load image strip -------------------------------
+    public boolean loadSingleImage(String fnm)
+    // can be called directly
+    {
+        String name = getPrefix(fnm);
+        if (imagesMap.containsKey(name)) {
+            System.out.println("Error: " + name + "already used");
+            return false;
+        }
+        BufferedImage bi = loadImage(fnm);
+        if (bi != null) {
+            ArrayList imsList = new ArrayList();
+            imsList.add(bi);
+            imagesMap.put(name, imsList);
+            System.out.println("  Stored " + name + "/" + fnm);
+            return true;
+        } else {
+            return false;
+        }
+    } // end of loadSingleImage()
 
-    private void getStripImages(String line)
+    // ------------------- Image Input ------------------
     /*
-     * format: s <fnm> <number>
+     * There are three versions of loadImage() here! They use: ImageIO // the preferred approach ImageIcon Image We assume that the BufferedImage copy
+     * required an alpha channel in the latter two approaches.
+     */
+    public BufferedImage[] loadStripImageArray(String fnm, int number)
+    /*
+     * Extract the individual images from the strip image file, <fnm>. We assume the images are stored in a single row, and that there are <number> of
+     * them. The images are returned as an array of BufferedImages
      */
     {
-        StringTokenizer tokens = new StringTokenizer(line);
-
-        if (tokens.countTokens() != 3) {
-            System.out.println("Wrong no. of arguments for " + line);
-        } else {
-            tokens.nextToken(); // skip command label
-            System.out.print("s Line: ");
-
-            String fnm = tokens.nextToken();
-            int number = -1;
-            try {
-                number = Integer.parseInt(tokens.nextToken());
-            } catch (Exception e) {
-                System.out.println("Number is incorrect for " + line);
-            }
-
-            loadStripImages(fnm, number);
+        if (number <= 0) {
+            System.out.println("number <= 0; returning null");
+            return null;
         }
-    } // end of getStripImages()
+        BufferedImage stripIm;
+        if ((stripIm = loadImage(fnm)) == null) {
+            System.out.println("Returning null");
+            return null;
+        }
+        int imWidth = stripIm.getWidth() / number;
+        int height = stripIm.getHeight();
+        int transparency = stripIm.getColorModel().getTransparency();
+        BufferedImage[] strip = new BufferedImage[number];
+        Graphics2D stripGC;
+        // each BufferedImage from the strip file is stored in strip[]
+        for (int i = 0; i < number; i++) {
+            strip[i] = gc.createCompatibleImage(imWidth, height, transparency);
+            // create a graphics context
+            stripGC = strip[i].createGraphics();
+            // stripGC.setComposite(AlphaComposite.Src);
+            // copy image
+            stripGC.drawImage(stripIm, 0, 0, imWidth, height, i * imWidth, 0, i * imWidth + imWidth, height, null);
+            stripGC.dispose();
+        }
+        return strip;
+    } // end of loadStripImageArray()
 
     public int loadStripImages(String fnm, int number)
     /*
@@ -309,7 +537,7 @@ public class ImagesLoader {
      */
     {
         String name = getPrefix(fnm);
-        if (this.imagesMap.containsKey(name)) {
+        if (imagesMap.containsKey(name)) {
             System.out.println("Error: " + name + "already used");
             return 0;
         }
@@ -318,7 +546,6 @@ public class ImagesLoader {
         if (strip == null) {
             return 0;
         }
-
         ArrayList imsList = new ArrayList();
         int loadCount = 0;
         System.out.print("  Adding " + name + "/" + fnm + "... ");
@@ -328,254 +555,13 @@ public class ImagesLoader {
             System.out.print(i + " ");
         }
         System.out.println();
-
         if (loadCount == 0) {
             System.out.println("No images loaded for " + name);
         } else {
-            this.imagesMap.put(name, imsList);
+            imagesMap.put(name, imsList);
         }
-
         return loadCount;
     } // end of loadStripImages()
-
-    // ------ grouped filename seq. of images ---------
-
-    private void getGroupImages(String line)
-    /*
-     * format: g <name> <fnm> [ <fnm> ]*
-     */
-    {
-        StringTokenizer tokens = new StringTokenizer(line);
-
-        if (tokens.countTokens() < 3) {
-            System.out.println("Wrong no. of arguments for " + line);
-        } else {
-            tokens.nextToken(); // skip command label
-            System.out.print("g Line: ");
-
-            String name = tokens.nextToken();
-
-            ArrayList fnms = new ArrayList();
-            fnms.add(tokens.nextToken()); // read filenames
-            while (tokens.hasMoreTokens()) {
-                fnms.add(tokens.nextToken());
-            }
-
-            loadGroupImages(name, fnms);
-        }
-    } // end of getGroupImages()
-
-    public int loadGroupImages(String name, ArrayList fnms)
-    /*
-     * Can be called directly to load a group of images, whose filenames are stored in the ArrayList <fnms>. They will be stored under the 'g' name <name>.
-     */
-    {
-        if (this.imagesMap.containsKey(name)) {
-            System.out.println("Error: " + name + "already used");
-            return 0;
-        }
-
-        if (fnms.size() == 0) {
-            System.out.println("List of filenames is empty");
-            return 0;
-        }
-
-        BufferedImage bi;
-        ArrayList nms = new ArrayList();
-        ArrayList imsList = new ArrayList();
-        String nm, fnm;
-        int loadCount = 0;
-
-        System.out.println("  Adding to " + name + "...");
-        System.out.print("  ");
-        for (int i = 0; i < fnms.size(); i++) { // load the files
-            fnm = (String) fnms.get(i);
-            nm = getPrefix(fnm);
-            if ((bi = loadImage(fnm)) != null) {
-                loadCount++;
-                imsList.add(bi);
-                nms.add(nm);
-                System.out.print(nm + "/" + fnm + " ");
-            }
-        }
-        System.out.println();
-
-        if (loadCount == 0) {
-            System.out.println("No images loaded for " + name);
-        } else {
-            this.imagesMap.put(name, imsList);
-            this.gNamesMap.put(name, nms);
-        }
-
-        return loadCount;
-    } // end of loadGroupImages()
-
-    public int loadGroupImages(String name, String[] fnms)
-    // supply the group filenames in an array
-    {
-        ArrayList al = new ArrayList(Arrays.asList(fnms));
-        return loadGroupImages(name, al);
-    }
-
-    // ------------------ access methods -------------------
-
-    public BufferedImage getImage(String name)
-    /*
-     * Get the image associated with <name>. If there are several images stored under that name, return the first one in the list.
-     */
-    {
-        ArrayList imsList = (ArrayList) this.imagesMap.get(name);
-        if (imsList == null) {
-            System.out.println("No image(s) stored under " + name);
-            return null;
-        }
-
-        // System.out.println("Returning image stored under " + name);
-        return (BufferedImage) imsList.get(0);
-    } // end of getImage() with name input;
-
-    public BufferedImage getImage(String name, int posn)
-    /*
-     * Get the image associated with <name> at position <posn> in its list. If <posn> is < 0 then return the first image in the list. If posn is bigger than the list's size, then
-     * calculate its value modulo the size.
-     */
-    {
-        ArrayList imsList = (ArrayList) this.imagesMap.get(name);
-        if (imsList == null) {
-            System.out.println("No image(s) stored under " + name);
-            return null;
-        }
-
-        int size = imsList.size();
-        if (posn < 0) {
-            // System.out.println("No " + name + " image at position " + posn +
-            // "; return position 0");
-            return (BufferedImage) imsList.get(0); // return first image
-        } else if (posn >= size) {
-            // System.out.println("No " + name + " image at position " + posn);
-            int newPosn = posn % size; // modulo
-            // System.out.println("Return image at position " + newPosn);
-            return (BufferedImage) imsList.get(newPosn);
-        }
-
-        // System.out.println("Returning " + name + " image at position " +
-        // posn);
-        return (BufferedImage) imsList.get(posn);
-    } // end of getImage() with posn input;
-
-    public BufferedImage getImage(String name, String fnmPrefix)
-    /*
-     * Get the image associated with the group <name> and filename prefix <fnmPrefix>.
-     */
-    {
-        ArrayList imsList = (ArrayList) this.imagesMap.get(name);
-        if (imsList == null) {
-            System.out.println("No image(s) stored under " + name);
-            return null;
-        }
-
-        int posn = getGroupPosition(name, fnmPrefix);
-        if (posn < 0) {
-            // System.out.println("Returning image at position 0");
-            return (BufferedImage) imsList.get(0); // return first image
-        }
-
-        // System.out.println("Returning " + name +
-        // " image with pair name " + fnmPrefix);
-        return (BufferedImage) imsList.get(posn);
-    } // end of getImage() with fnmPrefix input;
-
-    private int getGroupPosition(String name, String fnmPrefix)
-    /*
-     * Search the hashmap entry for <name>, looking for <fnmPrefix>. Return its position in the list, or -1.
-     */
-    {
-        ArrayList groupNames = (ArrayList) this.gNamesMap.get(name);
-        if (groupNames == null) {
-            System.out.println("No group names for " + name);
-            return -1;
-        }
-
-        String nm;
-        for (int i = 0; i < groupNames.size(); i++) {
-            nm = (String) groupNames.get(i);
-            if (nm.equals(fnmPrefix)) {
-                return i; // the posn of <fnmPrefix> in the list of names
-            }
-        }
-
-        System.out.println("No " + fnmPrefix + " group name found for " + name);
-        return -1;
-    } // end of getGroupPosition()
-
-    public ArrayList getImages(String name)
-    // return all the BufferedImages for the given name
-    {
-        ArrayList imsList = (ArrayList) this.imagesMap.get(name);
-        if (imsList == null) {
-            System.out.println("No image(s) stored under " + name);
-            return null;
-        }
-
-        System.out.println("Returning all images stored under " + name);
-        return imsList;
-    } // end of getImages();
-
-    public boolean isLoaded(String name)
-    // is <name> a key in the imagesMap hashMap?
-    {
-        ArrayList imsList = (ArrayList) this.imagesMap.get(name);
-        if (imsList == null) {
-            return false;
-        }
-        return true;
-    } // end of isLoaded()
-
-    public int numImages(String name)
-    // how many images are stored under <name>?
-    {
-        ArrayList imsList = (ArrayList) this.imagesMap.get(name);
-        if (imsList == null) {
-            System.out.println("No image(s) stored under " + name);
-            return 0;
-        }
-        return imsList.size();
-    } // end of numImages()
-
-    // ------------------- Image Input ------------------
-
-    /*
-     * There are three versions of loadImage() here! They use: ImageIO // the preferred approach ImageIcon Image We assume that the BufferedImage copy required an alpha channel in
-     * the latter two approaches.
-     */
-
-    public BufferedImage loadImage(String fnm)
-    /*
-     * Load the image from <fnm>, returning it as a BufferedImage which is compatible with the graphics device being used. Uses ImageIO.
-     */
-    {
-        try {
-            BufferedImage im = ImageIO.read(getClass().getResource(IMAGE_DIR + fnm));
-            // An image returned from ImageIO in J2SE <= 1.4.2 is
-            // _not_ a managed image, but is after copying!
-
-            int transparency = im.getColorModel().getTransparency();
-            BufferedImage copy = this.gc.createCompatibleImage(im.getWidth(), im.getHeight(), transparency);
-            // create a graphics context
-            Graphics2D g2d = copy.createGraphics();
-            // g2d.setComposite(AlphaComposite.Src);
-
-            // reportTransparency(IMAGE_DIR + fnm, transparency);
-
-            // copy image
-            g2d.drawImage(im, 0, 0, null);
-            g2d.dispose();
-            return copy;
-        } catch (IOException e) {
-            System.out.println("Load Image error for " + IMAGE_DIR + "/" + fnm + ":\n" + e);
-            return null;
-        }
-    } // end of loadImage() using ImageIO
 
     private BufferedImage makeBIM(Image im, int width, int height)
     // make a BufferedImage copy of im, assuming an alpha channel
@@ -584,35 +570,28 @@ public class ImagesLoader {
         // create a graphics context
         Graphics2D g2d = copy.createGraphics();
         // g2d.setComposite(AlphaComposite.Src);
-
         // copy image
         g2d.drawImage(im, 0, 0, null);
         g2d.dispose();
         return copy;
     } // end of makeBIM()
 
-    public BufferedImage loadImage3(String fnm)
-    /*
-     * Load the image from <fnm>, returning it as a BufferedImage. Use Image.
-     */
+    public int numImages(String name)
+    // how many images are stored under <name>?
     {
-        Image im = readImage(fnm);
-        if (im == null) {
-            return null;
+        ArrayList imsList = (ArrayList) imagesMap.get(name);
+        if (imsList == null) {
+            System.out.println("No image(s) stored under " + name);
+            return 0;
         }
-
-        int width = im.getWidth(null);
-        int height = im.getHeight(null);
-
-        return makeBIM(im, width, height);
-    } // end of loadImage() using Image
+        return imsList.size();
+    } // end of numImages()
 
     private Image readImage(String fnm)
     // load the image, waiting for it to be fully downloaded
     {
         Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource(IMAGE_DIR + fnm));
         MediaTracker imageTracker = new MediaTracker(new JPanel());
-
         imageTracker.addImage(image, 0);
         try {
             imageTracker.waitForID(0);
@@ -624,44 +603,4 @@ public class ImagesLoader {
         }
         return image;
     } // end of readImage()
-
-    public BufferedImage[] loadStripImageArray(String fnm, int number)
-    /*
-     * Extract the individual images from the strip image file, <fnm>. We assume the images are stored in a single row, and that there are <number> of them. The images are returned
-     * as an array of BufferedImages
-     */
-    {
-        if (number <= 0) {
-            System.out.println("number <= 0; returning null");
-            return null;
-        }
-
-        BufferedImage stripIm;
-        if ((stripIm = loadImage(fnm)) == null) {
-            System.out.println("Returning null");
-            return null;
-        }
-
-        int imWidth = stripIm.getWidth() / number;
-        int height = stripIm.getHeight();
-        int transparency = stripIm.getColorModel().getTransparency();
-
-        BufferedImage[] strip = new BufferedImage[number];
-        Graphics2D stripGC;
-
-        // each BufferedImage from the strip file is stored in strip[]
-        for (int i = 0; i < number; i++) {
-            strip[i] = this.gc.createCompatibleImage(imWidth, height, transparency);
-
-            // create a graphics context
-            stripGC = strip[i].createGraphics();
-            // stripGC.setComposite(AlphaComposite.Src);
-
-            // copy image
-            stripGC.drawImage(stripIm, 0, 0, imWidth, height, i * imWidth, 0, (i * imWidth) + imWidth, height, null);
-            stripGC.dispose();
-        }
-        return strip;
-    } // end of loadStripImageArray()
-
 } // end of ImagesLoader class
