@@ -45,7 +45,6 @@ package Worm.WormFSEM;
  setBufferStrategy() method, with added extras
  ----
  */
-import Worm;
 
 import java.awt.Color;
 import java.awt.DisplayMode;
@@ -67,6 +66,8 @@ import java.awt.image.BufferStrategy;
 import java.text.DecimalFormat;
 
 import javax.swing.JFrame;
+
+import Worm.WormFSEM.Worm;
 
 import com.sun.j3d.utils.timer.J3DTimer;
 
