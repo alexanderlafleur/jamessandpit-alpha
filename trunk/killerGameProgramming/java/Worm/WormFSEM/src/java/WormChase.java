@@ -45,6 +45,8 @@ package Worm.WormFSEM;
  setBufferStrategy() method, with added extras
  ----
  */
+import Worm;
+
 import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.EventQueue;
