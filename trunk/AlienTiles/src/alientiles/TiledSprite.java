@@ -44,7 +44,7 @@ public class TiledSprite extends Sprite {
         }
         xTile = x;
         yTile = y;
-    } // end of TiledSprite()
+    }
 
     public int getRandDirection()
     // return a random quadrant direction
@@ -85,7 +85,7 @@ public class TiledSprite extends Sprite {
         } else {
             return null;
         }
-    } // end of tryMove()
+    }
 
     public int whichQuadrant(Point p)
         /*
@@ -124,5 +124,5 @@ public class TiledSprite extends Sprite {
             }
         }
         return -1;
-    } // end of whichQuadrant()
-} // end of TiledSprite class
+    }
+}

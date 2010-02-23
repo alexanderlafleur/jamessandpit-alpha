@@ -35,7 +35,7 @@ public class AlienAStarSprite extends AlienSprite {
     public AlienAStarSprite(int x, int y, int w, int h, ImagesLoader imsLd, WorldDisplay wd) {
         super(x, y, w, h, imsLd, wd);
         path = new ArrayList();
-    } // end of AlienQuadSprite()
+    }
 
     private ArrayList aStarSearch(Point startLoc, Point goalLoc)
         /*
@@ -76,18 +76,18 @@ public class AlienAStarSprite extends AlienSprite {
                             open.add(newNode);
                         }
                     }
-                } // end of for block
-            } // end of if-else
+                }
+            }
             closed.add(bestNode);
         }
         return null; // no path found
-    } // end of aStarSearch()
+    }
 
     private void calcNewPath(Point playerLoc) {
         path = aStarSearch(getTileLoc(), playerLoc);
         pathIndex = 0; // reset the index for the new path
         // printPath(); // for debugging
-    } // end of calcNewPath()
+    }
 
     @Override
     protected void move()
@@ -101,7 +101,7 @@ public class AlienAStarSprite extends AlienSprite {
         pathIndex++;
         int quad = whichQuadrant(nextPt);
         setMove(nextPt, quad);
-    } // end of move()
+    }
 
     @Override
     public void playerHasMoved(Point playerLoc)
@@ -113,5 +113,5 @@ public class AlienAStarSprite extends AlienSprite {
         } else {
             numPlayerMoves = (numPlayerMoves + 1) % MAX_MOVES;
         }
-    } // end of playerHasMoved()
-} // end of AlienAStarSprite class
+    }
+} 

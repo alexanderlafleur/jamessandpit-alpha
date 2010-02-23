@@ -30,7 +30,7 @@ public class AlienSprite extends TiledSprite {
             return true;
         }
         return false;
-    } // end of hitPlayer()
+    }
 
     protected void move()
         /*
@@ -45,7 +45,7 @@ public class AlienSprite extends TiledSprite {
         // the loop could repeat for a while,
         // but it should eventually find a direction
         setMove(newPt, quad);
-    } // end of move()
+    }
 
     public void playerHasMoved(Point playerLoc)
         /*
@@ -70,7 +70,7 @@ public class AlienSprite extends TiledSprite {
         } else {
             System.out.println("Cannot move alien to (" + newPt.x + ", " + newPt.y + ")");
         }
-    } // end of setMove()
+    }
 
     public void update()
         /*
@@ -83,5 +83,5 @@ public class AlienSprite extends TiledSprite {
                 move();
             }
         }
-    } // end of update()
-} // end of AlienSprite class
+    }
+} 

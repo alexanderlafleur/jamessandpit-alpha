@@ -50,7 +50,7 @@ public class ClipsLoader {
         } else {
             ci.close();
         }
-    } // end of close()
+    }
 
     // ----------- manipulate a particular clip --------
     public void load(String name, String fnm)
@@ -62,7 +62,7 @@ public class ClipsLoader {
             clipsMap.put(name, new ClipInfo(name, fnm));
             System.out.println("-- " + name + "/" + fnm);
         }
-    } // end of load()
+    }
 
     private void loadSoundsFile(String soundsFnm)
         /*
@@ -97,7 +97,7 @@ public class ClipsLoader {
             System.out.println("Error reading file: " + sndsFNm);
             System.exit(1);
         }
-    } // end of loadSoundsFile()
+    }
 
     public void pause(String name) {
         ClipInfo ci = (ClipInfo) clipsMap.get(name);
@@ -106,7 +106,7 @@ public class ClipsLoader {
         } else {
             ci.pause();
         }
-    } // end of pause()
+    }
 
     public void play(String name, boolean toLoop)
     // play (perhaps loop) the specified clip
@@ -117,7 +117,7 @@ public class ClipsLoader {
         } else {
             ci.play(toLoop);
         }
-    } // end of play()
+    }
 
     public void resume(String name) {
         ClipInfo ci = (ClipInfo) clipsMap.get(name);
@@ -126,7 +126,7 @@ public class ClipsLoader {
         } else {
             ci.resume();
         }
-    } // end of resume()
+    }
 
     public void setWatcher(String name, SoundsWatcher sw)
         /*
@@ -138,7 +138,7 @@ public class ClipsLoader {
         } else {
             ci.setWatcher(sw);
         }
-    } // end of setWatcher()
+    }
 
     // -------------------------------------------------------
     public void stop(String name)
@@ -150,5 +150,5 @@ public class ClipsLoader {
         } else {
             ci.stop();
         }
-    } // end of stop()
-} // end of ClipsLoader class
+    }
+} 

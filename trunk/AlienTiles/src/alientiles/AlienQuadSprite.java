@@ -44,7 +44,7 @@ public class AlienQuadSprite extends AlienSprite {
         } else {
             return NW;
         }
-    } // end of calcQuadrant()
+    }
 
     @Override
     protected void move()
@@ -60,7 +60,7 @@ public class AlienQuadSprite extends AlienSprite {
         // the loop could repeat for a while, but it should eventually find a
         // way
         setMove(newPt, quad);
-    } // end of move()
+    }
 
     @Override
     public void playerHasMoved(Point playerLoc)
@@ -73,5 +73,5 @@ public class AlienQuadSprite extends AlienSprite {
             // player
             currentQuad = calcQuadrant(nearPickup);
         }
-    } // end of playerHasMoved()
-} // end of AlienQuadSprite class
+    }
+} 

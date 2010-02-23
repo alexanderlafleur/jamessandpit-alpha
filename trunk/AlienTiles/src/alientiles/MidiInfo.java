@@ -29,7 +29,7 @@ public class MidiInfo {
         filename = SOUND_DIR + fnm;
         sequencer = sqr;
         loadMidi();
-    } // end of MidiInfo()
+    }
 
     public String getName() {
         return name;
@@ -47,7 +47,7 @@ public class MidiInfo {
         } catch (Exception e) {
             System.out.println("Problem with " + filename);
         }
-    } // end of loadMidi()
+    }
 
     public void pause()
     // pause the sequence by stopping the sequencer
@@ -71,7 +71,7 @@ public class MidiInfo {
                 System.out.println("Corrupted/invalid midi file: " + filename);
             }
         }
-    } // end of play()
+    }
 
     public void resume() {
         if (sequencer != null && seq != null) {
@@ -92,7 +92,7 @@ public class MidiInfo {
             sequencer.setTickPosition(sequencer.getTickLength());
             // move to the end of the sequence to trigger an end-of-track msg
         }
-    } // end of stop()
+    }
 
     // -------------- other access methods -------------------
     public boolean tryLooping()
@@ -112,5 +112,5 @@ public class MidiInfo {
             }
         }
         return false;
-    } // end of tryLooping()
-} // end of MidiInfo class
+    }
+}

@@ -39,7 +39,7 @@ public class TileOccupier {
         yTile = y;
         image = im;
         calcPosition(xRowStart, yRowStart, xTileWidth, yTileHeight);
-    } // end of TileOccupier()
+    }
 
     public void addSpriteRef(TiledSprite s) {
         if (type == WorldDisplay.SPRITE) {
@@ -63,7 +63,7 @@ public class TileOccupier {
             // on an odd row
             yDraw = yRowStart + (yTile - 1) / 2 * yTileHeight + yImOffset;
         }
-    } // end of calcPosition()
+    }
 
     public void draw(Graphics g, int xOffset, int yOffset)
         /*
@@ -78,7 +78,7 @@ public class TileOccupier {
             // the entity is a PICKUP or BLOCK
             g.drawImage(image, xDraw + xOffset, yDraw + yOffset, null);
         }
-    } // end of draw()
+    }
 
     public String getName() {
         return name;
@@ -91,4 +91,4 @@ public class TileOccupier {
     public int getType() {
         return type;
     }
-} // end of TileOccupier class
+}

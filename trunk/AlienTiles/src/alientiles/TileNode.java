@@ -105,7 +105,7 @@ public class TileNode {
             newNode = null;
         }
         return newNode;
-    } // end of makeNeighbour()
+    }
 
     private TileNode makeNode(int x, int y, WorldDisplay wd)
         /*
@@ -118,7 +118,7 @@ public class TileNode {
         newNode.setCostFromStart(getCostFromStart() + 1.0);
         newNode.setParent(this);
         return newNode;
-    } // end of makeNode()
+    }
 
     public void setCostFromStart(double v) {
         costFromStart = v;
@@ -127,4 +127,4 @@ public class TileNode {
     public void setParent(TileNode p) {
         parent = p;
     }
-} // end of TilesNode class
+}
