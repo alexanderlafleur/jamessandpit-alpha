@@ -70,9 +70,7 @@ public class ClipInfo implements LineListener {
 			AudioFormat format = stream.getFormat();
 			// convert ULAW/ALAW formats to PCM format
 			if (format.getEncoding() == AudioFormat.Encoding.ULAW || format.getEncoding() == AudioFormat.Encoding.ALAW) {
-				AudioFormat newFormat =
-						new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format
-								.getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true); // big
+				AudioFormat newFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format.getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true); // big
 
 				// update stream and format details
 				stream = AudioSystem.getAudioInputStream(newFormat, stream);
@@ -92,8 +90,7 @@ public class ClipInfo implements LineListener {
 			clip.open(stream); // open the sound file as a clip
 			stream.close(); // we're done with the input stream
 			checkDuration();
-		}
-		catch (UnsupportedAudioFileException audioException) {
+		} catch (UnsupportedAudioFileException audioException) {
 			System.out.println("Unsupported audio file: " + fnm);
 		} catch (LineUnavailableException noLineException) {
 			System.out.println("No audio line available for : " + fnm);
