@@ -32,9 +32,10 @@ public class AlienQuadSprite extends AlienSprite {
 	}
 
 	private int calcQuadrant(Point pickupPt)
-		/*
-				* Roughly calculate a quadrant by comparing the pickup's point with the alien's position.
-				*/ {
+	//
+	// Roughly calculate a quadrant by comparing the pickup's point with the alien's position. 
+	//
+	{
 		if (pickupPt.x > xTile && pickupPt.y > yTile) {
 			return SE;
 		} else if (pickupPt.x > xTile && pickupPt.y < yTile) {
@@ -48,10 +49,11 @@ public class AlienQuadSprite extends AlienSprite {
 
 	@Override
 	protected void move()
-		/*
-				* Try to move in the currentQuad direction. If that way is blocked then randomly try another direction. This approach may lead to the sprite
-				* getting stuck, but its unlikely.
-				*/ {
+	//
+	// Try to move in the currentQuad direction. If that way is blocked then randomly try another direction. This approach may lead to the sprite
+	// getting stuck, but its unlikely.
+	//
+	{
 		int quad = currentQuad;
 		Point newPt;
 		while ((newPt = tryMove(quad)) == null) {
