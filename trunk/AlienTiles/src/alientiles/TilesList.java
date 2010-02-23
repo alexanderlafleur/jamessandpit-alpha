@@ -13,50 +13,50 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class TilesList {
-    protected ArrayList nodes; // list of TileNode objects
+	protected ArrayList nodes; // list of TileNode objects
 
-    public TilesList() {
-        nodes = new ArrayList();
-    }
+	public TilesList() {
+		nodes = new ArrayList();
+	}
 
-    public TilesList(TileNode node) {
-        nodes = new ArrayList();
-        nodes.add(node);
-    }
+	public TilesList(TileNode node) {
+		nodes = new ArrayList();
+		nodes.add(node);
+	}
 
-    public void add(TileNode node) {
-        nodes.add(node);
-    }
+	public void add(TileNode node) {
+		nodes.add(node);
+	}
 
-    public boolean delete(Point p)
-        /*
-        * Try to delete the tile at point p from the list. If p is not present then do nothing.
-        */ {
-        Point entry;
-        for (int i = 0; i < nodes.size(); i++) {
-            entry = ((TileNode) nodes.get(i)).getPoint();
-            if (entry.equals(p)) {
-                nodes.remove(i);
-                return true;
-            }
-        }
-        return false;
-    }
+	public boolean delete(Point p)
+		/*
+				* Try to delete the tile at point p from the list. If p is not present then do nothing.
+				*/ {
+		Point entry;
+		for (int i = 0; i < nodes.size(); i++) {
+			entry = ((TileNode) nodes.get(i)).getPoint();
+			if (entry.equals(p)) {
+				nodes.remove(i);
+				return true;
+			}
+		}
+		return false;
+	}
 
-    public TileNode findNode(Point p)
-    // a linear search looking for the tile at point p;
-    {
-        TileNode entry;
-        for (int i = 0; i < nodes.size(); i++) {
-            entry = (TileNode) nodes.get(i);
-            if (entry.getPoint().equals(p)) {
-                return entry;
-            }
-        }
-        return null;
-    }
+	public TileNode findNode(Point p)
+	// a linear search looking for the tile at point p;
+	{
+		TileNode entry;
+		for (int i = 0; i < nodes.size(); i++) {
+			entry = (TileNode) nodes.get(i);
+			if (entry.getPoint().equals(p)) {
+				return entry;
+			}
+		}
+		return null;
+	}
 
-    public int size() {
-        return nodes.size();
-    }
+	public int size() {
+		return nodes.size();
+	}
 }

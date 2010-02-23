@@ -7,5 +7,5 @@ package alientiles;
  call sequenceEnded() in a listener.
  */
 public interface ImagesPlayerWatcher {
-    void sequenceEnded(String imageName);
+	void sequenceEnded(String imageName);
 }

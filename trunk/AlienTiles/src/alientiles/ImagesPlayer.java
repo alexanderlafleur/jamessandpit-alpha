@@ -34,117 +34,117 @@ package alientiles;
 import java.awt.image.BufferedImage;
 
 public class ImagesPlayer {
-    private int animPeriod;
-    // period used by animation loop (in ms)
-    private long animTotalTime;
-    private String imName;
-    private int imPosition; // position of current displayable image
-    private ImagesLoader imsLoader;
-    private boolean isRepeating, ticksIgnored;
-    private int numImages;
-    // total duration of the entire image sequence (in secs)
-    // period the current image is shown (in ms)
-    private double seqDuration;
-    private int showPeriod;
-    private ImagesPlayerWatcher watcher = null;
+	private int animPeriod;
+	// period used by animation loop (in ms)
+	private long animTotalTime;
+	private String imName;
+	private int imPosition; // position of current displayable image
+	private ImagesLoader imsLoader;
+	private boolean isRepeating, ticksIgnored;
+	private int numImages;
+	// total duration of the entire image sequence (in secs)
+	// period the current image is shown (in ms)
+	private double seqDuration;
+	private int showPeriod;
+	private ImagesPlayerWatcher watcher = null;
 
-    public ImagesPlayer(String nm, int ap, double d, boolean isr, ImagesLoader il) {
-        imName = nm;
-        animPeriod = ap;
-        seqDuration = d;
-        isRepeating = isr;
-        imsLoader = il;
-        animTotalTime = 0L;
-        if (seqDuration < 0.5) {
-            System.out.println("Warning: minimum sequence duration is 0.5 sec.");
-            seqDuration = 0.5;
-        }
-        if (!imsLoader.isLoaded(imName)) {
-            System.out.println(imName + " is not known by the ImagesLoader");
-            numImages = 0;
-            imPosition = -1;
-            ticksIgnored = true;
-        } else {
-            numImages = imsLoader.numImages(imName);
-            imPosition = 0;
-            ticksIgnored = false;
-            showPeriod = (int) (1000 * seqDuration / numImages);
-        }
-    }
+	public ImagesPlayer(String nm, int ap, double d, boolean isr, ImagesLoader il) {
+		imName = nm;
+		animPeriod = ap;
+		seqDuration = d;
+		isRepeating = isr;
+		imsLoader = il;
+		animTotalTime = 0L;
+		if (seqDuration < 0.5) {
+			System.out.println("Warning: minimum sequence duration is 0.5 sec.");
+			seqDuration = 0.5;
+		}
+		if (!imsLoader.isLoaded(imName)) {
+			System.out.println(imName + " is not known by the ImagesLoader");
+			numImages = 0;
+			imPosition = -1;
+			ticksIgnored = true;
+		} else {
+			numImages = imsLoader.numImages(imName);
+			imPosition = 0;
+			ticksIgnored = false;
+			showPeriod = (int) (1000 * seqDuration / numImages);
+		}
+	}
 
-    public boolean atSequenceEnd()
-    // are we at the last image and not cycling through them?
-    {
-        return imPosition == numImages - 1 && !isRepeating;
-    }
+	public boolean atSequenceEnd()
+	// are we at the last image and not cycling through them?
+	{
+		return imPosition == numImages - 1 && !isRepeating;
+	}
 
-    public BufferedImage getCurrentImage() {
-        if (numImages != 0) {
-            return imsLoader.getImage(imName, imPosition);
-        } else {
-            return null;
-        }
-    }
+	public BufferedImage getCurrentImage() {
+		if (numImages != 0) {
+			return imsLoader.getImage(imName, imPosition);
+		} else {
+			return null;
+		}
+	}
 
-    public int getCurrentPosition() {
-        return imPosition;
-    }
+	public int getCurrentPosition() {
+		return imPosition;
+	}
 
-    public boolean isStopped() {
-        return ticksIgnored;
-    }
+	public boolean isStopped() {
+		return ticksIgnored;
+	}
 
-    public void restartAt(int imPosn)
-        /*
-        * Start showing the images again, starting with image number imPosn. This requires a resetting of the animation time as well.
-        */ {
-        if (numImages != 0) {
-            if (imPosn < 0 || imPosn > numImages - 1) {
-                System.out.println("Out of range restart, starting at 0");
-                imPosn = 0;
-            }
-            imPosition = imPosn;
-            // calculate a suitable animation time
-            animTotalTime = (long) imPosition * showPeriod;
-            ticksIgnored = false;
-        }
-    }
+	public void restartAt(int imPosn)
+		/*
+				* Start showing the images again, starting with image number imPosn. This requires a resetting of the animation time as well.
+				*/ {
+		if (numImages != 0) {
+			if (imPosn < 0 || imPosn > numImages - 1) {
+				System.out.println("Out of range restart, starting at 0");
+				imPosn = 0;
+			}
+			imPosition = imPosn;
+			// calculate a suitable animation time
+			animTotalTime = (long) imPosition * showPeriod;
+			ticksIgnored = false;
+		}
+	}
 
-    public void resume()
-    // start at previous image position
-    {
-        if (numImages != 0) {
-            ticksIgnored = false;
-        }
-    }
+	public void resume()
+	// start at previous image position
+	{
+		if (numImages != 0) {
+			ticksIgnored = false;
+		}
+	}
 
-    public void setWatcher(ImagesPlayerWatcher w) {
-        watcher = w;
-    }
+	public void setWatcher(ImagesPlayerWatcher w) {
+		watcher = w;
+	}
 
-    public void stop()
-        /*
-        * updateTick() calls will no longer update the total animation time or imPosition.
-        */ {
-        ticksIgnored = true;
-    }
+	public void stop()
+		/*
+				* updateTick() calls will no longer update the total animation time or imPosition.
+				*/ {
+		ticksIgnored = true;
+	}
 
-    public void updateTick()
-        /* We assume that this method is called every animPeriod ms */ {
-        if (!ticksIgnored) {
-            // update total animation time, modulo the animation sequence
-            // duration
-            animTotalTime = (animTotalTime + animPeriod) % (long) (1000 * seqDuration);
-            // calculate current displayable image position
-            imPosition = (int) (animTotalTime / showPeriod); // in range 0 to
-            // num-1
-            if (imPosition == numImages - 1 && !isRepeating) { // at end of
-                // sequence
-                ticksIgnored = true; // stop at this image
-                if (watcher != null) {
-                    watcher.sequenceEnded(imName); // call callback
-                }
-            }
-        }
-    }
+	public void updateTick()
+		/* We assume that this method is called every animPeriod ms */ {
+		if (!ticksIgnored) {
+			// update total animation time, modulo the animation sequence
+			// duration
+			animTotalTime = (animTotalTime + animPeriod) % (long) (1000 * seqDuration);
+			// calculate current displayable image position
+			imPosition = (int) (animTotalTime / showPeriod); // in range 0 to
+			// num-1
+			if (imPosition == numImages - 1 && !isRepeating) { // at end of
+				// sequence
+				ticksIgnored = true; // stop at this image
+				if (watcher != null) {
+					watcher.sequenceEnded(imName); // call callback
+				}
+			}
+		}
+	}
 }
