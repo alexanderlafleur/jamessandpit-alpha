@@ -35,9 +35,9 @@ public class TilesPriQueue extends TilesList {
             }
         }
         nodes.add(node); // add node at end of list
-    } // end of add()
+    }
 
     public TileNode removeFirst() {
         return (TileNode) nodes.remove(0);
     }
-} // end of TilesPriQueue
+}

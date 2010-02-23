@@ -92,7 +92,7 @@ public class WorldDisplay {
         /*
          * The world objects information is stored in the obstacles[][] array and the WorldItems object.
          */
-    } // end of WorldDisplay()
+    }
 
     // ----------------- load floor info ------------------
     public void addSprites(PlayerSprite ps, AlienSprite as[])
@@ -112,7 +112,7 @@ public class WorldDisplay {
         wItems.positionSprites(player, aliens); // add the sprites
         wItems.draw(g, xOffset, yOffset); // draw the things in the game
         wItems.removeSprites(); // remove the sprites
-    } // end of draw()
+    }
 
     // ----------------- load world objects info ----------------
     private void getBlocks(String line, BufferedReader br)
@@ -138,7 +138,7 @@ public class WorldDisplay {
             System.out.println("Error reading blocks info");
             System.exit(1);
         }
-    } // end of getBlocks()
+    }
 
     private boolean getBlocksLine(String line, String blockName, BufferedImage im)
         /*
@@ -162,7 +162,7 @@ public class WorldDisplay {
             blocksCounter++;
         }
         return false;
-    } // end of getBlocksLine()
+    }
 
     private Point getCoord(String token)
     // Token's format is <x>-<y>; return it as a Point object
@@ -189,7 +189,7 @@ public class WorldDisplay {
             x = numYTiles - 1;
         }
         return new Point(x, y);
-    } // end of getCoord()
+    }
 
     private int getNumber(String token)
     // extract a number or return 0
@@ -201,7 +201,7 @@ public class WorldDisplay {
             System.out.println("Incorrect format for " + token);
         }
         return num;
-    } // end of getNumber()
+    }
 
     private void getObstacles(String line, BufferedReader br)
         /*
@@ -221,7 +221,7 @@ public class WorldDisplay {
             System.out.println("Error reading obstacles info");
             System.exit(1);
         }
-    } // end of getObstacles
+    }
 
     private boolean getObstaclesLine(String line)
         /*
@@ -241,7 +241,7 @@ public class WorldDisplay {
             // + ")");
         }
         return false;
-    } // end of getObstaclesLine()
+    }
 
     private void getPickup(String line)
         /*
@@ -256,7 +256,7 @@ public class WorldDisplay {
         // System.out.println("Added " + pickupName +
         // " at (" + coord.x + "," + coord.y + ")");
         numPickups++;
-    } // end of getPickup()
+    }
 
     // ---------------------------- others -----------------------
     public String getPickupsStatus()
@@ -295,7 +295,7 @@ public class WorldDisplay {
                 obstacles[i][j] = false;
             }
         }
-    } // end of initObstacles()
+    }
 
     private void loadFloorInfo(String wFNm)
         /*
@@ -344,7 +344,7 @@ public class WorldDisplay {
             System.out.println("Error reading file: " + worldFNm);
             System.exit(1);
         }
-    } // end of loadFloorInfo()
+    }
 
     private void loadWorldObjects(String woFNm)
         /*
@@ -383,7 +383,7 @@ public class WorldDisplay {
             System.out.println("Error reading file: " + objsFNm);
             System.exit(1);
         }
-    } // end of loadWorldObjects()
+    }
 
     public Point nearestPickup(Point pt)
         /*
@@ -409,7 +409,7 @@ public class WorldDisplay {
             element.playerHasMoved(newPt); // tell the aliens
         }
         updateOffsets(moveQuad); // update world's offset
-    } // end of playerHasMoved()
+    }
 
     public void removePickup(String name)
         /*
@@ -424,7 +424,7 @@ public class WorldDisplay {
         } else {
             System.out.println("Cannot delete unknown pickup: " + name);
         }
-    } // end of removePickup()
+    }
 
     private void updateOffsets(int moveQuad)
         /*
@@ -448,7 +448,7 @@ public class WorldDisplay {
         } else {
             System.out.println("moveQuad error detected");
         }
-    } // end of updateOffsets()
+    }
 
     public boolean validTileLoc(int x, int y)
     // Is tile coord (x,y) on the tile map and not contain an obstacle?
@@ -460,5 +460,5 @@ public class WorldDisplay {
             return false;
         }
         return true;
-    } // end of validTileLoc()
-} // end of WorldDisplay class
+    }
+}

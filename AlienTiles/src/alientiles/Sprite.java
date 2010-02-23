@@ -49,7 +49,7 @@ public class Sprite {
         dy = YSTEP;
         imsLoader = imsLd;
         setImage(name); // the sprite's default image is 'name'
-    } // end of Sprite()
+    }
 
     public void drawSprite(Graphics g) {
         if (isActive()) {
@@ -64,7 +64,7 @@ public class Sprite {
                 g.drawImage(image, locx, locy, null);
             }
         }
-    } // end of drawSprite()
+    }
 
     public int getHeight() // of the sprite's image
     {
@@ -132,7 +132,7 @@ public class Sprite {
         } else {
             System.out.println(imageName + " is not a sequence of images");
         }
-    } // end of loopImage()
+    }
 
     public void setActive(boolean a) {
         isActive = a;
@@ -154,7 +154,7 @@ public class Sprite {
         // no image loop playing
         player = null;
         isLooping = false;
-    } // end of setImage()
+    }
 
     public void setPosition(int x, int y) {
         locx = x;
@@ -171,7 +171,7 @@ public class Sprite {
             player.stop();
             isLooping = false;
         }
-    } // end of stopLooping()
+    }
 
     public void translate(int xDist, int yDist) {
         locx += xDist;
@@ -188,5 +188,5 @@ public class Sprite {
                 player.updateTick(); // update the player
             }
         }
-    } // end of updateSprite()
-} // end of Sprite class
+    }
+}

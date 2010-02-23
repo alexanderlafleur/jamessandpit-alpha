@@ -71,7 +71,7 @@ public class ImagesLoader {
     {
         initLoader();
         loadImagesFile(fnm);
-    } // end of ImagesLoader()
+    }
 
     private void getFileNameImage(String line)
         /*
@@ -85,7 +85,7 @@ public class ImagesLoader {
             System.out.print("o Line: ");
             loadSingleImage(tokens.nextToken());
         }
-    } // end of getFileNameImage()
+    }
 
     private void getGroupImages(String line)
         /*
@@ -105,7 +105,7 @@ public class ImagesLoader {
             }
             loadGroupImages(name, fnms);
         }
-    } // end of getGroupImages()
+    }
 
     // --------- load a single image -------------------------------
     private int getGroupPosition(String name, String fnmPrefix)
@@ -126,7 +126,7 @@ public class ImagesLoader {
         }
         System.out.println("No " + fnmPrefix + " group name found for " + name);
         return -1;
-    } // end of getGroupPosition()
+    }
 
     public BufferedImage getImage(String name)
         /*
@@ -139,7 +139,7 @@ public class ImagesLoader {
         }
         // System.out.println("Returning image stored under " + name);
         return (BufferedImage) imsList.get(0);
-    } // end of getImage() with name input;
+    }
 
     public BufferedImage getImage(String name, int posn)
         /*
@@ -165,7 +165,7 @@ public class ImagesLoader {
         // System.out.println("Returning " + name + " image at position " +
         // posn);
         return (BufferedImage) imsList.get(posn);
-    } // end of getImage() with posn input;
+    }
 
     // --------- load numbered images -------------------------------
     public BufferedImage getImage(String name, String fnmPrefix)
@@ -185,7 +185,7 @@ public class ImagesLoader {
         // System.out.println("Returning " + name +
         // " image with pair name " + fnmPrefix);
         return (BufferedImage) imsList.get(posn);
-    } // end of getImage() with fnmPrefix input;
+    }
 
     public ArrayList getImages(String name)
     // return all the BufferedImages for the given name
@@ -197,7 +197,7 @@ public class ImagesLoader {
         }
         System.out.println("Returning all images stored under " + name);
         return imsList;
-    } // end of getImages();
+    }
 
     private void getNumberedImages(String line)
         /*
@@ -218,7 +218,7 @@ public class ImagesLoader {
             }
             loadNumImages(fnm, number);
         }
-    } // end of getNumberedImages()
+    }
 
     // --------- load image strip -------------------------------
     private String getPrefix(String fnm)
@@ -231,7 +231,7 @@ public class ImagesLoader {
         } else {
             return fnm.substring(0, posn);
         }
-    } // end of getPrefix()
+    }
 
     private void getStripImages(String line)
         /*
@@ -252,7 +252,7 @@ public class ImagesLoader {
             }
             loadStripImages(fnm, number);
         }
-    } // end of getStripImages()
+    }
 
     // ------ grouped filename seq. of images ---------
     private void initLoader() {
@@ -260,7 +260,7 @@ public class ImagesLoader {
         gNamesMap = new HashMap();
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         gc = ge.getDefaultScreenDevice().getDefaultConfiguration();
-    } // end of initLoader()
+    }
 
     public boolean isLoaded(String name)
     // is <name> a key in the imagesMap hashMap?
@@ -270,7 +270,7 @@ public class ImagesLoader {
             return false;
         }
         return true;
-    } // end of isLoaded()
+    }
 
     public int loadGroupImages(String name, ArrayList fnms)
         /*
@@ -310,7 +310,7 @@ public class ImagesLoader {
             gNamesMap.put(name, nms);
         }
         return loadCount;
-    } // end of loadGroupImages()
+    }
 
     // ------------------ access methods -------------------
     public int loadGroupImages(String name, String[] fnms)
@@ -342,7 +342,7 @@ public class ImagesLoader {
             System.out.println("Load Image error for " + IMAGE_DIR + "/" + fnm + ":\n" + e);
             return null;
         }
-    } // end of loadImage() using ImageIO
+    }
 
     public BufferedImage loadImage3(String fnm)
         /*
@@ -355,7 +355,7 @@ public class ImagesLoader {
         int width = im.getWidth(null);
         int height = im.getHeight(null);
         return makeBIM(im, width, height);
-    } // end of loadImage() using Image
+    }
 
     private void loadImagesFile(String fnm)
         /*
@@ -395,7 +395,7 @@ public class ImagesLoader {
             System.out.println("Error reading file: " + imsFNm);
             System.exit(1);
         }
-    } // end of loadImagesFile()
+    }
 
     public int loadNumImages(String fnm, int number)
         /*
@@ -416,7 +416,7 @@ public class ImagesLoader {
             return 0;
         }
         return loadNumImages(prefix, postfix, number);
-    } // end of loadNumImages()
+    }
 
     private int loadNumImages(String prefix, String postfix, int number)
         /*
@@ -452,7 +452,7 @@ public class ImagesLoader {
             imagesMap.put(prefix, imsList);
         }
         return loadCount;
-    } // end of loadNumImages()
+    }
 
     public boolean loadSingleImage(String fnm)
     // can be called directly
@@ -472,7 +472,7 @@ public class ImagesLoader {
         } else {
             return false;
         }
-    } // end of loadSingleImage()
+    }
 
     // ------------------- Image Input ------------------
     /*
@@ -509,7 +509,7 @@ public class ImagesLoader {
             stripGC.dispose();
         }
         return strip;
-    } // end of loadStripImageArray()
+    }
 
     public int loadStripImages(String fnm, int number)
         /*
@@ -540,7 +540,7 @@ public class ImagesLoader {
             imagesMap.put(name, imsList);
         }
         return loadCount;
-    } // end of loadStripImages()
+    }
 
     private BufferedImage makeBIM(Image im, int width, int height)
     // make a BufferedImage copy of im, assuming an alpha channel
@@ -553,7 +553,7 @@ public class ImagesLoader {
         g2d.drawImage(im, 0, 0, null);
         g2d.dispose();
         return copy;
-    } // end of makeBIM()
+    }
 
     public int numImages(String name)
     // how many images are stored under <name>?
@@ -564,7 +564,7 @@ public class ImagesLoader {
             return 0;
         }
         return imsList.size();
-    } // end of numImages()
+    }
 
     private Image readImage(String fnm)
     // load the image, waiting for it to be fully downloaded
@@ -581,5 +581,5 @@ public class ImagesLoader {
             return null;
         }
         return image;
-    } // end of readImage()
-} // end of ImagesLoader class
+    }
+}

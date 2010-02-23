@@ -41,7 +41,7 @@ public class TilesList {
             }
         }
         return false;
-    } // end of delete()
+    }
 
     public TileNode findNode(Point p)
     // a linear search looking for the tile at point p;
@@ -54,9 +54,9 @@ public class TilesList {
             }
         }
         return null;
-    } // end of findNode()
+    }
 
     public int size() {
         return nodes.size();
     }
-} // end of TilesList
+}

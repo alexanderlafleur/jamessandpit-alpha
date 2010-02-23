@@ -43,7 +43,7 @@ public class WorldItems {
         oddRowX = orX;
         oddRowY = orY;
         items = new ArrayList();
-    } // end of WorldItems()
+    }
 
     public void addItem(String name, int type, int x, int y, BufferedImage im)
         /*
@@ -58,7 +58,7 @@ public class WorldItems {
             toc = new TileOccupier(name, type, x, y, im, oddRowX, oddRowY, tileWidth, tileHeight);
         }
         rowInsert(toc, x, y);
-    } // end of addItem()
+    }
 
     public void draw(Graphics g, int xOffset, int yOffset)
         /*
@@ -69,7 +69,7 @@ public class WorldItems {
             item = (TileOccupier) items.get(i);
             item.draw(g, xOffset, yOffset); // draw the item
         }
-    } // end of draw()
+    }
 
     public String findPickupName(Point pt)
         /*
@@ -83,7 +83,7 @@ public class WorldItems {
             }
         }
         return null;
-    } // end of findPickupName()
+    }
 
     // ------------------------ sprite related -----------------
     public Point nearestPickup(Point pt)
@@ -107,7 +107,7 @@ public class WorldItems {
             }
         }
         return minPoint;
-    } // end of nearestPickup()
+    }
 
     public void positionSprites(PlayerSprite ps, AlienSprite[] aliens)
     // Add player and aliens to world items
@@ -116,7 +116,7 @@ public class WorldItems {
         for (int i = 0; i < aliens.length; i++) {
             posnSprite("alien " + i, aliens[i]);
         }
-    } // end of positionSprites()
+    }
 
     private void posnSprite(String name, TiledSprite tSprite)
         /*
@@ -134,7 +134,7 @@ public class WorldItems {
          * the sprite reference is used when drawing the item to ensure that the current sprite image is shown.
          */
         rowInsert(toc, sPt.x, sPt.y);
-    } // end of posnSprite()
+    }
 
     // -------------------------- pickup related ------------------
     public boolean removePickup(String name)
@@ -149,7 +149,7 @@ public class WorldItems {
             }
         }
         return false;
-    } // end of removePickup()
+    }
 
     public void removeSprites()
     // remove all the sprites in the WorldItems list, based on type
@@ -164,7 +164,7 @@ public class WorldItems {
                 i++;
             }
         }
-    } // end of removeSprites()
+    }
 
     private void rowInsert(TileOccupier toc, int x, int y)
         /*
@@ -184,5 +184,5 @@ public class WorldItems {
             i++;
         }
         items.add(i, toc);
-    } // end of rowInsert()
-} // end of WorldItems class
+    }
+}

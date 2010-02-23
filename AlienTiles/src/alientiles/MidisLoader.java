@@ -66,7 +66,7 @@ public class MidisLoader implements MetaEventListener {
             sequencer.close();
             sequencer = null;
         }
-    } // end of close()
+    }
 
     private void initSequencer()
         /*
@@ -93,7 +93,7 @@ public class MidisLoader implements MetaEventListener {
             System.out.println("No sequencer available");
             sequencer = null;
         }
-    } // end of initSequencer()
+    }
 
     public void load(String name, String fnm)
     // create a MidiInfo object, and store it under name
@@ -106,7 +106,7 @@ public class MidisLoader implements MetaEventListener {
             midisMap.put(name, new MidiInfo(name, fnm, sequencer));
             System.out.println("-- " + name + "/" + fnm);
         }
-    } // end of load()
+    }
 
     private void loadSoundsFile(String soundsFnm)
         /*
@@ -141,7 +141,7 @@ public class MidisLoader implements MetaEventListener {
             System.out.println("Error reading file: " + sndsFNm);
             System.exit(1);
         }
-    } // end of loadSoundsFile()
+    }
 
     // ----------- manipulate a particular midi sequence --------
     public void meta(MetaMessage meta)
@@ -167,7 +167,7 @@ public class MidisLoader implements MetaEventListener {
                 }
             }
         }
-    } // end of meta()
+    }
 
     public void pause() {
         if (currentMidi != null) {
@@ -175,7 +175,7 @@ public class MidisLoader implements MetaEventListener {
         } else {
             System.out.println("No music to pause");
         }
-    } // end of pause()
+    }
 
     public void play(String name, boolean toLoop)
     // play (perhaps loop) the sequence
@@ -191,7 +191,7 @@ public class MidisLoader implements MetaEventListener {
                 mi.play(toLoop);
             }
         }
-    } // end of play()
+    }
 
     public void resume() {
         if (currentMidi != null) {
@@ -199,7 +199,7 @@ public class MidisLoader implements MetaEventListener {
         } else {
             System.out.println("No music to resume");
         }
-    } // end of resume()
+    }
 
     public void setWatcher(SoundsWatcher sw) {
         watcher = sw;
@@ -213,5 +213,5 @@ public class MidisLoader implements MetaEventListener {
             // which causes meta() to be called here
             System.out.println("No music playing");
         }
-    } // end of stop()
-} // end of MidisLoader class
+    }
+}

@@ -70,7 +70,7 @@ public class ImagesPlayer {
             ticksIgnored = false;
             showPeriod = (int) (1000 * seqDuration / numImages);
         }
-    } // end of ImagesPlayer()
+    }
 
     public boolean atSequenceEnd()
     // are we at the last image and not cycling through them?
@@ -84,7 +84,7 @@ public class ImagesPlayer {
         } else {
             return null;
         }
-    } // end of getCurrentImage()
+    }
 
     public int getCurrentPosition() {
         return imPosition;
@@ -108,7 +108,7 @@ public class ImagesPlayer {
             animTotalTime = (long) imPosition * showPeriod;
             ticksIgnored = false;
         }
-    } // end of restartAt()
+    }
 
     public void resume()
     // start at previous image position
@@ -146,5 +146,5 @@ public class ImagesPlayer {
                 }
             }
         }
-    } // end of updateTick()
-} // end of ImagesPlayer class
+    }
+}

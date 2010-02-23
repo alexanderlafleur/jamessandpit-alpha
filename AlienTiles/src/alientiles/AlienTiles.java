@@ -80,7 +80,7 @@ public class AlienTiles extends JFrame implements WindowListener {
         pack();
         setResizable(false);
         setVisible(true);
-    } // end of AlienTiles() constructor
+    }
 
     public void windowActivated(WindowEvent e) {
         atp.resumeGame();
@@ -109,4 +109,4 @@ public class AlienTiles extends JFrame implements WindowListener {
     // ----------------------------------------------------
     public void windowOpened(WindowEvent e) {
     }
-} // end of AlienTiles class
+} 

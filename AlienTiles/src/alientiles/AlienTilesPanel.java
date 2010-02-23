@@ -101,7 +101,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
         // set up message showing stuff
         msgsFont = new Font("SansSerif", Font.BOLD, 24);
         metrics = this.getFontMetrics(msgsFont);
-    } // end of AlienTilesPanel()
+    }
 
     @Override
     public void addNotify()
@@ -128,7 +128,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
         // use 2 AStar and 2 quad alien sprites
         // the 4th alien is positioned at an illegal tile location (34,34)
         world.addSprites(player, aliens); // tell the world about the sprites
-    } // end of createWorld()
+    }
 
     public void gameOver()
         /*
@@ -140,7 +140,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
             score = (int) ((J3DTimer.getValue() - gameStartTime) / 1000000000L);
             clipsLoader.play("applause", false);
         }
-    } // end of gameOver()
+    }
 
     private void gameOverMessage(Graphics g)
     // Center the game-over message in the panel.
@@ -152,7 +152,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
         g.setFont(msgsFont);
         g.drawString(msg, x, y);
         g.setColor(Color.black);
-    } // end of gameOverMessage()
+    }
 
     private void gameRender() {
         if (dbImage == null) {
@@ -179,7 +179,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
         if (showHelp) {
             dbg.drawImage(helpIm, (PWIDTH - helpIm.getWidth()) / 2, (PHEIGHT - helpIm.getHeight()) / 2, null);
         }
-    } // end of gameRender()
+    }
 
     // ------------- game life cycle methods ------------
     // called by the JFrame's window listener methods
@@ -190,7 +190,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
                 element.update(); // update all the aliens
             }
         }
-    } // end of gameUpdate()
+    }
 
     private void paintScreen()
     // use active rendering to put the buffered image on-screen
@@ -208,7 +208,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
         } catch (Exception e) {
             System.out.println("Graphics context error: " + e);
         }
-    } // end of paintScreen()
+    }
 
     public void pauseGame()
     // called when the JFrame is deactivated / iconified
@@ -255,7 +255,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
                 player.tryPickup(); // try to pick up from this tile
             }
         }
-    } // end of processKey()
+    }
 
     private void reportStats(Graphics g)
     // Report time spent playing, the number of hits, pickups left
@@ -271,7 +271,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
         g.drawString(player.getHitStatus(), 15, 50); // ask the player
         g.drawString(world.getPickupsStatus(), 15, 75); // ask WorldDisplay
         g.setColor(Color.black);
-    } // end of reportStats()
+    }
 
     public void resumeGame()
     // called when the JFrame is activated / deiconified
@@ -323,7 +323,7 @@ public class AlienTilesPanel extends JPanel implements Runnable {
             }
         }
         System.exit(0); // so window disappears
-    } // end of run()
+    }
 
     private void startGame()
     // initialise and start the thread
@@ -332,11 +332,11 @@ public class AlienTilesPanel extends JPanel implements Runnable {
             animator = new Thread(this);
             animator.start();
         }
-    } // end of startGame()
+    }
 
     public void stopGame()
     // called when the JFrame is closing
     {
         running = false;
     }
-} // end of AlienTilesPanel class
+} 

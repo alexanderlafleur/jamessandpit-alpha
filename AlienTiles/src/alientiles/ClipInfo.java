@@ -39,7 +39,7 @@ public class ClipInfo implements LineListener {
         filename = SOUND_DIR + fnm;
         df = new DecimalFormat("0.#"); // 1 dp
         loadClip(filename);
-    } // end of ClipInfo()
+    }
 
     private void checkDuration() {
         // duration (in secs) of the clip
@@ -50,7 +50,7 @@ public class ClipInfo implements LineListener {
         } else {
             System.out.println(filename + ": Duration: " + df.format(duration) + " secs");
         }
-    } // end of checkDuration()
+    }
 
     public void close() {
         if (clip != null) {
@@ -73,7 +73,7 @@ public class ClipInfo implements LineListener {
                 AudioFormat newFormat =
                         new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(), format.getSampleSizeInBits() * 2, format
                                 .getChannels(), format.getFrameSize() * 2, format.getFrameRate(), true); // big
-                // endian
+
                 // update stream and format details
                 stream = AudioSystem.getAudioInputStream(newFormat, stream);
                 System.out.println("Converted Audio format: " + newFormat);
@@ -92,7 +92,7 @@ public class ClipInfo implements LineListener {
             clip.open(stream); // open the sound file as a clip
             stream.close(); // we're done with the input stream
             checkDuration();
-        } // end of try block
+        }
         catch (UnsupportedAudioFileException audioException) {
             System.out.println("Unsupported audio file: " + fnm);
         } catch (LineUnavailableException noLineException) {
@@ -102,7 +102,7 @@ public class ClipInfo implements LineListener {
         } catch (Exception e) {
             System.out.println("Problem with " + fnm);
         }
-    } // end of loadClip()
+    }
 
     public void pause()
     // stop the clip at its current playing position
@@ -160,5 +160,5 @@ public class ClipInfo implements LineListener {
                 }
             }
         }
-    } // end of update()
-} // end of ClipInfo class
+    }
+} 

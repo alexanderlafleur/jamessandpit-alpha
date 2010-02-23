@@ -34,7 +34,7 @@ public class PlayerSprite extends TiledSprite {
         super(x, y, w, h, imsLd, "still", wd);
         clipsLoader = clipsLd;
         atPanel = atp;
-    } // end of PlayerSprite()
+    }
 
     public String getHitStatus()
     // AlienTilesPanel uses this method to report on the player's status
@@ -47,7 +47,7 @@ public class PlayerSprite extends TiledSprite {
         } else {
             return "" + livesLeft + " lives left";
         }
-    } // end of getHitStatus()
+    }
 
     // ----------------- alien hit related methods ---------------
     public void hitByAlien()
@@ -59,7 +59,7 @@ public class PlayerSprite extends TiledSprite {
         if (hitCount == MAX_HITS) {
             atPanel.gameOver();
         }
-    } // end of hitByAlien()
+    }
 
     public void move(int quad)
         /*
@@ -84,7 +84,7 @@ public class PlayerSprite extends TiledSprite {
             }
             world.playerHasMoved(newPt, quad);
         }
-    } // end of move()
+    }
 
     // ----------------- movement methods ---------------------------
     public void standStill() {
@@ -106,4 +106,4 @@ public class PlayerSprite extends TiledSprite {
             return true;
         }
     }
-} // end of PlayerSprite class
+}
