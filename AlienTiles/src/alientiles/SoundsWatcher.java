@@ -6,9 +6,9 @@ package alientiles;
 /* 
  */
 public interface SoundsWatcher {
-    public final static int REPLAYED = 1;
-    // constants used by SoundsWatcher method, atSequenceEnd()
-    public final static int STOPPED = 0;
+	public final static int REPLAYED = 1;
+	// constants used by SoundsWatcher method, atSequenceEnd()
+	public final static int STOPPED = 0;
 
-    void atSequenceEnd(String filename, int status);
+	void atSequenceEnd(String filename, int status);
 }

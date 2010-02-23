@@ -26,129 +26,129 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 public class ClipsLoader {
-    private final static String SOUND_DIR = "/sounds/";
-    private HashMap clipsMap;
+	private final static String SOUND_DIR = "/sounds/";
+	private HashMap clipsMap;
 
-    /*
-     * The key is the clip 'name', the object (value) is a ClipInfo object
-     */
-    public ClipsLoader() {
-        clipsMap = new HashMap();
-    }
+	/*
+		 * The key is the clip 'name', the object (value) is a ClipInfo object
+		 */
+	public ClipsLoader() {
+		clipsMap = new HashMap();
+	}
 
-    public ClipsLoader(String soundsFnm) {
-        clipsMap = new HashMap();
-        loadSoundsFile(soundsFnm);
-    }
+	public ClipsLoader(String soundsFnm) {
+		clipsMap = new HashMap();
+		loadSoundsFile(soundsFnm);
+	}
 
-    public void close(String name)
-    // close the specified clip
-    {
-        ClipInfo ci = (ClipInfo) clipsMap.get(name);
-        if (ci == null) {
-            System.out.println("Error: " + name + "not stored");
-        } else {
-            ci.close();
-        }
-    }
+	public void close(String name)
+	// close the specified clip
+	{
+		ClipInfo ci = (ClipInfo) clipsMap.get(name);
+		if (ci == null) {
+			System.out.println("Error: " + name + "not stored");
+		} else {
+			ci.close();
+		}
+	}
 
-    // ----------- manipulate a particular clip --------
-    public void load(String name, String fnm)
-    // create a ClipInfo object for name and store it
-    {
-        if (clipsMap.containsKey(name)) {
-            System.out.println("Error: " + name + "already stored");
-        } else {
-            clipsMap.put(name, new ClipInfo(name, fnm));
-            System.out.println("-- " + name + "/" + fnm);
-        }
-    }
+	// ----------- manipulate a particular clip --------
+	public void load(String name, String fnm)
+	// create a ClipInfo object for name and store it
+	{
+		if (clipsMap.containsKey(name)) {
+			System.out.println("Error: " + name + "already stored");
+		} else {
+			clipsMap.put(name, new ClipInfo(name, fnm));
+			System.out.println("-- " + name + "/" + fnm);
+		}
+	}
 
-    private void loadSoundsFile(String soundsFnm)
-        /*
-        * The file format are lines of: <name> <filename> // a single sound file and blank lines and comment lines.
-        */ {
-        String sndsFNm = SOUND_DIR + soundsFnm;
-        System.out.println("Reading file: " + sndsFNm);
-        try {
-            InputStream in = this.getClass().getResourceAsStream(sndsFNm);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            // BufferedReader br = new BufferedReader( new FileReader(sndsFNm));
-            StringTokenizer tokens;
-            String line, name, fnm;
-            while ((line = br.readLine()) != null) {
-                if (line.length() == 0) {
-                    continue;
-                }
-                if (line.startsWith("//")) {
-                    continue;
-                }
-                tokens = new StringTokenizer(line);
-                if (tokens.countTokens() != 2) {
-                    System.out.println("Wrong no. of arguments for " + line);
-                } else {
-                    name = tokens.nextToken();
-                    fnm = tokens.nextToken();
-                    load(name, fnm);
-                }
-            }
-            br.close();
-        } catch (IOException e) {
-            System.out.println("Error reading file: " + sndsFNm);
-            System.exit(1);
-        }
-    }
+	private void loadSoundsFile(String soundsFnm)
+		/*
+				* The file format are lines of: <name> <filename> // a single sound file and blank lines and comment lines.
+				*/ {
+		String sndsFNm = SOUND_DIR + soundsFnm;
+		System.out.println("Reading file: " + sndsFNm);
+		try {
+			InputStream in = this.getClass().getResourceAsStream(sndsFNm);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			// BufferedReader br = new BufferedReader( new FileReader(sndsFNm));
+			StringTokenizer tokens;
+			String line, name, fnm;
+			while ((line = br.readLine()) != null) {
+				if (line.length() == 0) {
+					continue;
+				}
+				if (line.startsWith("//")) {
+					continue;
+				}
+				tokens = new StringTokenizer(line);
+				if (tokens.countTokens() != 2) {
+					System.out.println("Wrong no. of arguments for " + line);
+				} else {
+					name = tokens.nextToken();
+					fnm = tokens.nextToken();
+					load(name, fnm);
+				}
+			}
+			br.close();
+		} catch (IOException e) {
+			System.out.println("Error reading file: " + sndsFNm);
+			System.exit(1);
+		}
+	}
 
-    public void pause(String name) {
-        ClipInfo ci = (ClipInfo) clipsMap.get(name);
-        if (ci == null) {
-            System.out.println("Error: " + name + "not stored");
-        } else {
-            ci.pause();
-        }
-    }
+	public void pause(String name) {
+		ClipInfo ci = (ClipInfo) clipsMap.get(name);
+		if (ci == null) {
+			System.out.println("Error: " + name + "not stored");
+		} else {
+			ci.pause();
+		}
+	}
 
-    public void play(String name, boolean toLoop)
-    // play (perhaps loop) the specified clip
-    {
-        ClipInfo ci = (ClipInfo) clipsMap.get(name);
-        if (ci == null) {
-            System.out.println("Error: " + name + "not stored");
-        } else {
-            ci.play(toLoop);
-        }
-    }
+	public void play(String name, boolean toLoop)
+	// play (perhaps loop) the specified clip
+	{
+		ClipInfo ci = (ClipInfo) clipsMap.get(name);
+		if (ci == null) {
+			System.out.println("Error: " + name + "not stored");
+		} else {
+			ci.play(toLoop);
+		}
+	}
 
-    public void resume(String name) {
-        ClipInfo ci = (ClipInfo) clipsMap.get(name);
-        if (ci == null) {
-            System.out.println("Error: " + name + "not stored");
-        } else {
-            ci.resume();
-        }
-    }
+	public void resume(String name) {
+		ClipInfo ci = (ClipInfo) clipsMap.get(name);
+		if (ci == null) {
+			System.out.println("Error: " + name + "not stored");
+		} else {
+			ci.resume();
+		}
+	}
 
-    public void setWatcher(String name, SoundsWatcher sw)
-        /*
-        * Set up a watcher for the clip. It will be notified when the clip loops or stops.
-        */ {
-        ClipInfo ci = (ClipInfo) clipsMap.get(name);
-        if (ci == null) {
-            System.out.println("Error: " + name + "not stored");
-        } else {
-            ci.setWatcher(sw);
-        }
-    }
+	public void setWatcher(String name, SoundsWatcher sw)
+		/*
+				* Set up a watcher for the clip. It will be notified when the clip loops or stops.
+				*/ {
+		ClipInfo ci = (ClipInfo) clipsMap.get(name);
+		if (ci == null) {
+			System.out.println("Error: " + name + "not stored");
+		} else {
+			ci.setWatcher(sw);
+		}
+	}
 
-    // -------------------------------------------------------
-    public void stop(String name)
-    // stop the clip, resetting it to the beginning
-    {
-        ClipInfo ci = (ClipInfo) clipsMap.get(name);
-        if (ci == null) {
-            System.out.println("Error: " + name + "not stored");
-        } else {
-            ci.stop();
-        }
-    }
+	// -------------------------------------------------------
+	public void stop(String name)
+	// stop the clip, resetting it to the beginning
+	{
+		ClipInfo ci = (ClipInfo) clipsMap.get(name);
+		if (ci == null) {
+			System.out.println("Error: " + name + "not stored");
+		} else {
+			ci.stop();
+		}
+	}
 } 

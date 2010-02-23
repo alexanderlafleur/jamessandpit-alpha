@@ -33,98 +33,98 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class TileNode {
-    private Point coord;
-    private double costFromStart;
-    private double costToGoal;
-    private TileNode parent;
+	private Point coord;
+	private double costFromStart;
+	private double costToGoal;
+	private TileNode parent;
 
-    // can be used to build a path from the starting tile to here
-    public TileNode(Point p) {
-        coord = p;
-        parent = null;
-        costFromStart = 0.0;
-    }
+	// can be used to build a path from the starting tile to here
+	public TileNode(Point p) {
+		coord = p;
+		parent = null;
+		costFromStart = 0.0;
+	}
 
-    public ArrayList buildPath()
-        /*
-        * Build a path (a list of Points) from the next tile after the start up to the this tile.
-        */ {
-        ArrayList path = new ArrayList();
-        path.add(coord);
-        TileNode temp = parent;
-        while (temp != null) {
-            path.add(0, temp.getPoint()); // add at start to reverse the path
-            temp = temp.getParent();
-        }
-        path.remove(0); // remove the starting tile, since the alien is already
-        // there
-        return path;
-    }
+	public ArrayList buildPath()
+		/*
+				* Build a path (a list of Points) from the next tile after the start up to the this tile.
+				*/ {
+		ArrayList path = new ArrayList();
+		path.add(coord);
+		TileNode temp = parent;
+		while (temp != null) {
+			path.add(0, temp.getPoint()); // add at start to reverse the path
+			temp = temp.getParent();
+		}
+		path.remove(0); // remove the starting tile, since the alien is already
+		// there
+		return path;
+	}
 
-    public void costToGoal(Point goal)
-    // calculate _floor_ of the straight line dist. to the goal
-    {
-        double dist = coord.distance(goal.x, goal.y);
-        costToGoal = Math.floor(dist);
-        // System.out.println(coord + " to " + goal + ": " + costToGoal);
-    }
+	public void costToGoal(Point goal)
+	// calculate _floor_ of the straight line dist. to the goal
+	{
+		double dist = coord.distance(goal.x, goal.y);
+		costToGoal = Math.floor(dist);
+		// System.out.println(coord + " to " + goal + ": " + costToGoal);
+	}
 
-    public double getCostFromStart() {
-        return costFromStart;
-    }
+	public double getCostFromStart() {
+		return costFromStart;
+	}
 
-    public TileNode getParent() {
-        return parent;
-    }
+	public TileNode getParent() {
+		return parent;
+	}
 
-    public Point getPoint() {
-        return coord;
-    }
+	public Point getPoint() {
+		return coord;
+	}
 
-    public double getScore() {
-        return costFromStart + costToGoal;
-    }
+	public double getScore() {
+		return costFromStart + costToGoal;
+	}
 
-    public TileNode makeNeighbour(int quad, WorldDisplay wd)
-        /*
-        * Return the neighbouring tile node in the quad direction, except when that location is invalid according to WorldDisplay.
-        */ {
-        TileNode newNode;
-        int x = coord.x; // so less typing in the next few lines :)
-        int y = coord.y;
-        if (quad == TiledSprite.NE) {
-            newNode = y % 2 == 0 ? makeNode(x, y - 1, wd) : makeNode(x + 1, y - 1, wd);
-        } else if (quad == TiledSprite.SE) {
-            newNode = y % 2 == 0 ? makeNode(x, y + 1, wd) : makeNode(x + 1, y + 1, wd);
-        } else if (quad == TiledSprite.SW) {
-            newNode = y % 2 == 0 ? makeNode(x - 1, y + 1, wd) : makeNode(x, y + 1, wd);
-        } else if (quad == TiledSprite.NW) {
-            newNode = y % 2 == 0 ? makeNode(x - 1, y - 1, wd) : makeNode(x, y - 1, wd);
-        } else {
-            System.out.println("makeNeighbour() error");
-            newNode = null;
-        }
-        return newNode;
-    }
+	public TileNode makeNeighbour(int quad, WorldDisplay wd)
+		/*
+				* Return the neighbouring tile node in the quad direction, except when that location is invalid according to WorldDisplay.
+				*/ {
+		TileNode newNode;
+		int x = coord.x; // so less typing in the next few lines :)
+		int y = coord.y;
+		if (quad == TiledSprite.NE) {
+			newNode = y % 2 == 0 ? makeNode(x, y - 1, wd) : makeNode(x + 1, y - 1, wd);
+		} else if (quad == TiledSprite.SE) {
+			newNode = y % 2 == 0 ? makeNode(x, y + 1, wd) : makeNode(x + 1, y + 1, wd);
+		} else if (quad == TiledSprite.SW) {
+			newNode = y % 2 == 0 ? makeNode(x - 1, y + 1, wd) : makeNode(x, y + 1, wd);
+		} else if (quad == TiledSprite.NW) {
+			newNode = y % 2 == 0 ? makeNode(x - 1, y - 1, wd) : makeNode(x, y - 1, wd);
+		} else {
+			System.out.println("makeNeighbour() error");
+			newNode = null;
+		}
+		return newNode;
+	}
 
-    private TileNode makeNode(int x, int y, WorldDisplay wd)
-        /*
-        * Create a neigbouring tile node. costFromStart is one more than the current node's value, since the new node is one node further along the path.
-        */ {
-        if (!wd.validTileLoc(x, y)) {
-            return null;
-        }
-        TileNode newNode = new TileNode(new Point(x, y));
-        newNode.setCostFromStart(getCostFromStart() + 1.0);
-        newNode.setParent(this);
-        return newNode;
-    }
+	private TileNode makeNode(int x, int y, WorldDisplay wd)
+		/*
+				* Create a neigbouring tile node. costFromStart is one more than the current node's value, since the new node is one node further along the path.
+				*/ {
+		if (!wd.validTileLoc(x, y)) {
+			return null;
+		}
+		TileNode newNode = new TileNode(new Point(x, y));
+		newNode.setCostFromStart(getCostFromStart() + 1.0);
+		newNode.setParent(this);
+		return newNode;
+	}
 
-    public void setCostFromStart(double v) {
-        costFromStart = v;
-    }
+	public void setCostFromStart(double v) {
+		costFromStart = v;
+	}
 
-    public void setParent(TileNode p) {
-        parent = p;
-    }
+	public void setParent(TileNode p) {
+		parent = p;
+	}
 }

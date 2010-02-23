@@ -53,60 +53,60 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 public class AlienTiles extends JFrame implements WindowListener {
-    private static int DEFAULT_FPS = 40;
-    private static final long serialVersionUID = 615308493168699580L;
+	private static int DEFAULT_FPS = 40;
+	private static final long serialVersionUID = 615308493168699580L;
 
-    public static void main(String args[]) {
-        long period = (long) 1000.0 / DEFAULT_FPS;
-        // System.out.println("fps: " + DEFAULT_FPS + "; period: " + period + "
-        // ms");
-        new AlienTiles(period * 1000000L); // ms --> nanosecs
-    }
+	public static void main(String args[]) {
+		long period = (long) 1000.0 / DEFAULT_FPS;
+		// System.out.println("fps: " + DEFAULT_FPS + "; period: " + period + "
+		// ms");
+		new AlienTiles(period * 1000000L); // ms --> nanosecs
+	}
 
-    private AlienTilesPanel atp; // where the game is drawn
-    private MidisLoader midisLoader;
+	private AlienTilesPanel atp; // where the game is drawn
+	private MidisLoader midisLoader;
 
-    // ----------------- window listener methods -------------
-    public AlienTiles(long period) {
-        super("AlienTiles");
-        // load the background MIDI sequence
-        midisLoader = new MidisLoader();
-        midisLoader.load("mi", "Mission_Impossible.mid");
-        midisLoader.play("mi", true); // repeatedly play it
-        Container c = getContentPane(); // default BorderLayout used
-        atp = new AlienTilesPanel(this, period);
-        c.add(atp, "Center");
-        addWindowListener(this);
-        pack();
-        setResizable(false);
-        setVisible(true);
-    }
+	// ----------------- window listener methods -------------
+	public AlienTiles(long period) {
+		super("AlienTiles");
+		// load the background MIDI sequence
+		midisLoader = new MidisLoader();
+		midisLoader.load("mi", "Mission_Impossible.mid");
+		midisLoader.play("mi", true); // repeatedly play it
+		Container c = getContentPane(); // default BorderLayout used
+		atp = new AlienTilesPanel(this, period);
+		c.add(atp, "Center");
+		addWindowListener(this);
+		pack();
+		setResizable(false);
+		setVisible(true);
+	}
 
-    public void windowActivated(WindowEvent e) {
-        atp.resumeGame();
-    }
+	public void windowActivated(WindowEvent e) {
+		atp.resumeGame();
+	}
 
-    public void windowClosed(WindowEvent e) {
-    }
+	public void windowClosed(WindowEvent e) {
+	}
 
-    public void windowClosing(WindowEvent e) {
-        atp.stopGame();
-        midisLoader.close(); // not really required
-    }
+	public void windowClosing(WindowEvent e) {
+		atp.stopGame();
+		midisLoader.close(); // not really required
+	}
 
-    public void windowDeactivated(WindowEvent e) {
-        atp.pauseGame();
-    }
+	public void windowDeactivated(WindowEvent e) {
+		atp.pauseGame();
+	}
 
-    public void windowDeiconified(WindowEvent e) {
-        atp.resumeGame();
-    }
+	public void windowDeiconified(WindowEvent e) {
+		atp.resumeGame();
+	}
 
-    public void windowIconified(WindowEvent e) {
-        atp.pauseGame();
-    }
+	public void windowIconified(WindowEvent e) {
+		atp.pauseGame();
+	}
 
-    // ----------------------------------------------------
-    public void windowOpened(WindowEvent e) {
-    }
+	// ----------------------------------------------------
+	public void windowOpened(WindowEvent e) {
+	}
 } 
