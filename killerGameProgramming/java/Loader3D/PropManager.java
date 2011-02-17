@@ -65,10 +65,10 @@ public class PropManager {
     private static final int DECR = 1;
     private static final int INCR = 0;
     private static final double MOVE_INCR = 0.1; // move increment for an
-    // object
-    private static final double ROT_AMT = Math.toRadians(ROT_INCR); // in
     // radians
     private static final double ROT_INCR = 10; // rotation increment (in
+    // object
+    private static final double ROT_AMT = Math.toRadians(ROT_INCR); // in
     // degrees)
     // for specifying moves and rotations
     private static final int X_AXIS = 0;
