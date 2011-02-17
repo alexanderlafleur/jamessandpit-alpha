@@ -40,11 +40,11 @@ import com.sun.j3d.utils.geometry.Cylinder;
 
 public class LaserShot {
     private static final double HIT_RANGE = 1.0; // how close to count as a
+    private static final double STEP = 1.0; // distance travelled each increment
     // hit
     private static final Vector3d INCR_VEC = new Vector3d(0, 0, -STEP);
     private static final double MAX_RANGE = 6.0; // max distance travelled
     private static final long SLEEP_TIME = 100; // delay between moves of beam
-    private static final double STEP = 1.0; // distance travelled each increment
     private Cylinder beam; // the beam is a cylinder
     private Switch beamSW; // for beam/explosion visibility
     private TransformGroup beamTG; // moving the beam/explosion

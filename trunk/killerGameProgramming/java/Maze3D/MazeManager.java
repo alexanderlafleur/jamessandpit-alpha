@@ -55,9 +55,9 @@ public class MazeManager {
     // for a block, RADIUS == length of a side/2
     private final static float HEIGHT = 3.0f;
     private static final int IMAGE_LEN = 240;
+    private static final int LEN = 40; // max sides of maze plan (should be
     // size of 2D maze image (should be a multiple of LEN)
     private static final int IMAGE_STEP = IMAGE_LEN / LEN;
-    private static final int LEN = 40; // max sides of maze plan (should be
     // even)
     private final static Color3f medgreen = new Color3f(0.0f, 0.5f, 0.1f);
     // obstacle dimensions (for both blocks and cylinders)

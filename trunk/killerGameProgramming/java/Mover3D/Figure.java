@@ -52,6 +52,8 @@ import javax.media.j3d.TransformGroup;
 import javax.vecmath.Vector3d;
 
 public class Figure {
+    // figure movement constants
+    private final static double MOVERATE = 0.3;
     private final static int BACK = 1;
     private static final Vector3d backVec = new Vector3d(0, 0, -MOVERATE);
     private final static int CCLOCK = 1; // counter clockwise
@@ -63,8 +65,6 @@ public class Figure {
     private static final Vector3d fwdVec = new Vector3d(0, 0, MOVERATE);
     private final static int LEFT = 2;
     private static final Vector3d leftVec = new Vector3d(-MOVERATE, 0, 0);
-    // figure movement constants
-    private final static double MOVERATE = 0.3;
     private final static int RIGHT = 3;
     private static final Vector3d rightVec = new Vector3d(MOVERATE, 0, 0);
     private final static double ROTATE_AMT = Math.PI / 16.0; // 11.25 degrees

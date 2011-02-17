@@ -23,12 +23,12 @@ import javax.vecmath.Vector3d;
 import com.sun.j3d.utils.behaviors.vp.ViewPlatformBehavior;
 
 public class KeyBehavior extends ViewPlatformBehavior {
+    private static final double MOVE_STEP = 0.2;
     private static final Vector3d BACK = new Vector3d(0, 0, MOVE_STEP);
     private static final Vector3d DOWN = new Vector3d(0, -MOVE_STEP, 0);
     // hardwired movement vectors
     private static final Vector3d FWD = new Vector3d(0, 0, -MOVE_STEP);
     private static final Vector3d LEFT = new Vector3d(-MOVE_STEP, 0, 0);
-    private static final double MOVE_STEP = 0.2;
     private static final Vector3d RIGHT = new Vector3d(MOVE_STEP, 0, 0);
     private static final double ROT_AMT = Math.PI / 36.0; // 5 degrees
     private static final Vector3d UP = new Vector3d(0, MOVE_STEP, 0);
